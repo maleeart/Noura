@@ -1,5 +1,6 @@
 {
   "profile": {
+    "deficitRate": 0.2,
     "weight": 64.6,
     "height": 167,
     "age": 31,
@@ -644,6 +645,17 @@
     }
   ],
   "workouts": [
+    {
+      "id": "workout-1781716334087-410f8b29b037e8",
+      "source": "manual",
+      "date": "2026-06-16",
+      "time": "00:12",
+      "type": "Basketball",
+      "name": "Basketball",
+      "durationMin": 46,
+      "distanceKm": 0,
+      "calories": 396
+    },
     {
       "id": "workout-1781712791714-5451f7b292418",
       "source": "manual",
@@ -1290,6 +1302,6 @@
   "meta": {
     "app": "Noura",
     "version": "1.0.0",
-    "updatedAt": "2026-06-17T16:13:12.509Z"
+    "updatedAt": "2026-06-17T17:12:14.767Z"
   }
 }
