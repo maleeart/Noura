@@ -183,8 +183,8 @@ function renderToday() {
   const goalRemain = goalRemaining();
   const pct = Math.max(0, Math.min(100, Math.round((d.eaten / Math.max(dynamic,1))*100)));
   const proteinPct = Math.max(0, Math.min(160, Math.round((d.protein / Math.max(Number(p.proteinGoal||1),1))*100)));
-  const statusText = goalRemain >= 0 ? 'ยังต่ำกว่า Goal' : 'กินเกิน Goal';
-  const statusCls = goalRemain >= 0 ? 'text-green-600 bg-green-50 border-green-100' : 'text-red-600 bg-red-50 border-red-100';
+  const statusText = remain >= 0 ? 'ยังต่ำกว่า TDEE' : 'กินเกิน TDEE';
+  const statusCls = remain >= 0 ? 'text-green-600 bg-green-50 border-green-100' : 'text-red-600 bg-red-50 border-red-100';
   return `
     <section class="panel rounded-[34px] p-4 mb-4">
       <div class="flex items-center gap-2 mb-4">
@@ -220,7 +220,7 @@ function renderToday() {
         </div>
         <div class="pl-1">
           <div class="text-orange-400 text-xl">🔥</div>
-          <div class="text-xs text-white/60 font-bold mt-1">คงเหลือจาก Goal</div>
+          <div class="text-xs text-white/60 font-bold mt-1">เหลือสุทธิจาก TDEE</div>
           <div class="text-2xl font-black ${goalRemain>=0?'text-white':'text-orange-400'}">${fmt(goalRemain)} kcal</div>
           <div class="text-[11px] text-white/55 mt-1">เหลือสุทธิใช้ TDEE - กินแล้ว</div>
         </div>
@@ -262,7 +262,7 @@ function renderMiniHistory() {
 function renderInsight() {
   const d=dayTotals(), p=state.data.profile, goalR=goalRemaining();
   let text = d.protein >= Number(p.proteinGoal||0) ? 'คุณทำยอดโปรตีนได้ดีมาก 💪 คุมแคลอรีให้ใกล้เป้าหมายอีกนิด ผลลัพธ์จะนิ่งขึ้นนะ!' : 'วันนี้โปรตีนยังต่ำกว่าเป้าหมาย ลองเพิ่มเวย์ ไข่ หรืออกไก่อีกนิดจะช่วยให้อิ่มและรักษากล้ามเนื้อได้ดีขึ้น';
-  if(goalR < 0) text = 'วันนี้กินเกิน Goal แล้ว แต่ยังดูจาก TDEE ได้อยู่ พรุ่งนี้คุมให้กลับเข้าโซนอีกครั้งได้สบายมาก';
+  if(goalR < 0) text = 'วันนี้กินเกิน TDEE แล้ว แต่ยังดูจาก TDEE ได้อยู่ พรุ่งนี้คุมให้กลับเข้าโซนอีกครั้งได้สบายมาก';
   return `<section class="rounded-[30px] p-4 mb-4 bg-gradient-to-br from-green-50 to-white border border-green-100 flex gap-3 items-center"><div class="text-3xl">✨</div><div class="flex-1"><h2 class="font-black">Insight สำหรับคุณ</h2><p class="text-sm text-stone-600 mt-1">${text}</p></div><div class="text-5xl">🌱</div></section>`;
 }
 
@@ -276,6 +276,7 @@ function renderFood() {
   const barPct = Math.min(140, goalPct);
   const remainCls = remain >= 0 ? 'text-green-300' : 'text-red-300';
   const goalRemainCls = goalRemain >= 0 ? 'text-orange-300' : 'text-red-300';
+  const netRemainCls = remain >= 0 ? 'text-green-300' : 'text-red-300';
 
   return `
     <section class="bg-stone-950 text-white rounded-[30px] p-5 mb-4 shadow-xl shadow-stone-300/60 overflow-hidden relative">
@@ -313,7 +314,7 @@ function renderFood() {
       </div>
       <div class="relative mt-2 flex justify-between text-xs">
         <span class="text-white/55">${fmt(goalPct)}% ของ Goal</span>
-        <span class="${goalRemainCls} font-black">คงเหลือจาก Goal ${fmt(goalRemain)} kcal</span>
+        <span class="${netRemainCls} font-black">เหลือสุทธิจาก TDEE ${fmt(remain)} kcal</span>
       </div>
       <div class="relative mt-3 grid grid-cols-2 gap-2 text-xs text-white/55">
         <div>Goal ${fmt(g)} kcal</div>
