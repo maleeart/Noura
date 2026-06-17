@@ -267,7 +267,60 @@ function renderInsight() {
 }
 
 function renderFood() {
+  const d = dayTotals();
+  const dynamic = dynamicTDEE();
+  const g = goal();
+  const remain = netRemaining(); // เหลือสุทธิ = Dynamic TDEE - กินแล้ว
+  const goalRemain = goalRemaining();
+  const goalPct = Math.max(0, Math.round((d.eaten / Math.max(g, 1)) * 100));
+  const barPct = Math.min(140, goalPct);
+  const remainCls = remain >= 0 ? 'text-green-300' : 'text-red-300';
+  const goalRemainCls = goalRemain >= 0 ? 'text-orange-300' : 'text-red-300';
+
   return `
+    <section class="bg-stone-950 text-white rounded-[30px] p-5 mb-4 shadow-xl shadow-stone-300/60 overflow-hidden relative">
+      <div class="absolute -right-10 -top-10 w-36 h-36 rounded-full bg-orange-500/20 blur-2xl"></div>
+      <div class="absolute -left-10 -bottom-12 w-40 h-40 rounded-full bg-green-500/20 blur-2xl"></div>
+
+      <div class="relative flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-xl font-black">สรุปวันนี้</h2>
+          <p class="text-xs text-white/45 mt-1">เหลือสุทธิคิดจาก TDEE วันนี้ - กินแล้ว</p>
+        </div>
+        <button onclick="state.selectedDate=todayStr();render()" class="text-xs bg-white/10 border border-white/10 px-3 py-2 rounded-full font-black">วันนี้</button>
+      </div>
+
+      <div class="relative grid grid-cols-3 gap-3">
+        <div class="border-r border-white/10 pr-3">
+          <div class="text-xs text-white/50 font-bold">กินแล้ว</div>
+          <div class="text-3xl font-black mt-1">${fmt(d.eaten)}</div>
+          <div class="text-xs text-white/60">kcal</div>
+        </div>
+        <div class="border-r border-white/10 pr-3">
+          <div class="text-xs text-white/50 font-bold">TDEE</div>
+          <div class="text-3xl font-black mt-1">${fmt(dynamic)}</div>
+          <div class="text-xs text-white/60">kcal</div>
+        </div>
+        <div>
+          <div class="text-xs text-white/50 font-bold">เหลือสุทธิ</div>
+          <div class="text-3xl font-black mt-1 ${remainCls}">${fmt(remain)}</div>
+          <div class="text-xs text-white/60">kcal</div>
+        </div>
+      </div>
+
+      <div class="relative mt-4 h-3 bg-white/10 rounded-full overflow-hidden">
+        <div class="h-full rounded-full bg-gradient-to-r from-yellow-400 via-orange-400 to-red-500" style="width:${Math.min(100, barPct)}%"></div>
+      </div>
+      <div class="relative mt-2 flex justify-between text-xs">
+        <span class="text-white/55">${fmt(goalPct)}% ของ Goal</span>
+        <span class="${goalRemainCls} font-black">คงเหลือจาก Goal ${fmt(goalRemain)} kcal</span>
+      </div>
+      <div class="relative mt-3 grid grid-cols-2 gap-2 text-xs text-white/55">
+        <div>Goal ${fmt(g)} kcal</div>
+        <div class="text-right">โปรตีน ${fmt1(d.protein)} / ${fmt(state.data.profile.proteinGoal)} g</div>
+      </div>
+    </section>
+
     ${card(`<div class="flex items-center justify-between mb-3"><h2 class="text-xl font-black">เพิ่มอาหาร</h2><span class="text-2xl">🍴</span></div>
       ${input('วันที่', 'foodDate', state.selectedDate, 'date')}
       ${input('เมนู', 'foodMenu', '', 'text', 'placeholder="เช่น ข้าวมันไก่ + โกโก้ไม่หวาน"')}
