@@ -89,7 +89,9 @@ function goal(date = state.selectedDate) {
 }
 function netRemaining(date = state.selectedDate) {
   const d = dayTotals(date);
-  return goal(date) - d.eaten;
+  // เหลือสุทธิ = Dynamic TDEE ของวันนั้น - Calories ที่กินแล้ว
+  // Goal ยังเป็นเป้าหมาย Deficit 20% แยกไว้สำหรับคุมแคลอรี่
+  return dynamicTDEE(date) - d.eaten;
 }
 
 
