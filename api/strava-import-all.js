@@ -114,3 +114,10 @@ module.exports = async (req, res) => {
     return send(res, 500, { success: false, error: err.message });
   }
 };
+console.log('Strava token response:', token);
+if (!tokenRes.ok) {
+  return res.status(500).json({
+    success: false,
+    strava: token
+  });
+}
