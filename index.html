@@ -221,8 +221,8 @@ function renderToday() {
         <div class="pl-1">
           <div class="text-orange-400 text-xl">🔥</div>
           <div class="text-xs text-white/60 font-bold mt-1">เหลือสุทธิจาก TDEE</div>
-          <div class="text-2xl font-black ${goalRemain>=0?'text-white':'text-orange-400'}">${fmt(goalRemain)} kcal</div>
-          <div class="text-[11px] text-white/55 mt-1">เหลือสุทธิใช้ TDEE - กินแล้ว</div>
+          <div class="text-2xl font-black ${remain>=0?'text-green-300':'text-red-300'}">${fmt(remain)} kcal</div>
+          <div class="text-[11px] text-white/55 mt-1">Dynamic TDEE - กินแล้ว</div>
         </div>
       </div>
 
@@ -260,7 +260,7 @@ function renderMiniHistory() {
     <div class="flex items-end gap-3 h-36 px-1">${out.map(x=>{ const h=22+Math.round(Math.abs(x.remain)/max*85); const cls=x.remain<0?'bad':(x.remain<150?'warn':''); const day=new Date(x.date).toLocaleDateString('th-TH',{weekday:'short'}); return `<button onclick="state.selectedDate='${x.date}';state.tab='today';render()" class="flex-1 text-center"><div class="text-xs font-black ${x.remain<0?'text-red-500':x.remain<150?'text-orange-500':'text-green-600'}">${x.remain>0?'+':''}${fmt(x.remain)}</div><div class="bar ${cls} mx-auto mt-1" style="height:${h}px"></div><div class="text-[11px] text-stone-500 mt-1">${day}</div></button>`}).join('')}</div>`);
 }
 function renderInsight() {
-  const d=dayTotals(), p=state.data.profile, goalR=goalRemaining();
+  const d=dayTotals(), p=state.data.profile, goalR=netRemaining();
   let text = d.protein >= Number(p.proteinGoal||0) ? 'คุณทำยอดโปรตีนได้ดีมาก 💪 คุมแคลอรีให้ใกล้เป้าหมายอีกนิด ผลลัพธ์จะนิ่งขึ้นนะ!' : 'วันนี้โปรตีนยังต่ำกว่าเป้าหมาย ลองเพิ่มเวย์ ไข่ หรืออกไก่อีกนิดจะช่วยให้อิ่มและรักษากล้ามเนื้อได้ดีขึ้น';
   if(goalR < 0) text = 'วันนี้กินเกิน TDEE แล้ว แต่ยังดูจาก TDEE ได้อยู่ พรุ่งนี้คุมให้กลับเข้าโซนอีกครั้งได้สบายมาก';
   return `<section class="rounded-[30px] p-4 mb-4 bg-gradient-to-br from-green-50 to-white border border-green-100 flex gap-3 items-center"><div class="text-3xl">✨</div><div class="flex-1"><h2 class="font-black">Insight สำหรับคุณ</h2><p class="text-sm text-stone-600 mt-1">${text}</p></div><div class="text-5xl">🌱</div></section>`;
