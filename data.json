@@ -1,8 +1,20 @@
-// Noura public config (ปลอดภัยสำหรับ commit ขึ้น GitHub)
-// Secret ทั้งหมดให้ตั้งใน Vercel Environment Variables เท่านั้น
-
-const CONFIG = {
-  APP_NAME: 'Noura',
-  API_BASE: '', // ใช้ path เดียวกับโดเมน Vercel เช่น /api/data
-  DATA_PATH: 'data.json'
-};
+{
+  "profile": {
+    "weight": 64.6,
+    "height": 167,
+    "age": 31,
+    "sex": "male",
+    "activity": 1.55,
+    "proteinGoal": 120,
+    "calorieGoalMode": "tdee",
+    "customCalorieGoal": 2300
+  },
+  "foods": [],
+  "workouts": [],
+  "steps": [],
+  "meta": {
+    "app": "Noura",
+    "version": "1.0.0",
+    "updatedAt": ""
+  }
+}
