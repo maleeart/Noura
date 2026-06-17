@@ -4,10 +4,10 @@
     "height": 167,
     "age": 31,
     "sex": "male",
-    "activity": 1.55,
+    "activity": 1.2,
     "proteinGoal": 120,
     "calorieGoalMode": "tdee",
-    "customCalorieGoal": 2300
+    "customCalorieGoal": 1800
   },
   "foods": [
     {
