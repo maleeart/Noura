@@ -39,7 +39,7 @@
         "sport_type": "Run",
         "type": "Run"
       },
-      "importedAt": "2026-06-17T15:37:07.744Z"
+      "importedAt": "2026-06-17T15:38:12.019Z"
     },
     {
       "id": "strava-18943047306",
@@ -655,6 +655,6 @@
   "meta": {
     "app": "Noura",
     "version": "1.0.0",
-    "updatedAt": "2026-06-17T15:37:07.870Z"
+    "updatedAt": "2026-06-17T15:38:12.188Z"
   }
 }
