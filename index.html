@@ -41,7 +41,7 @@ let state = {
   tab: 'today',
   selectedDate: todayStr(),
   data: {
-    profile: { weight: 64.6, height: 167, age: 31, sex: 'male', activity: 1.2, proteinGoal: 120, calorieGoalMode: 'tdee', customCalorieGoal: 1800 },
+    profile: { weight: 64.6, height: 167, age: 31, sex: 'male', activity: 1.55, proteinGoal: 120, calorieGoalMode: 'tdee', customCalorieGoal: 2300, deficitRate: 0.20 },
     foods: [], workouts: [], steps: [], meta: { app: 'Noura', version: '1.0.0' }
   },
   sha: null,
@@ -53,8 +53,17 @@ function bmr(profile) {
   const w = Number(profile.weight || 0), h = Number(profile.height || 0), a = Number(profile.age || 0);
   return Math.round(10*w + 6.25*h - 5*a + (profile.sex === 'female' ? -161 : 5));
 }
-function tdee(profile) { return Math.round(bmr(profile) * Number(profile.activity || 1.2)); }
-function goal(profile) { return profile.calorieGoalMode === 'custom' ? Number(profile.customCalorieGoal || tdee(profile)) : tdee(profile); }
+
+// Base TDEE = BMR x activity factor.
+// Dynamic TDEE = Base TDEE + calories burned from workouts/steps on that date.
+// Goal = calories deficit target from Dynamic TDEE.
+// Default deficitRate = 20% and never let Goal go below BMR.
+function baseTDEE(profile) { return Math.round(bmr(profile) * Number(profile.activity || 1.2)); }
+function tdee(profile) { return baseTDEE(profile); } // backward-compatible alias
+function deficitRate(profile) {
+  const rate = Number(profile.deficitRate ?? 0.20);
+  return Math.min(Math.max(rate, 0), 0.30);
+}
 function byDate(arr, date) { return (arr || []).filter(x => x.date === date); }
 function sum(arr, key) { return (arr || []).reduce((a,x) => a + Number(x[key] || 0), 0); }
 function dayTotals(date = state.selectedDate) {
@@ -68,9 +77,19 @@ function dayTotals(date = state.selectedDate) {
     foods, workouts, steps
   };
 }
+function dynamicTDEE(date = state.selectedDate) {
+  const d = dayTotals(date);
+  return baseTDEE(state.data.profile) + d.burned;
+}
+function goal(date = state.selectedDate) {
+  const p = state.data.profile;
+  const minGoal = bmr(p);
+  const deficitGoal = Math.round(dynamicTDEE(date) * (1 - deficitRate(p)));
+  return Math.max(minGoal, deficitGoal);
+}
 function netRemaining(date = state.selectedDate) {
   const d = dayTotals(date);
-  return goal(state.data.profile) + d.burned - d.eaten;
+  return goal(date) - d.eaten;
 }
 
 
@@ -128,7 +147,8 @@ function renderToday() {
   const p = state.data.profile;
   const d = dayTotals();
   const remain = netRemaining();
-  const g = goal(p);
+  const dynamic = dynamicTDEE();
+  const g = goal();
   const pct = Math.min(100, Math.round((d.eaten / Math.max(g,1))*100));
   return `
     ${card(`
@@ -143,7 +163,8 @@ function renderToday() {
         <div class="bg-orange-50 rounded-3xl p-4"><div class="text-xs text-orange-700 font-bold">เผาผลาญ</div><div class="text-2xl font-black">${fmt(d.burned)} kcal</div></div>
       </div>
       <div class="mt-4 h-3 bg-stone-100 rounded-full overflow-hidden"><div class="h-full bg-stone-900" style="width:${pct}%"></div></div>
-      <p class="text-xs text-stone-500 mt-2">BMR ${fmt(bmr(p))} • TDEE ${fmt(tdee(p))} • Goal ${fmt(g)}</p>
+      <p class="text-xs text-stone-500 mt-2">BMR ${fmt(bmr(p))} • TDEE ${fmt(dynamic)} • Goal ${fmt(g)}</p>
+      <p class="text-[11px] text-stone-400 mt-1">Goal = TDEE - ${Math.round(deficitRate(p)*100)}% deficit, ขั้นต่ำไม่ต่ำกว่า BMR</p>
     `)}
     ${renderQuickAdd()}
     ${card(`<h2 class="font-black mb-2">รายการวันนี้</h2>${renderDayList()}`)}
@@ -326,7 +347,7 @@ function renderProfile() {
       ${[[1.2,'นั่งทำงาน'],[1.375,'เบา 1-3 วัน'],[1.55,'ปานกลาง 3-5 วัน'],[1.725,'หนัก 6-7 วัน']].map(a=>`<option value="${a[0]}" ${Number(p.activity)==a[0]?'selected':''}>${a[1]} (${a[0]})</option>`).join('')}
     </select>
     <button onclick="saveProfile()" class="w-full bg-stone-900 text-white rounded-2xl py-3 font-bold">บันทึก Profile</button>
-    <p class="text-sm text-stone-500 mt-3">BMR ${fmt(bmr(p))} • TDEE ${fmt(tdee(p))}</p>
+    <p class="text-sm text-stone-500 mt-3">BMR ${fmt(bmr(p))} • Base TDEE ${fmt(baseTDEE(p))} • Deficit ${Math.round(deficitRate(p)*100)}%</p>
   `);
 }
 
