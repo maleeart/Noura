@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="Noura.png">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#111827" />
+  <title>Noura</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="config.js"></script>
+</head>
+<body class="bg-stone-100 text-stone-900 min-h-screen pb-24">
+  <div class="max-w-md mx-auto p-4">
+    <header class="flex items-center gap-3 mb-4 pt-2">
+      <img src="Noura.png" class="w-12 h-12 rounded-2xl shadow object-cover" alt="Noura logo" />
+      <div>
+        <h1 class="text-3xl font-black tracking-tight">Noura</h1>
+        <p class="text-xs text-stone-500">Calories • TDEE • Workout</p>
+      </div>
+      <button id="syncBtn" class="ml-auto text-xs bg-stone-900 text-white px-3 py-2 rounded-xl">Sync</button>
+    </header>
+
+    <nav class="grid grid-cols-4 gap-2 bg-white p-2 rounded-3xl shadow-sm sticky top-2 z-10 mb-4">
+      <button data-tab="today" class="tabBtn px-2 py-2 rounded-2xl text-sm font-bold bg-stone-900 text-white">Today</button>
+      <button data-tab="food" class="tabBtn px-2 py-2 rounded-2xl text-sm font-bold text-stone-500">Food</button>
+      <button data-tab="workout" class="tabBtn px-2 py-2 rounded-2xl text-sm font-bold text-stone-500">Workout</button>
+      <button data-tab="history" class="tabBtn px-2 py-2 rounded-2xl text-sm font-bold text-stone-500">History</button>
+    </nav>
+
+    <main id="app"></main>
+  </div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const fmt = (n) => Number(n || 0).toLocaleString('th-TH', { maximumFractionDigits: 0 });
+const todayStr = () => new Date().toISOString().slice(0,10);
+const uid = (p='id') => `${p}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+let state = {
+  tab: 'today',
+  selectedDate: todayStr(),
+  data: {
+    profile: { weight: 64.6, height: 167, age: 31, sex: 'male', activity: 1.55, proteinGoal: 120, calorieGoalMode: 'tdee', customCalorieGoal: 2300 },
+    foods: [], workouts: [], steps: [], meta: { app: 'Noura', version: '1.0.0' }
+  },
+  sha: null,
+  loading: false,
+  message: ''
+};
+
+function bmr(profile) {
+  const w = Number(profile.weight || 0), h = Number(profile.height || 0), a = Number(profile.age || 0);
+  return Math.round(10*w + 6.25*h - 5*a + (profile.sex === 'female' ? -161 : 5));
+}
+function tdee(profile) { return Math.round(bmr(profile) * Number(profile.activity || 1.2)); }
+function goal(profile) { return profile.calorieGoalMode === 'custom' ? Number(profile.customCalorieGoal || tdee(profile)) : tdee(profile); }
+function byDate(arr, date) { return (arr || []).filter(x => x.date === date); }
+function sum(arr, key) { return (arr || []).reduce((a,x) => a + Number(x[key] || 0), 0); }
+function dayTotals(date = state.selectedDate) {
+  const foods = byDate(state.data.foods, date);
+  const workouts = byDate(state.data.workouts, date);
+  const steps = byDate(state.data.steps, date);
+  return {
+    eaten: sum(foods, 'calories'),
+    protein: sum(foods, 'protein'),
+    burned: sum(workouts, 'calories') + sum(steps, 'calories'),
+    foods, workouts, steps
+  };
+}
+function netRemaining(date = state.selectedDate) {
+  const d = dayTotals(date);
+  return goal(state.data.profile) + d.burned - d.eaten;
+}
+
+async function loadData() {
+  const local = localStorage.getItem('noura-data');
+  if (local) {
+    try { state.data = { ...state.data, ...JSON.parse(local) }; } catch(e) {}
+  }
+
+  const gh = CONFIG.getGH && CONFIG.getGH();
+  if (!gh) return;
+  try {
+    const url = `https://api.github.com/repos/${CONFIG.GH_OWNER}/${CONFIG.GH_REPO}/contents/${CONFIG.DATA_PATH}?ref=${CONFIG.GH_BRANCH}`;
+    const r = await fetch(url, { headers: { Authorization: `Bearer ${gh}`, Accept: 'application/vnd.github+json' } });
+    if (!r.ok) throw new Error('โหลด GitHub ไม่สำเร็จ');
+    const j = await r.json();
+    state.sha = j.sha;
+    const text = atob(j.content.replace(/\n/g, ''));
+    state.data = { ...state.data, ...JSON.parse(text) };
+    localStorage.setItem('noura-data', JSON.stringify(state.data));
+  } catch (e) { state.message = e.message; }
+}
+
+async function saveData(message = 'Update Noura data') {
+  state.data.meta = { ...(state.data.meta || {}), app: 'Noura', updatedAt: new Date().toISOString() };
+  localStorage.setItem('noura-data', JSON.stringify(state.data));
+
+  const gh = CONFIG.getGH && CONFIG.getGH();
+  if (!gh) { state.message = 'บันทึกในเครื่องแล้ว / ยังไม่ได้ตั้ง GitHub token'; render(); return; }
+
+  try {
+    if (!state.sha) await loadData();
+    const url = `https://api.github.com/repos/${CONFIG.GH_OWNER}/${CONFIG.GH_REPO}/contents/${CONFIG.DATA_PATH}`;
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(state.data, null, 2))));
+    const r = await fetch(url, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${gh}`, Accept: 'application/vnd.github+json' },
+      body: JSON.stringify({ message, content, sha: state.sha, branch: CONFIG.GH_BRANCH })
+    });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.message || 'บันทึก GitHub ไม่สำเร็จ');
+    state.sha = j.content.sha;
+    state.message = 'บันทึกเรียบร้อย';
+  } catch(e) { state.message = e.message; }
+  render();
+}
+
+function card(html, cls='') { return `<section class="bg-white rounded-3xl p-4 shadow-sm mb-3 ${cls}">${html}</section>`; }
+function input(label, id, value, type='text', extra='') {
+  return `<label class="block text-xs font-bold text-stone-500 mb-1">${label}</label><input id="${id}" type="${type}" value="${value ?? ''}" ${extra} class="w-full bg-stone-100 rounded-2xl px-4 py-3 outline-none mb-3">`;
+}
+
+function renderToday() {
+  const p = state.data.profile;
+  const d = dayTotals();
+  const remain = netRemaining();
+  const g = goal(p);
+  const pct = Math.min(100, Math.round((d.eaten / Math.max(g,1))*100));
+  return `
+    ${card(`
+      <div class="flex items-center gap-2 mb-3">
+        <input id="datePick" type="date" value="${state.selectedDate}" class="bg-stone-100 rounded-2xl px-3 py-2 text-sm font-bold">
+        <button onclick="setToday()" class="text-xs bg-stone-900 text-white px-3 py-2 rounded-xl">วันนี้</button>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-stone-100 rounded-3xl p-4"><div class="text-xs text-stone-500 font-bold">กินแล้ว</div><div class="text-3xl font-black">${fmt(d.eaten)}</div><div class="text-xs">kcal</div></div>
+        <div class="bg-stone-900 text-white rounded-3xl p-4"><div class="text-xs text-stone-300 font-bold">เหลือสุทธิ</div><div class="text-3xl font-black">${fmt(remain)}</div><div class="text-xs">kcal</div></div>
+        <div class="bg-green-50 rounded-3xl p-4"><div class="text-xs text-green-700 font-bold">โปรตีน</div><div class="text-2xl font-black">${fmt(d.protein)} / ${fmt(p.proteinGoal)}g</div></div>
+        <div class="bg-orange-50 rounded-3xl p-4"><div class="text-xs text-orange-700 font-bold">เผาผลาญ</div><div class="text-2xl font-black">${fmt(d.burned)} kcal</div></div>
+      </div>
+      <div class="mt-4 h-3 bg-stone-100 rounded-full overflow-hidden"><div class="h-full bg-stone-900" style="width:${pct}%"></div></div>
+      <p class="text-xs text-stone-500 mt-2">BMR ${fmt(bmr(p))} • TDEE ${fmt(tdee(p))} • Goal ${fmt(g)}</p>
+    `)}
+    ${renderQuickAdd()}
+    ${card(`<h2 class="font-black mb-2">รายการวันนี้</h2>${renderDayList()}`)}
+  `;
+}
+
+function renderQuickAdd() {
+  return card(`
+    <div class="grid grid-cols-2 gap-2">
+      <button onclick="state.tab='food';render()" class="bg-stone-900 text-white rounded-2xl py-3 font-bold">+ อาหาร</button>
+      <button onclick="state.tab='workout';render()" class="bg-white border border-stone-200 rounded-2xl py-3 font-bold">+ Workout</button>
+    </div>
+  `);
+}
+
+function renderDayList() {
+  const d = dayTotals();
+  const foods = d.foods.map(x => `<li class="py-2 border-b border-stone-100"><b>${x.menu}</b><br><span class="text-xs text-stone-500">${fmt(x.calories)} kcal • protein ${fmt(x.protein)}g</span></li>`).join('');
+  const works = d.workouts.map(x => `<li class="py-2 border-b border-stone-100"><b>${x.name || x.type}</b><br><span class="text-xs text-stone-500">${fmt(x.durationMin)} min • ${fmt(x.calories)} kcal ${x.source ? '• '+x.source : ''}</span></li>`).join('');
+  return `<ul class="text-sm">${foods || '<li class="text-stone-400 py-2">ยังไม่มีอาหาร</li>'}${works || '<li class="text-stone-400 py-2">ยังไม่มี workout</li>'}</ul>`;
+}
+
+function renderFood() {
+  return `
+    ${card(`
+      <h2 class="text-xl font-black mb-3">เพิ่มอาหาร</h2>
+      ${input('วันที่', 'foodDate', state.selectedDate, 'date')}
+      ${input('เมนู', 'foodMenu', '', 'text', 'placeholder="เช่น ข้าวมันไก่ + โกโก้ไม่หวาน"')}
+      <div class="grid grid-cols-2 gap-3">
+        <div>${input('Calories', 'foodCal', '', 'number', 'placeholder="kcal"')}</div>
+        <div>${input('Protein', 'foodProtein', '', 'number', 'placeholder="g"')}</div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <button onclick="analyzeFood()" class="bg-stone-100 rounded-2xl py-3 font-bold">AI วิเคราะห์</button>
+        <button onclick="addFood()" class="bg-stone-900 text-white rounded-2xl py-3 font-bold">บันทึก</button>
+      </div>
+      <p class="text-xs text-stone-500 mt-3">ถ้าไม่ได้ใส่ OpenRouter key ให้กรอก kcal/protein เองได้เลย</p>
+    `)}
+    ${card(`<h2 class="font-black mb-2">อาหารวันที่เลือก</h2>${renderFoodsForDate()}`)}
+  `;
+}
+
+function renderFoodsForDate() {
+  const items = byDate(state.data.foods, state.selectedDate);
+  if (!items.length) return `<p class="text-sm text-stone-400">ยังไม่มีข้อมูล</p>`;
+  return items.map(x => `<div class="flex gap-2 py-3 border-b border-stone-100"><div class="flex-1"><b>${x.menu}</b><div class="text-xs text-stone-500">${fmt(x.calories)} kcal • ${fmt(x.protein)}g protein</div></div><button onclick="deleteItem('foods','${x.id}')" class="text-red-500 text-sm">ลบ</button></div>`).join('');
+}
+
+async function analyzeFood() {
+  const key = CONFIG.getOR && CONFIG.getOR();
+  const menu = $('#foodMenu').value.trim();
+  if (!menu) return alert('ใส่ชื่อเมนูก่อน');
+  if (!key) return alert('ยังไม่ได้ใส่ OpenRouter key ใน config.js');
+  try {
+    const prompt = `Estimate calories and protein for this Thai food. Return JSON only: {"calories":number,"protein":number}. Food: ${menu}`;
+    const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: CONFIG.OR_MODEL, messages: [{ role:'user', content: prompt }] })
+    });
+    const j = await r.json();
+    const text = j.choices?.[0]?.message?.content || '';
+    const found = text.match(/\{[\s\S]*\}/);
+    if (!found) throw new Error('AI ไม่ได้คืน JSON');
+    const obj = JSON.parse(found[0]);
+    $('#foodCal').value = Math.round(obj.calories || obj.total_calories || 0);
+    $('#foodProtein').value = Math.round(obj.protein || obj.total_protein || 0);
+  } catch(e) { alert(e.message); }
+}
+
+function addFood() {
+  const item = { id: uid('food'), date: $('#foodDate').value, time: new Date().toTimeString().slice(0,5), menu: $('#foodMenu').value.trim(), calories: Number($('#foodCal').value || 0), protein: Number($('#foodProtein').value || 0) };
+  if (!item.menu) return alert('ใส่เมนูก่อน');
+  state.selectedDate = item.date;
+  state.data.foods.unshift(item);
+  saveData('Add food');
+}
+
+function renderWorkout() {
+  return `
+    ${card(`
+      <h2 class="text-xl font-black mb-3">บันทึกออกกำลังกาย</h2>
+      ${input('วันที่', 'workDate', state.selectedDate, 'date')}
+      <label class="block text-xs font-bold text-stone-500 mb-1">ประเภท</label>
+      <select id="workType" class="w-full bg-stone-100 rounded-2xl px-4 py-3 mb-3 outline-none">
+        <option>Run</option><option>Walk</option><option>Ride</option><option>Weight Training</option><option>Calisthenics</option><option>Basketball</option><option>Zone 2</option><option>Workout</option>
+      </select>
+      ${input('ชื่อกิจกรรม', 'workName', '', 'text', 'placeholder="เช่น Zone 2 treadmill"')}
+      <div class="grid grid-cols-3 gap-2">
+        <div>${input('นาที', 'workMin', '', 'number')}</div>
+        <div>${input('ระยะ km', 'workKm', '', 'number', 'step="0.01"')}</div>
+        <div>${input('kcal', 'workCal', '', 'number')}</div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <button onclick="estimateWorkoutCal()" class="bg-stone-100 rounded-2xl py-3 font-bold">คำนวณ kcal</button>
+        <button onclick="addWorkout()" class="bg-stone-900 text-white rounded-2xl py-3 font-bold">บันทึก</button>
+      </div>
+    `)}
+    ${card(`
+      <h2 class="font-black mb-2">นำเข้า Strava</h2>
+      <p class="text-sm text-stone-500 mb-3">ใช้เมื่อ deploy บน Vercel และตั้งค่า Environment Variables แล้ว</p>
+      <button onclick="importStrava()" class="w-full bg-orange-500 text-white rounded-2xl py-3 font-bold">Import Strava ล่าสุด</button>
+    `)}
+    ${card(`<h2 class="font-black mb-2">Workout วันที่เลือก</h2>${renderWorkoutsForDate()}`)}
+  `;
+}
+
+function estimateWorkoutCal() {
+  const type = $('#workType').value;
+  const min = Number($('#workMin').value || 0);
+  const w = Number(state.data.profile.weight || 64.6);
+  const metMap = { Run:9.8, Walk:3.5, Ride:7.5, 'Weight Training':4.5, Calisthenics:5, Basketball:8, 'Zone 2':6, Workout:5 };
+  $('#workCal').value = Math.round((metMap[type] || 5) * w * (min/60));
+}
+
+function addWorkout() {
+  const item = { id: uid('workout'), source: 'manual', date: $('#workDate').value, time: new Date().toTimeString().slice(0,5), type: $('#workType').value, name: $('#workName').value.trim() || $('#workType').value, durationMin: Number($('#workMin').value || 0), distanceKm: Number($('#workKm').value || 0), calories: Number($('#workCal').value || 0) };
+  state.selectedDate = item.date;
+  state.data.workouts.unshift(item);
+  saveData('Add workout');
+}
+
+function renderWorkoutsForDate() {
+  const items = byDate(state.data.workouts, state.selectedDate);
+  if (!items.length) return `<p class="text-sm text-stone-400">ยังไม่มีข้อมูล</p>`;
+  return items.map(x => `<div class="flex gap-2 py-3 border-b border-stone-100"><div class="flex-1"><b>${x.name || x.type}</b><div class="text-xs text-stone-500">${fmt(x.durationMin)} min • ${fmt(x.distanceKm)} km • ${fmt(x.calories)} kcal ${x.source ? '• '+x.source : ''}</div></div><button onclick="deleteItem('workouts','${x.id}')" class="text-red-500 text-sm">ลบ</button></div>`).join('');
+}
+
+async function importStrava() {
+  try {
+    state.message = 'กำลัง import Strava...'; render();
+    const r = await fetch('/api/strava-import-all?limit=30');
+    const j = await r.json();
+    if (!j.success) throw new Error(j.error || 'Import failed');
+    state.message = `Import สำเร็จ: added ${j.added}, updated ${j.updated}`;
+    await loadData();
+  } catch(e) { state.message = e.message; }
+  render();
+}
+
+function renderHistory() {
+  const days = [...new Set([...(state.data.foods||[]).map(x=>x.date), ...(state.data.workouts||[]).map(x=>x.date), ...(state.data.steps||[]).map(x=>x.date)])].sort().reverse();
+  return `
+    ${card(`<h2 class="text-xl font-black mb-3">สรุป 7 วันล่าสุด</h2>${renderWeekSummary()}`)}
+    ${card(`<h2 class="text-xl font-black mb-3">ประวัติย้อนหลัง</h2>${days.length ? days.map(renderHistoryDay).join('') : '<p class="text-sm text-stone-400">ยังไม่มีข้อมูล</p>'}`)}
+  `;
+}
+
+function renderWeekSummary() {
+  const out = [];
+  for (let i=6;i>=0;i--) {
+    const d = new Date(); d.setDate(d.getDate()-i);
+    const date = d.toISOString().slice(0,10);
+    const t = dayTotals(date);
+    out.push({ date, ...t, remain: netRemaining(date) });
+  }
+  const eaten = sum(out,'eaten'), burned = sum(out,'burned'), protein = sum(out,'protein');
+  return `
+    <div class="grid grid-cols-3 gap-2 mb-3">
+      <div class="bg-stone-100 rounded-2xl p-3"><div class="text-xs text-stone-500">กิน</div><b>${fmt(eaten)}</b></div>
+      <div class="bg-orange-50 rounded-2xl p-3"><div class="text-xs text-orange-700">เผา</div><b>${fmt(burned)}</b></div>
+      <div class="bg-green-50 rounded-2xl p-3"><div class="text-xs text-green-700">โปรตีน</div><b>${fmt(protein)}g</b></div>
+    </div>
+    <div class="space-y-2">${out.reverse().map(x => `<div class="bg-stone-50 rounded-2xl p-3 text-sm"><b>${x.date}</b><div class="text-xs text-stone-500">กิน ${fmt(x.eaten)} • เผา ${fmt(x.burned)} • เหลือ ${fmt(x.remain)}</div></div>`).join('')}</div>
+  `;
+}
+
+function renderHistoryDay(date) {
+  const t = dayTotals(date);
+  return `<button onclick="state.selectedDate='${date}';state.tab='today';render()" class="w-full text-left bg-stone-50 rounded-2xl p-3 mb-2"><b>${date}</b><div class="text-xs text-stone-500">Food ${fmt(t.eaten)} kcal • Workout ${fmt(t.burned)} kcal • Net remain ${fmt(netRemaining(date))}</div></button>`;
+}
+
+function renderProfile() {
+  const p = state.data.profile;
+  return card(`
+    <h2 class="text-xl font-black mb-3">Profile / TDEE</h2>
+    <div class="grid grid-cols-2 gap-3">
+      <div>${input('Weight kg', 'pWeight', p.weight, 'number', 'step="0.1"')}</div>
+      <div>${input('Height cm', 'pHeight', p.height, 'number')}</div>
+      <div>${input('Age', 'pAge', p.age, 'number')}</div>
+      <div>${input('Protein goal', 'pProtein', p.proteinGoal, 'number')}</div>
+    </div>
+    <label class="block text-xs font-bold text-stone-500 mb-1">Activity</label>
+    <select id="pActivity" class="w-full bg-stone-100 rounded-2xl px-4 py-3 mb-3 outline-none">
+      ${[[1.2,'นั่งทำงาน'],[1.375,'เบา 1-3 วัน'],[1.55,'ปานกลาง 3-5 วัน'],[1.725,'หนัก 6-7 วัน']].map(a=>`<option value="${a[0]}" ${Number(p.activity)==a[0]?'selected':''}>${a[1]} (${a[0]})</option>`).join('')}
+    </select>
+    <button onclick="saveProfile()" class="w-full bg-stone-900 text-white rounded-2xl py-3 font-bold">บันทึก Profile</button>
+    <p class="text-sm text-stone-500 mt-3">BMR ${fmt(bmr(p))} • TDEE ${fmt(tdee(p))}</p>
+  `);
+}
+
+function saveProfile() {
+  state.data.profile = { ...state.data.profile, weight:Number($('#pWeight').value), height:Number($('#pHeight').value), age:Number($('#pAge').value), proteinGoal:Number($('#pProtein').value), activity:Number($('#pActivity').value) };
+  saveData('Update profile');
+}
+
+function deleteItem(collection, id) {
+  state.data[collection] = (state.data[collection] || []).filter(x => x.id !== id);
+  saveData(`Delete ${collection}`);
+}
+function setToday(){ state.selectedDate = todayStr(); render(); }
+
+function render() {
+  document.querySelectorAll('.tabBtn').forEach(b => {
+    const active = b.dataset.tab === state.tab;
+    b.className = `tabBtn px-2 py-2 rounded-2xl text-sm font-bold ${active ? 'bg-stone-900 text-white' : 'text-stone-500'}`;
+  });
+  let html = '';
+  if (state.message) html += `<div class="bg-yellow-50 text-yellow-800 rounded-2xl p-3 text-xs mb-3">${state.message}</div>`;
+  if (state.tab === 'today') html += renderToday();
+  if (state.tab === 'food') html += renderFood();
+  if (state.tab === 'workout') html += renderWorkout();
+  if (state.tab === 'history') html += renderHistory();
+  if (state.tab === 'profile') html += renderProfile();
+  html += `<button onclick="state.tab='profile';render()" class="fixed right-4 bottom-4 bg-white shadow-lg border border-stone-200 rounded-full w-14 h-14 text-xl">⚙️</button>`;
+  $('#app').innerHTML = html;
+  const dp = $('#datePick'); if (dp) dp.onchange = e => { state.selectedDate = e.target.value; render(); };
+}
+
+document.querySelectorAll('.tabBtn').forEach(b => b.onclick = () => { state.tab = b.dataset.tab; render(); });
+$('#syncBtn').onclick = async () => { state.message='กำลัง sync...'; render(); await loadData(); state.message='Sync แล้ว'; render(); };
+
+loadData().then(render);
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
+</script>
+</body>
+</html>

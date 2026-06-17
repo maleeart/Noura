@@ -1,0 +1,14 @@
+{
+  "name": "Noura",
+  "short_name": "Noura",
+  "description": "Minimal calorie, TDEE and workout tracker",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f7f4ef",
+  "theme_color": "#111827",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "Noura.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "Noura.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
