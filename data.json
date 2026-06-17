@@ -19,11 +19,642 @@
       "protein": 5
     }
   ],
-  "workouts": [],
+  "workouts": [
+    {
+      "id": "strava-18957073486",
+      "source": "strava",
+      "sourceId": "18957073486",
+      "date": "2026-06-17",
+      "time": "18:26",
+      "type": "Run",
+      "name": "Outdoor run",
+      "durationMin": 31,
+      "distanceKm": 3.17,
+      "calories": 322,
+      "raw": {
+        "moving_time": 1832,
+        "elapsed_time": 1836,
+        "average_heartrate": 152.2,
+        "total_elevation_gain": 43.3,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18943047306",
+      "source": "strava",
+      "sourceId": "18943047306",
+      "date": "2026-06-16",
+      "time": "18:56",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 65,
+      "distanceKm": 0,
+      "calories": 313,
+      "raw": {
+        "moving_time": 3870,
+        "elapsed_time": 3870,
+        "average_heartrate": 115.9,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18929505881",
+      "source": "strava",
+      "sourceId": "18929505881",
+      "date": "2026-06-15",
+      "time": "18:35",
+      "type": "Run",
+      "name": "Outdoor run",
+      "durationMin": 29,
+      "distanceKm": 3.08,
+      "calories": 305,
+      "raw": {
+        "moving_time": 1734,
+        "elapsed_time": 1744,
+        "average_heartrate": 148.5,
+        "total_elevation_gain": 40.1,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18903673825",
+      "source": "strava",
+      "sourceId": "18903673825",
+      "date": "2026-06-13",
+      "time": "19:28",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 59,
+      "distanceKm": 0,
+      "calories": 284,
+      "raw": {
+        "moving_time": 3520,
+        "elapsed_time": 3520,
+        "average_heartrate": 97.2,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18889789283",
+      "source": "strava",
+      "sourceId": "18889789283",
+      "date": "2026-06-12",
+      "time": "18:37",
+      "type": "Run",
+      "name": "Indoor run",
+      "durationMin": 31,
+      "distanceKm": 3.18,
+      "calories": 325,
+      "raw": {
+        "moving_time": 1850,
+        "elapsed_time": 1850,
+        "average_heartrate": 137.7,
+        "total_elevation_gain": 0,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18878057755",
+      "source": "strava",
+      "sourceId": "18878057755",
+      "date": "2026-06-11",
+      "time": "19:06",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 79,
+      "distanceKm": 0,
+      "calories": 384,
+      "raw": {
+        "moving_time": 4750,
+        "elapsed_time": 4750,
+        "average_heartrate": 101.7,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18864056673",
+      "source": "strava",
+      "sourceId": "18864056673",
+      "date": "2026-06-10",
+      "time": "18:29",
+      "type": "Run",
+      "name": "Outdoor run",
+      "durationMin": 33,
+      "distanceKm": 3.26,
+      "calories": 346,
+      "raw": {
+        "moving_time": 1966,
+        "elapsed_time": 1976,
+        "average_heartrate": 146.6,
+        "total_elevation_gain": 45.2,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18849833331",
+      "source": "strava",
+      "sourceId": "18849833331",
+      "date": "2026-06-09",
+      "time": "18:29",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 54,
+      "distanceKm": 0,
+      "calories": 260,
+      "raw": {
+        "moving_time": 3225,
+        "elapsed_time": 3225,
+        "average_heartrate": 116.9,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18835953906",
+      "source": "strava",
+      "sourceId": "18835953906",
+      "date": "2026-06-08",
+      "time": "17:57",
+      "type": "Run",
+      "name": "Outdoor run",
+      "durationMin": 35,
+      "distanceKm": 3.4,
+      "calories": 370,
+      "raw": {
+        "moving_time": 2103,
+        "elapsed_time": 2110,
+        "average_heartrate": 148.3,
+        "total_elevation_gain": 47.1,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18810153398",
+      "source": "strava",
+      "sourceId": "18810153398",
+      "date": "2026-06-06",
+      "time": "18:05",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 75,
+      "distanceKm": 0,
+      "calories": 365,
+      "raw": {
+        "moving_time": 4515,
+        "elapsed_time": 4515,
+        "average_heartrate": 110.7,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18796737883",
+      "source": "strava",
+      "sourceId": "18796737883",
+      "date": "2026-06-05",
+      "time": "18:40",
+      "type": "Run",
+      "name": "Outdoor run",
+      "durationMin": 34,
+      "distanceKm": 3.52,
+      "calories": 361,
+      "raw": {
+        "moving_time": 2054,
+        "elapsed_time": 2061,
+        "average_heartrate": 147.7,
+        "total_elevation_gain": 43.4,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18783960310",
+      "source": "strava",
+      "sourceId": "18783960310",
+      "date": "2026-06-04",
+      "time": "18:56",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 71,
+      "distanceKm": 0,
+      "calories": 346,
+      "raw": {
+        "moving_time": 4280,
+        "elapsed_time": 4280,
+        "average_heartrate": 116.2,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18769619283",
+      "source": "strava",
+      "sourceId": "18769619283",
+      "date": "2026-06-03",
+      "time": "18:13",
+      "type": "Run",
+      "name": "Outdoor run",
+      "durationMin": 40,
+      "distanceKm": 4.14,
+      "calories": 420,
+      "raw": {
+        "moving_time": 2390,
+        "elapsed_time": 2476,
+        "average_heartrate": 153.6,
+        "total_elevation_gain": 54.2,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18755798910",
+      "source": "strava",
+      "sourceId": "18755798910",
+      "date": "2026-06-02",
+      "time": "19:11",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 74,
+      "distanceKm": 0,
+      "calories": 357,
+      "raw": {
+        "moving_time": 4415,
+        "elapsed_time": 4415,
+        "average_heartrate": 110.6,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18741758335",
+      "source": "strava",
+      "sourceId": "18741758335",
+      "date": "2026-06-01",
+      "time": "18:51",
+      "type": "Run",
+      "name": "Indoor run",
+      "durationMin": 31,
+      "distanceKm": 3.25,
+      "calories": 328,
+      "raw": {
+        "moving_time": 1865,
+        "elapsed_time": 1865,
+        "average_heartrate": 136.6,
+        "total_elevation_gain": 0,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18702058261",
+      "source": "strava",
+      "sourceId": "18702058261",
+      "date": "2026-05-29",
+      "time": "18:48",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 70,
+      "distanceKm": 0,
+      "calories": 340,
+      "raw": {
+        "moving_time": 4205,
+        "elapsed_time": 4205,
+        "average_heartrate": 95.6,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18688810091",
+      "source": "strava",
+      "sourceId": "18688810091",
+      "date": "2026-05-28",
+      "time": "18:45",
+      "type": "Badminton",
+      "name": "Badminton",
+      "durationMin": 75,
+      "distanceKm": 0,
+      "calories": 406,
+      "raw": {
+        "moving_time": 4525,
+        "elapsed_time": 4525,
+        "average_heartrate": 136.2,
+        "total_elevation_gain": 0,
+        "sport_type": "Badminton",
+        "type": "Workout"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18675315165",
+      "source": "strava",
+      "sourceId": "18675315165",
+      "date": "2026-05-27",
+      "time": "18:33",
+      "type": "Run",
+      "name": "Outdoor run",
+      "durationMin": 31,
+      "distanceKm": 3.26,
+      "calories": 324,
+      "raw": {
+        "moving_time": 1841,
+        "elapsed_time": 1850,
+        "average_heartrate": 152.6,
+        "total_elevation_gain": 44.3,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18660797188",
+      "source": "strava",
+      "sourceId": "18660797188",
+      "date": "2026-05-26",
+      "time": "18:44",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 69,
+      "distanceKm": 0,
+      "calories": 334,
+      "raw": {
+        "moving_time": 4135,
+        "elapsed_time": 4135,
+        "average_heartrate": 116.4,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18648082606",
+      "source": "strava",
+      "sourceId": "18648082606",
+      "date": "2026-05-25",
+      "time": "18:38",
+      "type": "Run",
+      "name": "Outdoor run",
+      "durationMin": 33,
+      "distanceKm": 2.66,
+      "calories": 347,
+      "raw": {
+        "moving_time": 1973,
+        "elapsed_time": 1985,
+        "average_heartrate": 132.7,
+        "total_elevation_gain": 36.7,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18635593480",
+      "source": "strava",
+      "sourceId": "18635593480",
+      "date": "2026-05-24",
+      "time": "20:29",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 16,
+      "distanceKm": 0,
+      "calories": 77,
+      "raw": {
+        "moving_time": 950,
+        "elapsed_time": 950,
+        "average_heartrate": 111.6,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18620640318",
+      "source": "strava",
+      "sourceId": "18620640318",
+      "date": "2026-05-23",
+      "time": "17:56",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 75,
+      "distanceKm": 0,
+      "calories": 361,
+      "raw": {
+        "moving_time": 4470,
+        "elapsed_time": 4470,
+        "average_heartrate": 97.6,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18607572302",
+      "source": "strava",
+      "sourceId": "18607572302",
+      "date": "2026-05-22",
+      "time": "18:40",
+      "type": "Run",
+      "name": "Outdoor run",
+      "durationMin": 30,
+      "distanceKm": 3.24,
+      "calories": 320,
+      "raw": {
+        "moving_time": 1819,
+        "elapsed_time": 1828,
+        "average_heartrate": 142.7,
+        "total_elevation_gain": 42.6,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18595058661",
+      "source": "strava",
+      "sourceId": "18595058661",
+      "date": "2026-05-21",
+      "time": "19:01",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 70,
+      "distanceKm": 0,
+      "calories": 339,
+      "raw": {
+        "moving_time": 4200,
+        "elapsed_time": 4200,
+        "average_heartrate": 103.7,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18580876830",
+      "source": "strava",
+      "sourceId": "18580876830",
+      "date": "2026-05-20",
+      "time": "18:32",
+      "type": "Run",
+      "name": "Indoor run",
+      "durationMin": 36,
+      "distanceKm": 3.73,
+      "calories": 382,
+      "raw": {
+        "moving_time": 2170,
+        "elapsed_time": 2170,
+        "average_heartrate": 143.4,
+        "total_elevation_gain": 0,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18567598714",
+      "source": "strava",
+      "sourceId": "18567598714",
+      "date": "2026-05-19",
+      "time": "18:45",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 64,
+      "distanceKm": 0,
+      "calories": 311,
+      "raw": {
+        "moving_time": 3850,
+        "elapsed_time": 3850,
+        "average_heartrate": 117.4,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18554088332",
+      "source": "strava",
+      "sourceId": "18554088332",
+      "date": "2026-05-18",
+      "time": "18:51",
+      "type": "Run",
+      "name": "Indoor run",
+      "durationMin": 35,
+      "distanceKm": 3.61,
+      "calories": 372,
+      "raw": {
+        "moving_time": 2115,
+        "elapsed_time": 2115,
+        "average_heartrate": 142.6,
+        "total_elevation_gain": 0,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18550708748",
+      "source": "strava",
+      "sourceId": "18550708748",
+      "date": "2026-05-18",
+      "time": "12:01",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 18,
+      "distanceKm": 0,
+      "calories": 85,
+      "raw": {
+        "moving_time": 1055,
+        "elapsed_time": 1055,
+        "average_heartrate": 114.9,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18529758192",
+      "source": "strava",
+      "sourceId": "18529758192",
+      "date": "2026-05-16",
+      "time": "19:52",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 40,
+      "distanceKm": 0,
+      "calories": 193,
+      "raw": {
+        "moving_time": 2395,
+        "elapsed_time": 2395,
+        "average_heartrate": 94.9,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    },
+    {
+      "id": "strava-18515956571",
+      "source": "strava",
+      "sourceId": "18515956571",
+      "date": "2026-05-15",
+      "time": "18:30",
+      "type": "Run",
+      "name": "Outdoor run",
+      "durationMin": 31,
+      "distanceKm": 2.96,
+      "calories": 323,
+      "raw": {
+        "moving_time": 1835,
+        "elapsed_time": 1843,
+        "average_heartrate": 142.8,
+        "total_elevation_gain": 43.5,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-17T15:37:07.744Z"
+    }
+  ],
   "steps": [],
   "meta": {
     "app": "Noura",
     "version": "1.0.0",
-    "updatedAt": "2026-06-17T15:05:51.489Z"
+    "updatedAt": "2026-06-17T15:37:07.870Z"
   }
 }
