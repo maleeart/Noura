@@ -12,6 +12,14 @@
   },
   "foods": [
     {
+      "id": "food-1781790769873-5cbd8baf7b3578",
+      "date": "2026-06-18",
+      "time": "20:52",
+      "menu": "Iso soy bamm 1 serve",
+      "calories": 130,
+      "protein": 25
+    },
+    {
       "id": "food-1781790715402-169f5afc81692",
       "date": "2026-06-18",
       "time": "20:51",
@@ -1363,6 +1371,6 @@
   "meta": {
     "app": "Noura",
     "version": "1.0.0",
-    "updatedAt": "2026-06-18T13:51:56.605Z"
+    "updatedAt": "2026-06-18T13:52:51.244Z"
   }
 }
