@@ -408,119 +408,163 @@ function renderToday() {
   const dynamic = dynamicTDEE();
   const g = goal();
   const remain = netRemaining();
+
   const eaten = d.eaten || 0;
   const burned = d.burned || 0;
   const percentage = Math.min(100, Math.round((eaten / Math.max(dynamic, 1)) * 100));
 
-  // Ring color based on status
-  let ringColor = '#ff7a1a'; // default orange
-  if (percentage >= 95) ringColor = '#34c66b'; // green - on track
-  if (eaten > dynamic) ringColor = '#ff4d3d'; // red - over
+  const mealsOpen = !!(state.ui && state.ui.todayMealsOpen);
+  const workoutsOpen = !!(state.ui && state.ui.todayWorkoutsOpen);
 
-  // Ring progress calculation (SVG arc)
-  const ringLength = 440; // 2 * PI * 70 (for 70px radius)
+  let ringColor = '#ff7a1a';
+  if (percentage >= 95 && eaten <= dynamic) ringColor = '#34c66b';
+  if (eaten > dynamic) ringColor = '#ff4d3d';
+
+  const ringLength = 440;
   const progress = (percentage / 100) * ringLength;
-  
-  // Format numbers
-  const fmt = n => n ? n.toLocaleString('en-US', { maximumFractionDigits: 0 }) : '0';
 
-  // Render foods list
-  const foodsList = d.foods && d.foods.length > 0
-    ? `<div class="today-items">${d.foods.map(f => `
-      <div class="today-item">
-        <div class="today-item-left">
-          <div class="today-item-name">${f.name || 'Food'}</div>
-          <div class="today-item-desc">${f.desc || ''}</div>
-        </div>
-        <div class="today-item-right">
-          <div class="today-item-value today-item-value-meal">${fmt(f.calories)}</div>
-          <div class="today-item-subvalue">${f.protein || 0}g protein</div>
-        </div>
+  const toggleTodaySection = (key) => `
+    state.ui = { ...(state.ui || {}), ${key}: !(state.ui && state.ui.${key}) };
+    render();
+  `;
+
+  const foods = d.foods || [];
+  const workouts = d.workouts || [];
+
+  const foodsList = foods.length
+    ? `
+      <div class="today-items">
+        ${(mealsOpen ? foods : foods.slice(0, 3)).map(f => `
+          <div class="today-item">
+            <div class="today-item-left">
+              <div class="today-item-name">${foodEmoji(f.menu)} ${f.menu || 'อาหาร'}</div>
+              <div class="today-item-desc">${f.time || ''}${f.time ? ' • ' : ''}${fmt1(f.protein)}g protein</div>
+            </div>
+            <div class="today-item-right">
+              <div class="today-item-value today-item-value-meal">${fmt(f.calories)}</div>
+              <div class="today-item-subvalue">kcal</div>
+            </div>
+          </div>
+        `).join('')}
       </div>
-    `).join('')}</div>`
+      ${foods.length > 3 ? `
+        <button
+          class="w-full mt-3 bg-stone-100 border border-stone-200 rounded-2xl py-2 text-xs font-black text-stone-600"
+          onclick="${toggleTodaySection('todayMealsOpen')}"
+        >
+          ${mealsOpen ? 'ซ่อนรายการ ▲' : `แสดงทั้งหมด ${foods.length} รายการ ▼`}
+        </button>
+      ` : ''}
+    `
     : `<div class="today-empty-state">
       <div class="today-empty-icon">🍽️</div>
-      <div class="today-empty-text">No meals recorded yet</div>
-      <button class="today-empty-action" onclick="state.tab='food';render()">Add Meal</button>
+      <div class="today-empty-text">ยังไม่มีรายการอาหารวันนี้</div>
+      <button class="today-empty-action" onclick="state.tab='food';render()">เพิ่มอาหาร</button>
     </div>`;
 
-  // Render workouts list
-  const workoutsList = d.workouts && d.workouts.length > 0
-    ? `<div class="today-items">${d.workouts.map(w => `
-      <div class="today-item">
-        <div class="today-item-left">
-          <div class="today-item-name">${w.type || 'Workout'}</div>
-          <div class="today-item-desc">${w.minutes ? w.minutes + ' min' : ''} ${w.distance ? '• ' + w.distance + 'km' : ''}</div>
-        </div>
-        <div class="today-item-right">
-          <div class="today-item-value today-item-value-workout">${fmt(w.calories || 0)}</div>
-          <div class="today-item-subvalue">${w.minutes || 0}m</div>
-        </div>
+  const workoutsList = workouts.length
+    ? `
+      <div class="today-items">
+        ${(workoutsOpen ? workouts : workouts.slice(0, 3)).map(w => `
+          <div class="today-item">
+            <div class="today-item-left">
+              <div class="today-item-name">${workEmoji(w.type)} ${w.name || w.type || 'Workout'}</div>
+              <div class="today-item-desc">
+                ${fmt(w.durationMin)} min${Number(w.distanceKm || 0) ? ` • ${fmt1(w.distanceKm)} km` : ''}${w.time ? ` • ${w.time}` : ''}
+              </div>
+            </div>
+            <div class="today-item-right">
+              <div class="today-item-value today-item-value-workout">${fmt(w.calories)}</div>
+              <div class="today-item-subvalue">kcal</div>
+            </div>
+          </div>
+        `).join('')}
       </div>
-    `).join('')}</div>`
+      ${workouts.length > 3 ? `
+        <button
+          class="w-full mt-3 bg-stone-100 border border-stone-200 rounded-2xl py-2 text-xs font-black text-stone-600"
+          onclick="${toggleTodaySection('todayWorkoutsOpen')}"
+        >
+          ${workoutsOpen ? 'ซ่อนรายการ ▲' : `แสดงทั้งหมด ${workouts.length} รายการ ▼`}
+        </button>
+      ` : ''}
+    `
     : `<div class="today-empty-state">
       <div class="today-empty-icon">⚡</div>
-      <div class="today-empty-text">No workouts recorded yet</div>
-      <button class="today-empty-action" onclick="state.tab='workout';render()">Add Workout</button>
+      <div class="today-empty-text">ยังไม่มี workout วันนี้</div>
+      <button class="today-empty-action" onclick="state.tab='workout';render()">เพิ่ม Workout</button>
     </div>`;
 
   return `
     <div class="px-4 pb-4">
-      <!-- Hero Ring Section -->
       <div class="hero-ring-container">
         <div class="hero-ring-status">Today's Status</div>
-        
         <div class="hero-ring-svg-wrapper">
           <svg viewBox="0 0 160 160">
-            <!-- Background ring -->
             <circle cx="80" cy="80" r="70" fill="none" stroke="#333" stroke-width="12" opacity="0.3"></circle>
-            <!-- Progress ring -->
-            <circle cx="80" cy="80" r="70" fill="none" stroke="${ringColor}" 
-                    stroke-width="12" stroke-dasharray="${progress} ${ringLength - progress}" 
+            <circle cx="80" cy="80" r="70" fill="none" stroke="${ringColor}"
+                    stroke-width="12" stroke-dasharray="${progress} ${ringLength - progress}"
                     stroke-linecap="round" style="transform:rotate(-90deg);transform-origin:80px 80px;"></circle>
           </svg>
           <div class="hero-ring-percentage">
             <div class="hero-ring-percentage-value">${percentage}%</div>
-            <div class="hero-ring-percentage-label">Consumed</div>
+            <div class="hero-ring-percentage-label">ใช้ไปแล้ว</div>
           </div>
         </div>
 
         <div class="hero-ring-remaining">
-          <div class="hero-ring-remaining-value">${fmt(Math.max(0, dynamic - eaten))} kcal</div>
-          <div class="hero-ring-remaining-label">remaining</div>
+          <div class="hero-ring-remaining-value ${remain >= 0 ? '' : 'text-red-400'}">${fmt(remain)} kcal</div>
+          <div class="hero-ring-remaining-label">เหลือสุทธิจาก TDEE</div>
         </div>
 
         <div class="hero-ring-metrics">
           <div class="hero-ring-metric-card hero-ring-metric-eaten">
-            <div class="hero-ring-metric-label">eaten</div>
+            <div class="hero-ring-metric-label">กินแล้ว</div>
             <div class="hero-ring-metric-value">${fmt(eaten)}</div>
           </div>
           <div class="hero-ring-metric-card hero-ring-metric-burned">
-            <div class="hero-ring-metric-label">burned</div>
+            <div class="hero-ring-metric-label">เผาผลาญ</div>
             <div class="hero-ring-metric-value">${fmt(burned)}</div>
           </div>
         </div>
       </div>
 
-      <!-- Meals Section -->
       <div class="today-section">
         <div class="today-section-header">
           <h3 class="today-section-title">🍽️ Meals Today</h3>
-          <button class="today-add-btn" onclick="state.tab='food';render()">+ Add</button>
+          <div class="flex gap-2">
+            ${foods.length ? `
+              <button
+                class="today-add-btn bg-stone-100 !text-stone-700"
+                onclick="${toggleTodaySection('todayMealsOpen')}"
+              >
+                ${mealsOpen ? 'ซ่อน' : 'แสดง'}
+              </button>
+            ` : ''}
+            <button class="today-add-btn" onclick="state.tab='food';render()">+ Add</button>
+          </div>
         </div>
         ${foodsList}
       </div>
 
-      <!-- Workouts Section -->
       <div class="today-section">
         <div class="today-section-header">
           <h3 class="today-section-title">⚡ Workouts Today</h3>
-          <button class="today-add-btn" onclick="state.tab='workout';render()">+ Add</button>
+          <div class="flex gap-2">
+            ${workouts.length ? `
+              <button
+                class="today-add-btn bg-stone-100 !text-stone-700"
+                onclick="${toggleTodaySection('todayWorkoutsOpen')}"
+              >
+                ${workoutsOpen ? 'ซ่อน' : 'แสดง'}
+              </button>
+            ` : ''}
+            <button class="today-add-btn" onclick="state.tab='workout';render()">+ Add</button>
+          </div>
         </div>
         ${workoutsList}
       </div>
 
-      <!-- Additional info section (optional) -->
       <section class="panel rounded-[34px] p-4 mt-4">
         <div class="flex items-center gap-2 mb-4">
           <button onclick="shiftDate(-1)" class="w-10 h-10 rounded-2xl bg-stone-100 text-stone-400 font-black">‹</button>
@@ -553,6 +597,7 @@ function renderToday() {
     </div>
   `;
 }
+
 
 function renderQuickAdd() {
   return `<section class="grid grid-cols-2 gap-3 mb-4">
