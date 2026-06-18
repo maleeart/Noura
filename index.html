@@ -764,7 +764,7 @@ function renderToday() {
         <p class="text-[11px] text-stone-400 mt-3 px-1">Goal ${fnum(g)} • Eaten ${fnum(eaten)} • Net ${fnum(remain)}</p>
       </section>
 
-      ${renderQuickAdd()}
+      
       ${renderMiniHistory()}
     </div>
   `;
@@ -793,13 +793,7 @@ function showAllTodayWorkouts() {
   state.ui.workoutsLimit = 999;
   render();
 }
-  function renderQuickAdd() {
-  return `<section class="grid grid-cols-2 gap-3 mb-4">
-    <button onclick="state.tab='food';render()" class="bg-stone-950 text-white rounded-[26px] py-4 font-black shadow-lg shadow-stone-300/60">+ อาหาร</button>
-    <button onclick="state.tab='workout';render()" class="bg-white border border-stone-200 rounded-[26px] py-4 font-black shadow-sm">+ Workout</button>
-  </section>`;
-}
-
+  
 function renderDayList() {
   const d = dayTotals();
   const foods = d.foods.slice(0,6).map((x,i) => `<li class="flex gap-3 py-3 border-b border-stone-100"><div class="icon-bubble bg-stone-100">${foodEmoji(x.menu)}</div><div class="flex-1 min-w-0"><b class="block leading-snug">${x.menu}</b><span class="text-xs text-stone-500">${fmt(x.calories)} kcal • โปรตีน ${fmt1(x.protein)} g</span></div><span class="text-xs text-stone-400">${x.time||''}</span></li>`).join('');
