@@ -738,7 +738,7 @@ function renderToday() {
         ${workoutsList}
       </div>
 
-      <section class="panel rounded-[34px] p-4 mt-4">
+      <section class="panel rounded-[34px] p-4 mt-4 mb-4">
         <div class="flex items-center gap-2 mb-4">
           <button onclick="shiftDate(-1)" class="w-10 h-10 rounded-2xl bg-stone-100 text-stone-400 font-black">‹</button>
           <input id="datePick" type="date" value="${state.selectedDate}" class="flex-1 bg-stone-100 rounded-2xl px-3 py-3 text-sm font-black text-center" onchange="state.selectedDate=this.value;render()">
