@@ -303,8 +303,7 @@ function renderMiniHistory() {
 
     out.push({
       date,
-      remain: netRemaining(date),
-      buffer: dynamicTDEE(date) - goal(date)
+      remain: netRemaining(date)
     });
   }
 
@@ -329,16 +328,13 @@ function renderMiniHistory() {
 
           const positive = x.remain >= 0;
 
-          let color = 'bg-green-500';
-          let textColor = 'text-green-600';
+          const color = positive
+            ? 'bg-green-500'
+            : 'bg-red-500';
 
-          if (x.remain < 0) {
-            color = 'bg-red-500';
-            textColor = 'text-red-500';
-          } else if (x.remain < x.buffer) {
-            color = 'bg-orange-400';
-            textColor = 'text-orange-500';
-          }
+          const textColor = positive
+            ? 'text-green-600'
+            : 'text-red-500';
 
           const height = Math.max(
             12,
