@@ -292,11 +292,105 @@ function foodEmoji(menu='') { const m=menu.toLowerCase(); if(m.includes('กา�
 function workEmoji(type='') { const t=String(type).toLowerCase(); if(t.includes('run'))return'🏃'; if(t.includes('walk'))return'🚶'; if(t.includes('ride'))return'🚴'; if(t.includes('basket'))return'🏀'; if(t.includes('weight'))return'🏋️'; return'⚡'; }
 
 function renderMiniHistory() {
-  const out=[];
-  for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); const date=d.toISOString().slice(0,10); out.push({date, remain: netRemaining(date)}); }
-  const max = Math.max(...out.map(x=>Math.abs(x.remain)), 1);
-  return card(`<div class="flex justify-between items-center mb-3"><h2 class="font-black text-lg">ภาพรวม 7 วันล่าสุด</h2><span class="text-xs text-stone-400">หน่วย: kcal</span></div>
-    <div class="flex items-end gap-3 h-36 px-1">${out.map(x=>{ const h=22+Math.round(Math.abs(x.remain)/max*85); const cls=x.remain<0?'bad':(x.remain<150?'warn':''); const day=new Date(x.date).toLocaleDateString('th-TH',{weekday:'short'}); return `<button onclick="state.selectedDate='${x.date}';state.tab='today';render()" class="flex-1 text-center"><div class="text-xs font-black ${x.remain<0?'text-red-500':x.remain<150?'text-orange-500':'text-green-600'}">${x.remain>0?'+':''}${fmt(x.remain)}</div><div class="bar ${cls} mx-auto mt-1" style="height:${h}px"></div><div class="text-[11px] text-stone-500 mt-1">${day}</div></button>`}).join('')}</div>`);
+  const out = [];
+
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+
+    const date = d.toISOString().slice(0, 10);
+
+    out.push({
+      date,
+      remain: netRemaining(date), // Dynamic TDEE - กินแล้ว
+      buffer: dynamicTDEE(date) - goal(date)
+    });
+  }
+
+  const max = Math.max(
+    ...out.map(x => Math.abs(x.remain)),
+    100
+  );
+
+  return card(`
+    <div class="flex justify-between items-center mb-3">
+      <h2 class="font-black text-lg">ภาพรวม 7 วันล่าสุด</h2>
+      <span class="text-xs text-stone-400">เหลือสุทธิจาก TDEE</span>
+    </div>
+
+    <div class="relative h-44 px-1">
+
+      <div class="absolute inset-x-0 top-1/2 h-px bg-stone-200"></div>
+
+      <div class="flex items-stretch gap-3 h-full">
+
+        ${out.map(x => {
+
+          const positive = x.remain >= 0;
+
+          let color = 'bg-green-500';
+          let textColor = 'text-green-600';
+
+          if (x.remain < 0) {
+            color = 'bg-red-500';
+            textColor = 'text-red-500';
+          } else if (x.remain < x.buffer) {
+            color = 'bg-orange-400';
+            textColor = 'text-orange-500';
+          }
+
+          const height = Math.max(
+            12,
+            Math.round(Math.abs(x.remain) / max * 70)
+          );
+
+          const day = new Date(x.date).toLocaleDateString(
+            'th-TH',
+            { weekday: 'short' }
+          );
+
+          return `
+            <button
+              onclick="state.selectedDate='${x.date}';state.tab='today';render()"
+              class="flex-1 flex flex-col items-center justify-between"
+            >
+
+              <div class="h-1/2 flex items-end justify-center">
+                ${positive ? `
+                  <div
+                    class="w-7 rounded-t-xl ${color}"
+                    style="height:${height}px">
+                  </div>
+                ` : ''}
+              </div>
+
+              <div class="h-1/2 flex items-start justify-center">
+                ${!positive ? `
+                  <div
+                    class="w-7 rounded-b-xl ${color}"
+                    style="height:${height}px">
+                  </div>
+                ` : ''}
+              </div>
+
+              <div class="mt-2 text-center">
+                <div class="text-[10px] font-black ${textColor}">
+                  ${x.remain > 0 ? '+' : ''}${fmt(x.remain)}
+                </div>
+
+                <div class="text-[11px] text-stone-500">
+                  ${day}
+                </div>
+              </div>
+
+            </button>
+          `;
+        }).join('')}
+
+      </div>
+
+    </div>
+  `);
 }
 function renderInsight() {
   const d=dayTotals(), p=state.data.profile, goalR=netRemaining();
