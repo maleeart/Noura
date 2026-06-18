@@ -303,7 +303,7 @@ function renderMiniHistory() {
 
     out.push({
       date,
-      remain: netRemaining(date)
+      remain: netRemaining(date) // Dynamic TDEE - กินแล้ว
     });
   }
 
@@ -312,20 +312,26 @@ function renderMiniHistory() {
     100
   );
 
+  const chartH = 128;
+  const axisY = 72;
+  const bottomSpace = chartH - axisY;
+
   return card(`
     <div class="flex justify-between items-center mb-3">
       <h2 class="font-black text-lg">ภาพรวม 7 วันล่าสุด</h2>
       <span class="text-xs text-stone-400">เหลือสุทธิจาก TDEE</span>
     </div>
 
-    <div class="relative h-44 px-1">
+    <div class="relative px-1 pb-2">
 
-      <div class="absolute inset-x-0 top-1/2 h-[2px] bg-stone-400 rounded-full"></div>
+      <div
+        class="absolute left-1 right-1 h-[2px] bg-stone-400 rounded-full z-0"
+        style="top:${axisY}px">
+      </div>
 
-      <div class="flex items-stretch gap-3 h-full">
+      <div class="flex items-start gap-3 relative z-10">
 
         ${out.map(x => {
-
           const positive = x.remain >= 0;
 
           const color = positive
@@ -338,7 +344,7 @@ function renderMiniHistory() {
 
           const height = Math.max(
             12,
-            Math.round(Math.abs(x.remain) / max * 70)
+            Math.round(Math.abs(x.remain) / max * 64)
           );
 
           const day = new Date(x.date).toLocaleDateString(
@@ -349,36 +355,38 @@ function renderMiniHistory() {
           return `
             <button
               onclick="state.selectedDate='${x.date}';state.tab='today';render()"
-              class="flex-1 flex flex-col items-center h-full"
+              class="flex-1 flex flex-col items-center"
             >
 
-              <div class="h-1/2 flex flex-col items-center justify-end">
+              <div
+                class="relative w-full"
+                style="height:${chartH}px"
+              >
 
-                ${positive ? `
-                  <div class="text-[10px] font-black ${textColor} mb-1">
-                    +${fmt(x.remain)}
-                  </div>
+                <div
+                  class="absolute left-1/2 -translate-x-1/2 ${color}
+                    ${positive ? 'rounded-t-xl' : 'rounded-b-xl'}"
+                  style="
+                    width:28px;
+                    height:${height}px;
+                    ${positive
+                      ? `bottom:${bottomSpace}px;`
+                      : `top:${axisY}px;`
+                    }
+                  ">
+                </div>
 
-                  <div
-                    class="w-7 rounded-t-xl ${color}"
-                    style="height:${height}px">
-                  </div>
-                ` : ''}
-
-              </div>
-
-              <div class="h-1/2 flex flex-col items-center justify-start">
-
-                ${!positive ? `
-                  <div
-                    class="w-7 rounded-b-xl ${color}"
-                    style="height:${height}px">
-                  </div>
-
-                  <div class="text-[10px] font-black ${textColor} mt-1">
-                    ${fmt(x.remain)}
-                  </div>
-                ` : ''}
+                <div
+                  class="absolute left-1/2 -translate-x-1/2 text-[10px] font-black whitespace-nowrap ${textColor}"
+                  style="
+                    ${positive
+                      ? `bottom:${bottomSpace + height + 4}px;`
+                      : `top:${axisY + height + 4}px;`
+                    }
+                  "
+                >
+                  ${x.remain > 0 ? '+' : ''}${fmt(x.remain)}
+                </div>
 
               </div>
 
