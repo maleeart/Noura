@@ -43,13 +43,26 @@
     .panel{ background: rgba(255,255,255,.88); border:1px solid rgba(255,255,255,.85); box-shadow: 0 18px 44px rgba(20,20,20,.08); }
     .soft-card{ background:#fff; border:1px solid var(--line); box-shadow: 0 14px 35px rgba(20,20,20,.06); }
     .ring{
-      --p: 50;
-      background: conic-gradient(var(--green) 0 calc(var(--p) * 1%), #ffb020 calc(var(--p) * 1%) 75%, var(--red) 75% 100%);
+      --ring-bg: conic-gradient(var(--orange) 0 50%, #ebe7df 50% 100%);
+      --over: 0;
+      position:relative;
+      background: var(--ring-bg);
       border-radius:999px;
       padding:16px;
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.4), 0 18px 40px rgba(255,122,26,.14);
     }
-    .ring-inner{ background:#fff; border-radius:999px; box-shadow: inset 0 8px 28px rgba(0,0,0,.04); }
+    .ring::before{
+      content:"";
+      position:absolute;
+      inset:-8px;
+      border-radius:999px;
+      background: conic-gradient(var(--red) 0 calc(var(--over) * 1%), transparent calc(var(--over) * 1%) 100%);
+      -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 9px), #000 calc(100% - 8px));
+      mask: radial-gradient(farthest-side, transparent calc(100% - 9px), #000 calc(100% - 8px));
+      pointer-events:none;
+    }
+    .ring-inner{ position:relative; z-index:1; background:#fff; border-radius:999px; box-shadow: inset 0 8px 28px rgba(0,0,0,.04); }
+    .ring-legend-dot{ width:8px; height:8px; border-radius:999px; display:inline-block; margin-right:5px; }
     .bottom-nav{ position: fixed; left: 50%; transform: translateX(-50%); bottom: max(12px, env(safe-area-inset-bottom)); width: min(92vw, 420px); z-index: 50; }
     .nav-pill{ background: rgba(255,255,255,.93); backdrop-filter: blur(18px); border:1px solid rgba(255,255,255,.9); box-shadow: 0 18px 44px rgba(0,0,0,.13); }
     .bar{ min-height: 18px; border-radius: 9px 9px 5px 5px; background: linear-gradient(180deg, #8bd77f, #39b86a); }
@@ -181,10 +194,29 @@ function renderToday() {
   const g = goal();
   const remain = netRemaining();
   const goalRemain = goalRemaining();
-  const pct = Math.max(0, Math.min(100, Math.round((d.eaten / Math.max(dynamic,1))*100)));
+  const eatenPctRaw = (d.eaten / Math.max(dynamic, 1)) * 100;
+  const eatenPct = Math.max(0, Math.min(100, eatenPctRaw));
+  const goalPct = Math.max(0, Math.min(100, (g / Math.max(dynamic, 1)) * 100));
+  const overPct = Math.max(0, Math.min(100, eatenPctRaw - 100));
+  let ringBg = '';
+  if (eatenPctRaw <= goalPct) {
+    ringBg = `conic-gradient(var(--orange) 0 ${eatenPct}%, #ebe7df ${eatenPct}% 100%)`;
+  } else if (eatenPctRaw <= 100) {
+    ringBg = `conic-gradient(var(--orange) 0 ${goalPct}%, var(--green) ${goalPct}% ${eatenPct}%, #ebe7df ${eatenPct}% 100%)`;
+  } else {
+    ringBg = `conic-gradient(var(--orange) 0 ${goalPct}%, var(--green) ${goalPct}% 100%)`;
+  }
   const proteinPct = Math.max(0, Math.min(160, Math.round((d.protein / Math.max(Number(p.proteinGoal||1),1))*100)));
-  const statusText = remain >= 0 ? 'ยังต่ำกว่า TDEE' : 'กินเกิน TDEE';
-  const statusCls = remain >= 0 ? 'text-green-600 bg-green-50 border-green-100' : 'text-red-600 bg-red-50 border-red-100';
+  let statusText = 'ต่ำกว่า Goal';
+  let statusCls = 'text-orange-600 bg-orange-50 border-orange-100';
+  if (d.eaten > g && d.eaten <= dynamic) {
+    statusText = 'เกิน Goal แต่ยังไม่เกิน TDEE';
+    statusCls = 'text-green-600 bg-green-50 border-green-100';
+  }
+  if (d.eaten > dynamic) {
+    statusText = 'เกิน TDEE';
+    statusCls = 'text-red-600 bg-red-50 border-red-100';
+  }
   return `
     <section class="panel rounded-[34px] p-4 mb-4">
       <div class="flex items-center gap-2 mb-4">
@@ -194,13 +226,14 @@ function renderToday() {
       </div>
 
       <div class="grid grid-cols-[1.12fr_.88fr] gap-3 items-center">
-        <div class="ring aspect-square" style="--p:${pct}">
+        <div class="ring aspect-square" style="--ring-bg:${ringBg}; --over:${overPct}">
           <div class="ring-inner w-full h-full flex flex-col items-center justify-center text-center p-4">
             <div class="text-2xl">🔥</div>
             <div class="text-xs font-black text-stone-500 mt-1">เหลือสุทธิ</div>
             <div class="text-5xl font-black tracking-tight leading-none mt-1">${fmt(remain)}</div>
             <div class="text-sm font-bold">kcal</div>
             <div class="mt-3 px-3 py-1 rounded-full border text-[11px] font-black ${statusCls}">${statusText}</div>
+            <div class="mt-2 text-[10px] text-stone-400">กินแล้ว ${fmt(eatenPctRaw)}% ของ TDEE</div>
           </div>
         </div>
         <div class="space-y-2">
@@ -208,6 +241,12 @@ function renderToday() {
           ${tinyStat('⚡','TDEE วันนี้',`${fmt(dynamic)} kcal`,'รวมกิจกรรม','bg-white border border-stone-100')}
           ${tinyStat('🎯','Goal',`${fmt(g)} kcal`,`Deficit ${Math.round(deficitRate(p)*100)}%`,'bg-white border border-stone-100')}
         </div>
+      </div>
+
+      <div class="mt-3 bg-stone-50 border border-stone-100 rounded-2xl p-3 text-[11px] text-stone-500 grid grid-cols-3 gap-2">
+        <div><span class="ring-legend-dot" style="background:var(--orange)"></span>ต่ำกว่า Goal</div>
+        <div><span class="ring-legend-dot" style="background:var(--green)"></span>Goal → TDEE</div>
+        <div><span class="ring-legend-dot" style="background:var(--red)"></span>เกิน TDEE</div>
       </div>
 
       <div class="mt-4 bg-stone-950 text-white rounded-[28px] p-4 grid grid-cols-2 gap-3">
