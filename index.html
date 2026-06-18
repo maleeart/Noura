@@ -718,7 +718,7 @@ function renderToday() {
 
       <div class="today-section-card meal">
         <div class="today-section-header accent-meal">
-          <h3 class="today-section-title">🍽️ Meals Today <span class="text-xs text-stone-500 font-bold">${foodsForToday.length} รายการ</span></h3>
+          <h3 class="today-section-title">🍽️ Meals<span class="text-xs text-stone-500 font-bold">${foodsForToday.length} รายการ</span></h3>
           <div class="flex gap-2">
             <button class="today-toggle-btn" onclick="toggleTodayMeals()">${openMeals ? 'ซ่อน' : 'แสดง'}</button>
             <button class="today-add-btn" onclick="state.tab='food';render()">+ Add</button>
@@ -729,7 +729,7 @@ function renderToday() {
 
       <div class="today-section-card workout">
         <div class="today-section-header accent-workout">
-          <h3 class="today-section-title">⚡ Work Today <span class="text-xs text-stone-500 font-bold">${workoutsForToday.length} รายการ</span></h3>
+          <h3 class="today-section-title">⚡ Workout<span class="text-xs text-stone-500 font-bold">${workoutsForToday.length} รายการ</span></h3>
           <div class="flex gap-2">
             <button class="today-toggle-btn" onclick="toggleTodayWorkouts()">${openWorkouts ? 'ซ่อน' : 'แสดง'}</button>
             <button class="today-add-btn" onclick="state.tab='workout';render()">+ Add</button>
@@ -792,13 +792,6 @@ function showAllTodayWorkouts() {
   state.ui.workoutsOpen = true;
   state.ui.workoutsLimit = 999;
   render();
-}
-
-function renderQuickAdd() {
-  return `<section class="grid grid-cols-2 gap-3 mb-4">
-    <button onclick="state.tab='food';render()" class="bg-stone-950 text-white rounded-[26px] py-4 font-black shadow-lg shadow-stone-300/60">+ อาหาร</button>
-    <button onclick="state.tab='workout';render()" class="bg-white border border-stone-200 rounded-[26px] py-4 font-black shadow-sm">+ Workout</button>
-  </section>`;
 }
 
 function renderDayList() {
@@ -1078,7 +1071,8 @@ function renderHistory() {
 }
 
 function toggleHistory7Days() {
-  state.ui = { mealsOpen: true, workoutsOpen: true, mealsLimit: 3, workoutsLimit: 3, history7Open: true, historyMonth: null, ...(state.ui || {}) };
+  // เปลี่ยน history7Open: true เป็น false ตรงนี้ 👇
+  state.ui = { mealsOpen: true, workoutsOpen: true, mealsLimit: 3, workoutsLimit: 3, history7Open: false, historyMonth: null, ...(state.ui || {}) };
   state.ui.history7Open = !state.ui.history7Open;
   render();
 }
