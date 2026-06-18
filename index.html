@@ -286,6 +286,98 @@
     .today-empty-action:hover {
       background: #1a1a1a;
     }
+
+
+    /* ===== TODAY COLLAPSE + PROTEIN RING PATCH ===== */
+    .today-section-card{
+      border-radius:24px;
+      padding:12px;
+      margin-bottom:16px;
+      border:1px solid rgba(238,233,223,.9);
+      box-shadow:0 12px 30px rgba(20,20,20,.06);
+    }
+    .today-section-card.meal{
+      background:linear-gradient(135deg,#fff7ed 0%,#ffffff 68%);
+    }
+    .today-section-card.workout{
+      background:linear-gradient(135deg,#ecfdf5 0%,#ffffff 68%);
+    }
+    .today-toggle-btn{
+      border:1px solid rgba(0,0,0,.08);
+      background:white;
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:11px;
+      font-weight:800;
+      color:#57534e;
+      box-shadow:0 4px 12px rgba(0,0,0,.05);
+    }
+    .today-section-header.accent-meal{
+      background:rgba(255,122,26,.09);
+      border:1px solid rgba(255,122,26,.12);
+      border-radius:18px;
+      padding:10px 12px;
+      margin-bottom:10px;
+    }
+    .today-section-header.accent-workout{
+      background:rgba(52,198,107,.09);
+      border:1px solid rgba(52,198,107,.12);
+      border-radius:18px;
+      padding:10px 12px;
+      margin-bottom:10px;
+    }
+    .hero-ring-layout{
+      display:grid;
+      grid-template-columns:1fr 112px;
+      gap:14px;
+      align-items:center;
+    }
+    .protein-ring-card{
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:24px;
+      padding:12px 8px;
+      text-align:center;
+      color:white;
+    }
+    .protein-ring-svg-wrapper{
+      width:92px;
+      height:92px;
+      margin:0 auto 8px;
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .protein-ring-svg-wrapper svg{ width:100%; height:100%; }
+    .protein-ring-center{
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform:translate(-50%,-50%);
+      text-align:center;
+    }
+    .protein-ring-value{
+      font-size:18px;
+      line-height:1;
+      font-weight:900;
+    }
+    .protein-ring-label{
+      font-size:9px;
+      color:rgba(255,255,255,.62);
+      margin-top:2px;
+      font-weight:700;
+    }
+    .protein-ring-caption{
+      font-size:10px;
+      color:rgba(255,255,255,.62);
+      font-weight:700;
+    }
+    .protein-ring-amount{
+      font-size:14px;
+      font-weight:900;
+      margin-top:2px;
+    }
   </style>
 </head>
 <body class="text-stone-950 min-h-screen pb-28">
@@ -341,7 +433,8 @@ let state = {
     foods: [], workouts: [], steps: [], meta: { app: 'Noura', version: '1.2.0' }
   },
   sha: null,
-  message: ''
+  message: '',
+  ui: { mealsOpen: true, workoutsOpen: true, mealsLimit: 3, workoutsLimit: 3 }
 };
 
 function bmr(profile) {
@@ -408,157 +501,155 @@ function renderToday() {
   const dynamic = dynamicTDEE();
   const g = goal();
   const remain = netRemaining();
-
   const eaten = d.eaten || 0;
   const burned = d.burned || 0;
+  const protein = d.protein || 0;
+  const proteinGoal = Number(p.proteinGoal || 120);
   const percentage = Math.min(100, Math.round((eaten / Math.max(dynamic, 1)) * 100));
 
-  const mealsOpen = !!(state.ui && state.ui.todayMealsOpen);
-  const workoutsOpen = !!(state.ui && state.ui.todayWorkoutsOpen);
-
   let ringColor = '#ff7a1a';
-  if (percentage >= 95 && eaten <= dynamic) ringColor = '#34c66b';
+  if (percentage >= 95) ringColor = '#34c66b';
   if (eaten > dynamic) ringColor = '#ff4d3d';
 
   const ringLength = 440;
   const progress = (percentage / 100) * ringLength;
 
-  const toggleTodaySection = (key) => `
-    state.ui = { ...(state.ui || {}), ${key}: !(state.ui && state.ui.${key}) };
-    render();
-  `;
+  const proteinPctRaw = (protein / Math.max(proteinGoal, 1)) * 100;
+  const proteinPct = Math.min(100, Math.round(proteinPctRaw));
+  const proteinRingLength = 251;
+  const proteinProgress = (proteinPct / 100) * proteinRingLength;
+  const overProtein = Math.max(0, Math.min(1, (proteinPctRaw - 100) / 60));
+  const mix = (a,b,t) => Math.round(a + (b-a)*t);
+  const proteinColor = proteinPctRaw <= 100
+    ? '#34c66b'
+    : `rgb(${mix(52,245,overProtein)}, ${mix(198,197,overProtein)}, ${mix(107,66,overProtein)})`;
 
-  const foods = d.foods || [];
-  const workouts = d.workouts || [];
+  const fnum = n => Number(n || 0).toLocaleString('th-TH', { maximumFractionDigits: 0 });
+  const openMeals = state.ui?.mealsOpen !== false;
+  const openWorkouts = state.ui?.workoutsOpen !== false;
+  const mealLimit = Number(state.ui?.mealsLimit || 3);
+  const workoutLimit = Number(state.ui?.workoutsLimit || 3);
 
-  const foodsList = foods.length
-    ? `
-      <div class="today-items">
-        ${(mealsOpen ? foods : foods.slice(0, 3)).map(f => `
-          <div class="today-item">
-            <div class="today-item-left">
-              <div class="today-item-name">${foodEmoji(f.menu)} ${f.menu || 'อาหาร'}</div>
-              <div class="today-item-desc">${f.time || ''}${f.time ? ' • ' : ''}${fmt1(f.protein)}g protein</div>
-            </div>
-            <div class="today-item-right">
-              <div class="today-item-value today-item-value-meal">${fmt(f.calories)}</div>
-              <div class="today-item-subvalue">kcal</div>
-            </div>
+  const foodsForToday = Array.isArray(d.foods) ? d.foods : [];
+  const shownFoods = foodsForToday.slice(0, mealLimit);
+  const foodsList = !openMeals
+    ? `<div class="text-xs text-stone-500 px-2 py-3">ซ่อนอยู่ ${foodsForToday.length} รายการ • กด “แสดง” เพื่อดูรายการอาหาร</div>`
+    : foodsForToday.length > 0
+      ? `<div class="today-items">${shownFoods.map(f => `
+        <div class="today-item">
+          <div class="today-item-left">
+            <div class="today-item-name">${foodEmoji(f.menu)} ${f.menu || 'Food'}</div>
+            <div class="today-item-desc">${f.time || ''}</div>
           </div>
-        `).join('')}
-      </div>
-      ${foods.length > 3 ? `
-        <button
-          class="w-full mt-3 bg-stone-100 border border-stone-200 rounded-2xl py-2 text-xs font-black text-stone-600"
-          onclick="${toggleTodaySection('todayMealsOpen')}"
-        >
-          ${mealsOpen ? 'ซ่อนรายการ ▲' : `แสดงทั้งหมด ${foods.length} รายการ ▼`}
-        </button>
-      ` : ''}
-    `
-    : `<div class="today-empty-state">
-      <div class="today-empty-icon">🍽️</div>
-      <div class="today-empty-text">ยังไม่มีรายการอาหารวันนี้</div>
-      <button class="today-empty-action" onclick="state.tab='food';render()">เพิ่มอาหาร</button>
-    </div>`;
-
-  const workoutsList = workouts.length
-    ? `
-      <div class="today-items">
-        ${(workoutsOpen ? workouts : workouts.slice(0, 3)).map(w => `
-          <div class="today-item">
-            <div class="today-item-left">
-              <div class="today-item-name">${workEmoji(w.type)} ${w.name || w.type || 'Workout'}</div>
-              <div class="today-item-desc">
-                ${fmt(w.durationMin)} min${Number(w.distanceKm || 0) ? ` • ${fmt1(w.distanceKm)} km` : ''}${w.time ? ` • ${w.time}` : ''}
-              </div>
-            </div>
-            <div class="today-item-right">
-              <div class="today-item-value today-item-value-workout">${fmt(w.calories)}</div>
-              <div class="today-item-subvalue">kcal</div>
-            </div>
+          <div class="today-item-right">
+            <div class="today-item-value today-item-value-meal">${fnum(f.calories)} kcal</div>
+            <div class="today-item-subvalue">โปรตีน ${fmt1(f.protein)}g</div>
           </div>
-        `).join('')}
-      </div>
-      ${workouts.length > 3 ? `
-        <button
-          class="w-full mt-3 bg-stone-100 border border-stone-200 rounded-2xl py-2 text-xs font-black text-stone-600"
-          onclick="${toggleTodaySection('todayWorkoutsOpen')}"
-        >
-          ${workoutsOpen ? 'ซ่อนรายการ ▲' : `แสดงทั้งหมด ${workouts.length} รายการ ▼`}
-        </button>
-      ` : ''}
-    `
-    : `<div class="today-empty-state">
-      <div class="today-empty-icon">⚡</div>
-      <div class="today-empty-text">ยังไม่มี workout วันนี้</div>
-      <button class="today-empty-action" onclick="state.tab='workout';render()">เพิ่ม Workout</button>
-    </div>`;
+        </div>
+      `).join('')}${foodsForToday.length > mealLimit ? `
+        <button class="today-toggle-btn w-full mt-2" onclick="showAllTodayMeals()">แสดงทั้งหมด ${foodsForToday.length} รายการ</button>
+      ` : ''}</div>`
+      : `<div class="today-empty-state">
+        <div class="today-empty-icon">🍽️</div>
+        <div class="today-empty-text">ยังไม่มีอาหารวันนี้</div>
+        <button class="today-empty-action" onclick="state.tab='food';render()">เพิ่มอาหาร</button>
+      </div>`;
+
+  const workoutsForToday = Array.isArray(d.workouts) ? d.workouts : [];
+  const shownWorkouts = workoutsForToday.slice(0, workoutLimit);
+  const workoutsList = !openWorkouts
+    ? `<div class="text-xs text-stone-500 px-2 py-3">ซ่อนอยู่ ${workoutsForToday.length} รายการ • กด “แสดง” เพื่อดูรายการออกกำลังกาย</div>`
+    : workoutsForToday.length > 0
+      ? `<div class="today-items">${shownWorkouts.map(w => `
+        <div class="today-item">
+          <div class="today-item-left">
+            <div class="today-item-name">${workEmoji(w.type)} ${w.name || w.type || 'Workout'}</div>
+            <div class="today-item-desc">${fmt(w.durationMin)} นาที ${Number(w.distanceKm || 0) ? '• ' + fmt1(w.distanceKm) + ' km' : ''} ${w.source ? '• ' + w.source : ''}</div>
+          </div>
+          <div class="today-item-right">
+            <div class="today-item-value today-item-value-workout">${fnum(w.calories)} kcal</div>
+            <div class="today-item-subvalue">${w.time || ''}</div>
+          </div>
+        </div>
+      `).join('')}${workoutsForToday.length > workoutLimit ? `
+        <button class="today-toggle-btn w-full mt-2" onclick="showAllTodayWorkouts()">แสดงทั้งหมด ${workoutsForToday.length} รายการ</button>
+      ` : ''}</div>`
+      : `<div class="today-empty-state">
+        <div class="today-empty-icon">⚡</div>
+        <div class="today-empty-text">ยังไม่มี workout วันนี้</div>
+        <button class="today-empty-action" onclick="state.tab='workout';render()">เพิ่ม Workout</button>
+      </div>`;
 
   return `
     <div class="px-4 pb-4">
       <div class="hero-ring-container">
         <div class="hero-ring-status">Today's Status</div>
-        <div class="hero-ring-svg-wrapper">
-          <svg viewBox="0 0 160 160">
-            <circle cx="80" cy="80" r="70" fill="none" stroke="#333" stroke-width="12" opacity="0.3"></circle>
-            <circle cx="80" cy="80" r="70" fill="none" stroke="${ringColor}"
-                    stroke-width="12" stroke-dasharray="${progress} ${ringLength - progress}"
-                    stroke-linecap="round" style="transform:rotate(-90deg);transform-origin:80px 80px;"></circle>
-          </svg>
-          <div class="hero-ring-percentage">
-            <div class="hero-ring-percentage-value">${percentage}%</div>
-            <div class="hero-ring-percentage-label">ใช้ไปแล้ว</div>
+        <div class="hero-ring-layout">
+          <div>
+            <div class="hero-ring-svg-wrapper">
+              <svg viewBox="0 0 160 160">
+                <circle cx="80" cy="80" r="70" fill="none" stroke="#333" stroke-width="12" opacity="0.3"></circle>
+                <circle cx="80" cy="80" r="70" fill="none" stroke="${ringColor}"
+                        stroke-width="12" stroke-dasharray="${progress} ${ringLength - progress}"
+                        stroke-linecap="round" style="transform:rotate(-90deg);transform-origin:80px 80px;"></circle>
+              </svg>
+              <div class="hero-ring-percentage">
+                <div class="hero-ring-percentage-value">${percentage}%</div>
+                <div class="hero-ring-percentage-label">ใช้ไปแล้ว</div>
+              </div>
+            </div>
+          </div>
+          <div class="protein-ring-card">
+            <div class="protein-ring-svg-wrapper">
+              <svg viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="9"></circle>
+                <circle cx="50" cy="50" r="40" fill="none" stroke="${proteinColor}"
+                        stroke-width="9" stroke-dasharray="${proteinProgress} ${proteinRingLength - proteinProgress}"
+                        stroke-linecap="round" style="transform:rotate(-90deg);transform-origin:50px 50px;filter:drop-shadow(0 0 8px ${proteinColor}66)"></circle>
+              </svg>
+              <div class="protein-ring-center">
+                <div class="protein-ring-value">${Math.round(proteinPctRaw)}%</div>
+                <div class="protein-ring-label">Protein</div>
+              </div>
+            </div>
+            <div class="protein-ring-caption">เป้าหมาย</div>
+            <div class="protein-ring-amount" style="color:${proteinColor}">${fmt1(protein)} / ${fnum(proteinGoal)}g</div>
           </div>
         </div>
 
         <div class="hero-ring-remaining">
-          <div class="hero-ring-remaining-value ${remain >= 0 ? '' : 'text-red-400'}">${fmt(remain)} kcal</div>
+          <div class="hero-ring-remaining-value" style="color:${remain >= 0 ? '#34c66b' : '#ff4d3d'}">${fnum(remain)} kcal</div>
           <div class="hero-ring-remaining-label">เหลือสุทธิจาก TDEE</div>
         </div>
 
         <div class="hero-ring-metrics">
           <div class="hero-ring-metric-card hero-ring-metric-eaten">
             <div class="hero-ring-metric-label">กินแล้ว</div>
-            <div class="hero-ring-metric-value">${fmt(eaten)}</div>
+            <div class="hero-ring-metric-value">${fnum(eaten)}</div>
           </div>
           <div class="hero-ring-metric-card hero-ring-metric-burned">
-            <div class="hero-ring-metric-label">เผาผลาญ</div>
-            <div class="hero-ring-metric-value">${fmt(burned)}</div>
+            <div class="hero-ring-metric-label">โปรตีนวันนี้</div>
+            <div class="hero-ring-metric-value" style="color:${proteinColor}">${fmt1(protein)}g</div>
           </div>
         </div>
       </div>
 
-      <div class="today-section">
-        <div class="today-section-header">
-          <h3 class="today-section-title">🍽️ Meals Today</h3>
+      <div class="today-section-card meal">
+        <div class="today-section-header accent-meal">
+          <h3 class="today-section-title">🍽️ Meals Today <span class="text-xs text-stone-500 font-bold">${foodsForToday.length} รายการ</span></h3>
           <div class="flex gap-2">
-            ${foods.length ? `
-              <button
-                class="today-add-btn bg-stone-100 !text-stone-700"
-                onclick="${toggleTodaySection('todayMealsOpen')}"
-              >
-                ${mealsOpen ? 'ซ่อน' : 'แสดง'}
-              </button>
-            ` : ''}
+            <button class="today-toggle-btn" onclick="toggleTodayMeals()">${openMeals ? 'ซ่อน' : 'แสดง'}</button>
             <button class="today-add-btn" onclick="state.tab='food';render()">+ Add</button>
           </div>
         </div>
         ${foodsList}
       </div>
 
-      <div class="today-section">
-        <div class="today-section-header">
-          <h3 class="today-section-title">⚡ Workouts Today</h3>
+      <div class="today-section-card workout">
+        <div class="today-section-header accent-workout">
+          <h3 class="today-section-title">⚡ Work Today <span class="text-xs text-stone-500 font-bold">${workoutsForToday.length} รายการ</span></h3>
           <div class="flex gap-2">
-            ${workouts.length ? `
-              <button
-                class="today-add-btn bg-stone-100 !text-stone-700"
-                onclick="${toggleTodaySection('todayWorkoutsOpen')}"
-              >
-                ${workoutsOpen ? 'ซ่อน' : 'แสดง'}
-              </button>
-            ` : ''}
+            <button class="today-toggle-btn" onclick="toggleTodayWorkouts()">${openWorkouts ? 'ซ่อน' : 'แสดง'}</button>
             <button class="today-add-btn" onclick="state.tab='workout';render()">+ Add</button>
           </div>
         </div>
@@ -576,19 +667,19 @@ function renderToday() {
           <div class="border-r border-white/10 pr-3">
             <div class="text-green-300 text-xl">💪</div>
             <div class="text-xs text-white/60 font-bold mt-1">โปรตีนวันนี้</div>
-            <div class="text-2xl font-black">${fmt(d.protein)} / ${fmt(p.proteinGoal || 150)} g</div>
-            <div class="mt-2 h-2 bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-green-400 rounded-full" style="width:${Math.min(100, (d.protein / Math.max(p.proteinGoal || 1, 1)) * 100)}%"></div></div>
-            <div class="text-[11px] text-green-300 mt-1">${Math.round((d.protein / Math.max(p.proteinGoal || 1, 1)) * 100)}%</div>
+            <div class="text-2xl font-black">${fmt1(protein)} / ${fnum(proteinGoal)} g</div>
+            <div class="mt-2 h-2 bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-green-400 rounded-full" style="width:${Math.min(100, proteinPct)}%"></div></div>
+            <div class="text-[11px] text-green-300 mt-1">${Math.round(proteinPctRaw)}%</div>
           </div>
           <div class="pl-1">
             <div class="text-orange-400 text-xl">🔥</div>
             <div class="text-xs text-white/60 font-bold mt-1">TDEE วันนี้</div>
-            <div class="text-2xl font-black">${fmt(dynamic)} kcal</div>
-            <div class="text-[11px] text-white/55 mt-1">รวมกิจกรรม</div>
+            <div class="text-2xl font-black">${fnum(dynamic)} kcal</div>
+            <div class="text-[11px] text-white/55 mt-1">รวมกิจกรรม ${fnum(burned)} kcal</div>
           </div>
         </div>
 
-        <p class="text-[11px] text-stone-400 mt-3 px-1">Goal ${fmt(g)} • Eaten ${fmt(eaten)} • Net ${fmt(remain)}</p>
+        <p class="text-[11px] text-stone-400 mt-3 px-1">Goal ${fnum(g)} • Eaten ${fnum(eaten)} • Net ${fnum(remain)}</p>
       </section>
 
       ${renderQuickAdd()}
@@ -598,6 +689,29 @@ function renderToday() {
   `;
 }
 
+
+function toggleTodayMeals() {
+  state.ui = { mealsOpen: true, workoutsOpen: true, mealsLimit: 3, workoutsLimit: 3, ...(state.ui || {}) };
+  state.ui.mealsOpen = !state.ui.mealsOpen;
+  render();
+}
+function toggleTodayWorkouts() {
+  state.ui = { mealsOpen: true, workoutsOpen: true, mealsLimit: 3, workoutsLimit: 3, ...(state.ui || {}) };
+  state.ui.workoutsOpen = !state.ui.workoutsOpen;
+  render();
+}
+function showAllTodayMeals() {
+  state.ui = { mealsOpen: true, workoutsOpen: true, mealsLimit: 3, workoutsLimit: 3, ...(state.ui || {}) };
+  state.ui.mealsOpen = true;
+  state.ui.mealsLimit = 999;
+  render();
+}
+function showAllTodayWorkouts() {
+  state.ui = { mealsOpen: true, workoutsOpen: true, mealsLimit: 3, workoutsLimit: 3, ...(state.ui || {}) };
+  state.ui.workoutsOpen = true;
+  state.ui.workoutsLimit = 999;
+  render();
+}
 
 function renderQuickAdd() {
   return `<section class="grid grid-cols-2 gap-3 mb-4">
