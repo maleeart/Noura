@@ -793,6 +793,12 @@ function showAllTodayWorkouts() {
   state.ui.workoutsLimit = 999;
   render();
 }
+  function renderQuickAdd() {
+  return `<section class="grid grid-cols-2 gap-3 mb-4">
+    <button onclick="state.tab='food';render()" class="bg-stone-950 text-white rounded-[26px] py-4 font-black shadow-lg shadow-stone-300/60">+ อาหาร</button>
+    <button onclick="state.tab='workout';render()" class="bg-white border border-stone-200 rounded-[26px] py-4 font-black shadow-sm">+ Workout</button>
+  </section>`;
+}
 
 function renderDayList() {
   const d = dayTotals();
