@@ -394,9 +394,9 @@
       </div>
       <div class="mt-7 flex items-end gap-4">
         <div class="flex-1">
-          <p class="text-green-300 font-extrabold text-sm">Hi, Maleeart 👋</p>
-          <h2 class="text-[31px] leading-tight font-black mt-1">วันนี้ทำได้ดีมาก!</h2>
-          <p class="text-white/70 text-sm mt-2">รักษาวินัยต่อเนื่อง แล้วผลลัพธ์จะตามมาเสมอ 💚</p>
+          <p class="text-green-300 font-extrabold text-sm">Insight สำหรับคุณ ✨</p>
+          <h2 id="heroInsightTitle" class="text-[24px] leading-tight font-black mt-1">กำลังโหลดข้อมูล...</h2>
+          <p id="heroInsightText" class="text-white/70 text-sm mt-2">Noura จะสรุปคำแนะนำวันนี้ให้ตรงกับข้อมูลอาหารและโปรตีนของคุณ</p>
         </div>
         <div class="glass rounded-[28px] p-4 min-w-[122px] text-center">
           <div class="text-2xl">🔥</div>
@@ -682,7 +682,6 @@ function renderToday() {
 
       ${renderQuickAdd()}
       ${renderMiniHistory()}
-      ${renderInsight()}
     </div>
   `;
 }
@@ -845,11 +844,35 @@ function renderMiniHistory() {
   `);
 }
 
+function getInsight() {
+  const d = dayTotals();
+  const p = state.data.profile;
+  const remain = netRemaining();
+  const proteinGoal = Number(p.proteinGoal || 0);
+
+  if (remain < 0) {
+    return {
+      title: 'วันนี้เกิน TDEE แล้ว',
+      text: 'ไม่เป็นไร พรุ่งนี้คุมให้กลับเข้าโซนได้ เน้นโปรตีนให้พอและลดของหวาน/เครื่องดื่มแคลอรีสูงลงนิดนึง'
+    };
+  }
+
+  if (d.protein >= proteinGoal && proteinGoal > 0) {
+    return {
+      title: 'โปรตีนวันนี้ดีมาก 💪',
+      text: 'คุณทำยอดโปรตีนถึงเป้าแล้ว เหลือแค่คุมแคลอรีให้อยู่ใกล้ TDEE/Goal ผลลัพธ์จะนิ่งขึ้นเรื่อย ๆ'
+    };
+  }
+
+  return {
+    title: 'เติมโปรตีนอีกนิดนะ',
+    text: 'วันนี้โปรตีนยังต่ำกว่าเป้าหมาย ลองเพิ่มเวย์ ไข่ หรืออกไก่อีกนิด จะช่วยให้อิ่มและรักษากล้ามเนื้อได้ดีขึ้น'
+  };
+}
+
 function renderInsight() {
-  const d=dayTotals(), p=state.data.profile, goalR=netRemaining();
-  let text = d.protein >= Number(p.proteinGoal||0) ? 'คุณทำยอดโปรตีนได้ดีมาก 💪 คุมแคลอรีให้ใกล้เป้าหมายอีกนิด ผลลัพธ์จะนิ่งขึ้นนะ!' : 'วันนี้โปรตีนยังต่ำกว่าเป้าหมาย ลองเพิ่มเวย์ ไข่ หรืออกไก่อีกนิดจะช่วยให้อิ่มและรักษากล้ามเนื้อได้ดีขึ้น';
-  if(goalR < 0) text = 'วันนี้กินเกิน TDEE แล้ว แต่ยังดูจาก TDEE ได้อยู่ พรุ่งนี้คุมให้กลับเข้าโซนอีกครั้งได้สบายมาก';
-  return `<section class="rounded-[30px] p-4 mb-4 bg-gradient-to-br from-green-50 to-white border border-green-100 flex gap-3 items-center"><div class="text-3xl">✨</div><div class="flex-1"><h2 class="font-black">Insight สำหรับคุณ</h2><p class="text-sm text-stone-600 mt-1">${text}</p></div><div class="text-5xl">🌱</div></section>`;
+  const insight = getInsight();
+  return `<section class="rounded-[30px] p-4 mb-4 bg-gradient-to-br from-green-50 to-white border border-green-100 flex gap-3 items-center"><div class="text-3xl">✨</div><div class="flex-1"><h2 class="font-black">${insight.title}</h2><p class="text-sm text-stone-600 mt-1">${insight.text}</p></div><div class="text-5xl">🌱</div></section>`;
 }
 
 function renderFood() {
@@ -992,6 +1015,11 @@ function shiftDate(delta){ const d=new Date(state.selectedDate); d.setDate(d.get
 function render() {
   document.querySelectorAll('.tabBtn').forEach(b => { const active=b.dataset.tab===state.tab; b.className=`tabBtn rounded-[24px] py-3 text-xs font-black ${active ? 'bg-green-50 text-green-700 shadow-inner' : 'text-stone-500'}`; });
   const todayTotals = dayTotals(); const hb=$('#heroBurn'); if(hb) hb.textContent = fmt(todayTotals.burned);
+  const heroInsight = getInsight();
+  const heroTitle = $('#heroInsightTitle');
+  const heroText = $('#heroInsightText');
+  if (heroTitle) heroTitle.textContent = heroInsight.title;
+  if (heroText) heroText.textContent = heroInsight.text;
   let html = '';
   if (state.message) html += `<div class="bg-yellow-50 text-yellow-800 rounded-2xl p-3 text-xs mb-3 border border-yellow-100">${state.message}</div>`;
   if (state.tab === 'today') html += renderToday();
