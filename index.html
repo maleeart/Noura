@@ -187,93 +187,471 @@ function card(html, cls='') { return `<section class="soft-card rounded-[30px] p
 function input(label, id, value, type='text', extra='') { return `<label class="block text-xs font-black text-stone-500 mb-1">${label}</label><input id="${id}" type="${type}" value="${value ?? ''}" ${extra} class="w-full bg-stone-100 rounded-2xl px-4 py-3 outline-none mb-3 border border-transparent focus:border-stone-300">`; }
 function tinyStat(icon, label, value, sub, color='bg-stone-100') { return `<div class="${color} rounded-[24px] p-3 flex items-center gap-3"><div class="icon-bubble bg-white/70 text-xl">${icon}</div><div><div class="text-xs text-stone-500 font-bold">${label}</div><div class="text-xl font-black leading-tight">${value}</div><div class="text-[11px] text-stone-500">${sub||''}</div></div></div>`; }
 
-function renderToday() {
-  const p = state.data.profile;
-  const d = dayTotals();
-  const dynamic = dynamicTDEE();
-  const g = goal();
-  const remain = netRemaining();
-  const goalRemain = goalRemaining();
-  const eatenPctRaw = (d.eaten / Math.max(dynamic, 1)) * 100;
-  const eatenPct = Math.max(0, Math.min(100, eatenPctRaw));
-  const goalPct = Math.max(0, Math.min(100, (g / Math.max(dynamic, 1)) * 100));
-  const overPct = Math.max(0, Math.min(100, eatenPctRaw - 100));
-  let ringBg = '';
-  if (eatenPctRaw <= goalPct) {
-    ringBg = `conic-gradient(var(--orange) 0 ${eatenPct}%, #ebe7df ${eatenPct}% 100%)`;
-  } else if (eatenPctRaw <= 100) {
-    ringBg = `conic-gradient(var(--orange) 0 ${goalPct}%, var(--green) ${goalPct}% ${eatenPct}%, #ebe7df ${eatenPct}% 100%)`;
-  } else {
-    ringBg = `conic-gradient(var(--orange) 0 ${goalPct}%, var(--green) ${goalPct}% 100%)`;
+
+  <style>
+  /* ===== HERO RING STYLES ===== */
+  .hero-ring-container {
+    background: linear-gradient(135deg, #03060a 0%, #111827 58%, #1c1917 100%);
+    border-radius: 32px;
+    padding: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 18px 44px rgba(0,0,0,0.13);
   }
-  const proteinPct = Math.max(0, Math.min(160, Math.round((d.protein / Math.max(Number(p.proteinGoal||1),1))*100)));
-  let statusText = 'ต่ำกว่า Goal';
-  let statusCls = 'text-orange-600 bg-orange-50 border-orange-100';
-  if (d.eaten > g && d.eaten <= dynamic) {
-    statusText = 'เกิน Goal แต่ยังไม่เกิน TDEE';
-    statusCls = 'text-green-600 bg-green-50 border-green-100';
+
+  .hero-ring-status {
+    margin: 0 0 8px;
+    font-size: 12px;
+    color: rgba(52, 198, 107, 0.8);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
-  if (d.eaten > dynamic) {
-    statusText = 'เกิน TDEE';
-    statusCls = 'text-red-600 bg-red-50 border-red-100';
+
+  .hero-ring-svg {
+    width: 160px;
+    height: 160px;
+    margin: 0 auto 16px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-  return `
-    <section class="panel rounded-[34px] p-4 mb-4">
-      <div class="flex items-center gap-2 mb-4">
-        <button onclick="shiftDate(-1)" class="w-10 h-10 rounded-2xl bg-stone-100 text-stone-400 font-black">‹</button>
-        <input id="datePick" type="date" value="${state.selectedDate}" class="flex-1 bg-stone-100 rounded-2xl px-3 py-3 text-sm font-black text-center">
-        <button onclick="shiftDate(1)" class="w-10 h-10 rounded-2xl bg-stone-100 text-stone-400 font-black">›</button>
+
+  .hero-ring-svg svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 4px 8px rgba(255, 122, 26, 0.2));
+  }
+
+  .hero-ring-percentage {
+    position: absolute;
+    text-align: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .hero-ring-percentage-value {
+    font-size: 32px;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .hero-ring-percentage-label {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 2px;
+  }
+
+  .hero-ring-remaining {
+    margin: 16px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 12px 0;
+  }
+
+  .hero-ring-remaining-value {
+    font-size: 24px;
+    font-weight: 900;
+    color: #34c66b;
+  }
+
+  .hero-ring-remaining-label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 4px;
+  }
+
+  .hero-ring-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .hero-ring-metric-card {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 10px;
+    font-size: 11px;
+  }
+
+  .hero-ring-metric-label {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .hero-ring-metric-value {
+    font-size: 16px;
+    font-weight: 700;
+    margin-top: 2px;
+    line-height: 1;
+  }
+
+  .hero-ring-metric-eaten .hero-ring-metric-value {
+    color: #ff7a1a;
+  }
+
+  .hero-ring-metric-burned .hero-ring-metric-value {
+    color: #34c66b;
+  }
+
+  /* ===== MEAL & WORKOUT LIST STYLES ===== */
+  .today-section {
+    margin-bottom: 20px;
+  }
+
+  .today-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding: 0 4px;
+  }
+
+  .today-section-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #05070a;
+  }
+
+  .today-add-btn {
+    background: #05070a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .today-add-btn:hover {
+    background: #1a1a1a;
+    transform: translateY(-1px);
+  }
+
+  .today-add-btn:active {
+    transform: scale(0.98);
+  }
+
+  .today-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .today-item {
+    background: white;
+    border: 1px solid #eee9df;
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease;
+  }
+
+  .today-item:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-color: #ddd;
+  }
+
+  .today-item-left {
+    flex: 1;
+  }
+
+  .today-item-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: #05070a;
+    margin-bottom: 4px;
+  }
+
+  .today-item-desc {
+    font-size: 12px;
+    color: #6b7280;
+  }
+
+  .today-item-right {
+    text-align: right;
+    flex: 0 0 auto;
+    margin-left: 12px;
+  }
+
+  .today-item-value {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+
+  .today-item-subvalue {
+    font-size: 11px;
+    color: #6b7280;
+  }
+
+  .today-item-value-meal {
+    color: #ff7a1a;
+  }
+
+  .today-item-value-workout {
+    color: #34c66b;
+  }
+
+  /* ===== EMPTY STATE STYLES ===== */
+  .today-empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #9ca3af;
+  }
+
+  .today-empty-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+    opacity: 0.5;
+  }
+
+  .today-empty-text {
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .today-empty-action {
+    display: inline-block;
+    background: #05070a;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+  }
+
+  .today-empty-action:hover {
+    background: #1a1a1a;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 480px) {
+    .hero-ring-container {
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .today-section {
+      margin-bottom: 16px;
+    }
+  }
+</style>
+
+<!-- HTML MARKUP for renderToday() -->
+<div class="today-page">
+  <!-- Hero Ring Section -->
+  <div class="hero-ring-container">
+    <div class="hero-ring-status">Today's Status</div>
+
+    <!-- SVG Ring -->
+    <div class="hero-ring-svg">
+      <svg viewBox="0 0 160 160">
+        <!-- Background ring -->
+        <circle cx="80" cy="80" r="70" fill="none" stroke="#333" stroke-width="12" opacity="0.3"></circle>
+        <!-- Progress ring (calculated from percentage) -->
+        <circle id="progressRing" cx="80" cy="80" r="70" fill="none" stroke="#ff7a1a" 
+                stroke-width="12" stroke-dasharray="405 440" stroke-linecap="round"
+                style="transform: rotate(-90deg); transform-origin: 80px 80px;"></circle>
+      </svg>
+      <div class="hero-ring-percentage">
+        <div class="hero-ring-percentage-value" id="percentageValue">92%</div>
+        <div class="hero-ring-percentage-label">TO GOAL</div>
       </div>
+    </div>
 
-      <div class="grid grid-cols-[1.12fr_.88fr] gap-3 items-center">
-        <div class="ring aspect-square" style="--ring-bg:${ringBg}; --over:${overPct}">
-          <div class="ring-inner w-full h-full flex flex-col items-center justify-center text-center p-4">
-            <div class="text-2xl">🔥</div>
-            <div class="text-xs font-black text-stone-500 mt-1">เหลือสุทธิ</div>
-            <div class="text-5xl font-black tracking-tight leading-none mt-1">${fmt(remain)}</div>
-            <div class="text-sm font-bold">kcal</div>
-            <div class="mt-3 px-3 py-1 rounded-full border text-[11px] font-black ${statusCls}">${statusText}</div>
-            <div class="mt-2 text-[10px] text-stone-400">กินแล้ว ${fmt(eatenPctRaw)}% ของ TDEE</div>
-          </div>
+    <!-- Remaining Calories -->
+    <div class="hero-ring-remaining">
+      <div class="hero-ring-remaining-value" id="remainingValue">1,000 kcal</div>
+      <div class="hero-ring-remaining-label">remaining to goal</div>
+    </div>
+
+    <!-- Metrics Grid -->
+    <div class="hero-ring-metrics">
+      <div class="hero-ring-metric-card hero-ring-metric-eaten">
+        <div class="hero-ring-metric-label">eaten</div>
+        <div class="hero-ring-metric-value" id="eatenValue">1,850</div>
+      </div>
+      <div class="hero-ring-metric-card hero-ring-metric-burned">
+        <div class="hero-ring-metric-label">burned</div>
+        <div class="hero-ring-metric-value" id="burnedValue">850</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Meals Section -->
+  <div class="today-section">
+    <div class="today-section-header">
+      <h3 class="today-section-title">🍽️ Meals Today</h3>
+      <button class="today-add-btn" onclick="openAddFoodModal()">+ Add</button>
+    </div>
+    <div class="today-items" id="mealsList">
+      <!-- Dynamically populated -->
+    </div>
+  </div>
+
+  <!-- Workouts Section -->
+  <div class="today-section">
+    <div class="today-section-header">
+      <h3 class="today-section-title">⚡ Workouts Today</h3>
+      <button class="today-add-btn" onclick="openAddWorkoutModal()">+ Add</button>
+    </div>
+    <div class="today-items" id="workoutsList">
+      <!-- Dynamically populated -->
+    </div>
+  </div>
+</div>
+
+<!-- JAVASCRIPT FUNCTIONS (add to your main script) -->
+<script>
+  // Function to render Hero Ring section
+  function renderHeroRing(dayData) {
+    const eaten = dayData.eaten || 0;
+    const burned = dayData.burned || 0;
+    const goal = dayData.goal || 2000;
+    const remaining = Math.max(0, goal - eaten);
+    const percentage = Math.min(100, Math.round((eaten / goal) * 100));
+
+    // Update values
+    document.getElementById('eatenValue').textContent = eaten.toLocaleString();
+    document.getElementById('burnedValue').textContent = burned.toLocaleString();
+    document.getElementById('percentageValue').textContent = percentage + '%';
+    document.getElementById('remainingValue').textContent = remaining.toLocaleString() + ' kcal';
+
+    // Update ring progress
+    const ringLength = 2 * Math.PI * 70; // circumference
+    const progress = (percentage / 100) * ringLength;
+    const gapPercentage = Math.max(0, 100 - percentage);
+    const gapLength = (gapPercentage / 100) * ringLength;
+    document.getElementById('progressRing').setAttribute(
+      'stroke-dasharray',
+      progress + ' ' + gapLength
+    );
+
+    // Color indicator based on status
+    const ring = document.getElementById('progressRing');
+    if (percentage >= 95) {
+      ring.setAttribute('stroke', '#34c66b'); // Green - on track
+    } else if (percentage >= 75) {
+      ring.setAttribute('stroke', '#ff7a1a'); // Orange - warning
+    } else {
+      ring.setAttribute('stroke', '#ff4d3d'); // Red - under
+    }
+  }
+
+  // Function to render meals list
+  function renderMealsList(meals) {
+    const container = document.getElementById('mealsList');
+    
+    if (!meals || meals.length === 0) {
+      container.innerHTML = `
+        <div class="today-empty-state">
+          <div class="today-empty-icon">🍽️</div>
+          <div class="today-empty-text">No meals recorded yet</div>
+          <button class="today-empty-action" onclick="openAddFoodModal()">Add Meal</button>
         </div>
-        <div class="space-y-2">
-          ${tinyStat('🍴','กินแล้ว',`${fmt(d.eaten)} kcal`,'จากอาหารวันนี้','bg-white border border-stone-100')}
-          ${tinyStat('⚡','TDEE วันนี้',`${fmt(dynamic)} kcal`,'รวมกิจกรรม','bg-white border border-stone-100')}
-          ${tinyStat('🎯','Goal',`${fmt(g)} kcal`,`Deficit ${Math.round(deficitRate(p)*100)}%`,'bg-white border border-stone-100')}
+      `;
+      return;
+    }
+
+    container.innerHTML = meals.map(meal => `
+      <div class="today-item">
+        <div class="today-item-left">
+          <div class="today-item-name">${meal.name}</div>
+          <div class="today-item-desc">${meal.description || 'Custom meal'}</div>
+        </div>
+        <div class="today-item-right">
+          <div class="today-item-value today-item-value-meal">${meal.calories}</div>
+          <div class="today-item-subvalue">${meal.protein || 0}g protein</div>
         </div>
       </div>
+    `).join('');
+  }
 
-      <div class="mt-3 bg-stone-50 border border-stone-100 rounded-2xl p-3 text-[11px] text-stone-500 grid grid-cols-3 gap-2">
-        <div><span class="ring-legend-dot" style="background:var(--orange)"></span>ต่ำกว่า Goal</div>
-        <div><span class="ring-legend-dot" style="background:var(--green)"></span>Goal → TDEE</div>
-        <div><span class="ring-legend-dot" style="background:var(--red)"></span>เกิน TDEE</div>
-      </div>
-
-      <div class="mt-4 bg-stone-950 text-white rounded-[28px] p-4 grid grid-cols-2 gap-3">
-        <div class="border-r border-white/10 pr-3">
-          <div class="text-green-300 text-xl">💪</div>
-          <div class="text-xs text-white/60 font-bold mt-1">โปรตีนวันนี้</div>
-          <div class="text-2xl font-black">${fmt(d.protein)} / ${fmt(p.proteinGoal)} g</div>
-          <div class="mt-2 h-2 bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-green-400 rounded-full" style="width:${Math.min(100,proteinPct)}%"></div></div>
-          <div class="text-[11px] text-green-300 mt-1">${fmt(proteinPct)}%</div>
+  // Function to render workouts list
+  function renderWorkoutsList(workouts) {
+    const container = document.getElementById('workoutsList');
+    
+    if (!workouts || workouts.length === 0) {
+      container.innerHTML = `
+        <div class="today-empty-state">
+          <div class="today-empty-icon">⚡</div>
+          <div class="today-empty-text">No workouts recorded yet</div>
+          <button class="today-empty-action" onclick="openAddWorkoutModal()">Add Workout</button>
         </div>
-        <div class="pl-1">
-          <div class="text-orange-400 text-xl">🔥</div>
-          <div class="text-xs text-white/60 font-bold mt-1">เหลือสุทธิจาก TDEE</div>
-          <div class="text-2xl font-black ${remain>=0?'text-green-300':'text-red-300'}">${fmt(remain)} kcal</div>
-          <div class="text-[11px] text-white/55 mt-1">Dynamic TDEE - กินแล้ว</div>
+      `;
+      return;
+    }
+
+    container.innerHTML = workouts.map(workout => `
+      <div class="today-item">
+        <div class="today-item-left">
+          <div class="today-item-name">${workout.type}</div>
+          <div class="today-item-desc">${workout.distance ? workout.distance + 'km' : ''} ${workout.duration ? workout.duration + ' min' : ''}</div>
+        </div>
+        <div class="today-item-right">
+          <div class="today-item-value today-item-value-workout">${workout.burned}</div>
+          <div class="today-item-subvalue">${workout.duration || 0}m</div>
         </div>
       </div>
+    `).join('');
+  }
 
-      <p class="text-[11px] text-stone-400 mt-3 px-1">BMR ${fmt(bmr(p))} • Base ${fmt(baseTDEE(p))} • Burn ${fmt(d.burned)} • TDEE ${fmt(dynamic)} • Goal ${fmt(g)}</p>
-    </section>
+  // Main function to render today page
+  function renderTodayPage(selectedDate) {
+    const dayData = getDayTotals(selectedDate); // ต้อง implement this function
+    
+    // Render all components
+    renderHeroRing(dayData);
+    renderMealsList(dayData.meals || []);
+    renderWorkoutsList(dayData.workouts || []);
+  }
 
-    ${renderQuickAdd()}
-    ${renderMiniHistory()}
-    ${renderInsight()}
-    ${card(`<div class="flex items-center justify-between mb-3"><h2 class="font-black text-lg">รายการวันนี้</h2><button onclick="state.tab='food';render()" class="text-xs bg-stone-950 text-white px-3 py-2 rounded-full">+ เพิ่มอาหาร</button></div>${renderDayList()}`)}
-  `;
-}
+  // Helper: Calculate daily totals
+  function getDayTotals(dateStr) {
+    const meals = data.meals?.[dateStr] || [];
+    const workouts = data.workouts?.[dateStr] || [];
+
+    const eaten = meals.reduce((sum, m) => sum + (m.calories || 0), 0);
+    const burned = workouts.reduce((sum, w) => sum + (w.burned || 0), 0);
+    const goal = data.settings?.dailyGoal || 2000;
+
+    return {
+      eaten,
+      burned,
+      goal,
+      remaining: goal - eaten,
+      meals,
+      workouts
+    };
+  }
+
+  // Placeholder functions for modals (implement with bottom-sheet)
+  function openAddFoodModal() {
+    // TODO: Open bottom-sheet modal for adding food
+    console.log('Open add food modal');
+  }
+
+  function openAddWorkoutModal() {
+    // TODO: Open bottom-sheet modal for adding workout
+    console.log('Open add workout modal');
+  }
+</script>
 
 function renderQuickAdd() {
   return `<section class="grid grid-cols-2 gap-3 mb-4">
