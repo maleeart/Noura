@@ -291,6 +291,7 @@ function renderDayList() {
 function foodEmoji(menu='') { const m=menu.toLowerCase(); if(m.includes('กาแฟ')||m.includes('อเมริกาโน'))return'☕'; if(m.includes('เวย์'))return'🥤'; if(m.includes('ข้าว'))return'🍚'; if(m.includes('ไก่'))return'🍗'; if(m.includes('กล้วย'))return'🍌'; return'🍽️'; }
 function workEmoji(type='') { const t=String(type).toLowerCase(); if(t.includes('run'))return'🏃'; if(t.includes('walk'))return'🚶'; if(t.includes('ride'))return'🚴'; if(t.includes('basket'))return'🏀'; if(t.includes('weight'))return'🏋️'; return'⚡'; }
 
+
 function renderMiniHistory() {
   const out = [];
 
@@ -302,7 +303,7 @@ function renderMiniHistory() {
 
     out.push({
       date,
-      remain: netRemaining(date), // Dynamic TDEE - กินแล้ว
+      remain: netRemaining(date),
       buffer: dynamicTDEE(date) - goal(date)
     });
   }
@@ -320,7 +321,7 @@ function renderMiniHistory() {
 
     <div class="relative h-44 px-1">
 
-      <div class="absolute inset-x-0 top-1/2 h-px bg-stone-200"></div>
+      <div class="absolute inset-x-0 top-1/2 h-[2px] bg-stone-400 rounded-full"></div>
 
       <div class="flex items-stretch gap-3 h-full">
 
@@ -352,35 +353,41 @@ function renderMiniHistory() {
           return `
             <button
               onclick="state.selectedDate='${x.date}';state.tab='today';render()"
-              class="flex-1 flex flex-col items-center justify-between"
+              class="flex-1 flex flex-col items-center h-full"
             >
 
-              <div class="h-1/2 flex items-end justify-center">
+              <div class="h-1/2 flex flex-col items-center justify-end">
+
                 ${positive ? `
+                  <div class="text-[10px] font-black ${textColor} mb-1">
+                    +${fmt(x.remain)}
+                  </div>
+
                   <div
                     class="w-7 rounded-t-xl ${color}"
                     style="height:${height}px">
                   </div>
                 ` : ''}
+
               </div>
 
-              <div class="h-1/2 flex items-start justify-center">
+              <div class="h-1/2 flex flex-col items-center justify-start">
+
                 ${!positive ? `
                   <div
                     class="w-7 rounded-b-xl ${color}"
                     style="height:${height}px">
                   </div>
+
+                  <div class="text-[10px] font-black ${textColor} mt-1">
+                    ${fmt(x.remain)}
+                  </div>
                 ` : ''}
+
               </div>
 
-              <div class="mt-2 text-center">
-                <div class="text-[10px] font-black ${textColor}">
-                  ${x.remain > 0 ? '+' : ''}${fmt(x.remain)}
-                </div>
-
-                <div class="text-[11px] text-stone-500">
-                  ${day}
-                </div>
+              <div class="text-[11px] text-stone-500 mt-2">
+                ${day}
               </div>
 
             </button>
@@ -392,6 +399,7 @@ function renderMiniHistory() {
     </div>
   `);
 }
+
 function renderInsight() {
   const d=dayTotals(), p=state.data.profile, goalR=netRemaining();
   let text = d.protein >= Number(p.proteinGoal||0) ? 'คุณทำยอดโปรตีนได้ดีมาก 💪 คุมแคลอรีให้ใกล้เป้าหมายอีกนิด ผลลัพธ์จะนิ่งขึ้นนะ!' : 'วันนี้โปรตีนยังต่ำกว่าเป้าหมาย ลองเพิ่มเวย์ ไข่ หรืออกไก่อีกนิดจะช่วยให้อิ่มและรักษากล้ามเนื้อได้ดีขึ้น';
