@@ -378,6 +378,64 @@
       font-weight:900;
       margin-top:2px;
     }
+
+    /* ===== HISTORY CALENDAR PATCH ===== */
+    .history-toggle-btn{
+      border:1px solid rgba(0,0,0,.08);
+      background:white;
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:11px;
+      font-weight:900;
+      color:#57534e;
+      box-shadow:0 4px 12px rgba(0,0,0,.05);
+    }
+    .history-calendar-grid{
+      display:grid;
+      grid-template-columns:repeat(7,1fr);
+      gap:7px;
+    }
+    .history-calendar-head{
+      font-size:10px;
+      color:#78716c;
+      font-weight:900;
+      text-align:center;
+      padding:4px 0;
+    }
+    .history-day{
+      min-height:48px;
+      border-radius:16px;
+      border:1px solid #eee9df;
+      background:#fafaf9;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:2px;
+      font-size:12px;
+      font-weight:900;
+      color:#292524;
+    }
+    .history-day.has-data{
+      background:#ffffff;
+      box-shadow:0 8px 18px rgba(20,20,20,.05);
+    }
+    .history-day.selected{
+      outline:2px solid #111827;
+      outline-offset:2px;
+    }
+    .history-day .dot{
+      width:6px;
+      height:6px;
+      border-radius:999px;
+      display:block;
+    }
+    .history-day .mini{
+      font-size:9px;
+      color:#78716c;
+      line-height:1;
+    }
+
   </style>
 </head>
 <body class="text-stone-950 min-h-screen pb-28">
@@ -434,7 +492,7 @@ let state = {
   },
   sha: null,
   message: '',
-  ui: { mealsOpen: true, workoutsOpen: true, mealsLimit: 3, workoutsLimit: 3 }
+  ui: { mealsOpen: true, workoutsOpen: true, mealsLimit: 3, workoutsLimit: 3, history7Open: true, historyMonth: null }
 };
 
 function bmr(profile) {
@@ -508,7 +566,7 @@ function renderToday() {
   const percentage = Math.min(100, Math.round((eaten / Math.max(dynamic, 1)) * 100));
 
   let ringColor = '#ff7a1a';
-  if (percentage >= 95) ringColor = '#34c66b';
+  if (percentage >= 80 && percentage <= 100) ringColor = '#34c66b';
   if (eaten > dynamic) ringColor = '#ff4d3d';
 
   const ringLength = 440;
@@ -987,15 +1045,164 @@ async function importStrava() {
 }
 
 function renderHistory() {
-  const days = [...new Set([...(state.data.foods||[]).map(x=>x.date), ...(state.data.workouts||[]).map(x=>x.date), ...(state.data.steps||[]).map(x=>x.date)])].sort().reverse();
-  return `${card(`<h2 class="text-xl font-black mb-3">สรุป 7 วันล่าสุด</h2>${renderWeekSummary()}`)}${card(`<h2 class="text-xl font-black mb-3">ประวัติย้อนหลัง</h2>${days.length ? days.map(renderHistoryDay).join('') : '<p class="text-sm text-stone-400">ยังไม่มีข้อมูล</p>'}`)}`;
+  return `
+    ${renderWeekSummary()}
+    ${renderHistoryCalendar()}
+  `;
 }
+
+function toggleHistory7Days() {
+  state.ui = { mealsOpen: true, workoutsOpen: true, mealsLimit: 3, workoutsLimit: 3, history7Open: true, historyMonth: null, ...(state.ui || {}) };
+  state.ui.history7Open = !state.ui.history7Open;
+  render();
+}
+
+function shiftHistoryMonth(delta) {
+  state.ui = { mealsOpen: true, workoutsOpen: true, mealsLimit: 3, workoutsLimit: 3, history7Open: true, historyMonth: null, ...(state.ui || {}) };
+  const base = state.ui.historyMonth || state.selectedDate.slice(0, 7);
+  const d = new Date(`${base}-01T00:00:00`);
+  d.setMonth(d.getMonth() + delta);
+  state.ui.historyMonth = d.toISOString().slice(0, 7);
+  render();
+}
+
 function renderWeekSummary() {
-  const out=[]; for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); const date=d.toISOString().slice(0,10); const t=dayTotals(date); out.push({date,...t,remain:netRemaining(date),goalRemain:goalRemaining(date)}); }
-  const eaten=sum(out,'eaten'), burned=sum(out,'burned'), protein=sum(out,'protein');
-  return `<div class="grid grid-cols-3 gap-2 mb-3"><div class="bg-stone-100 rounded-2xl p-3"><div class="text-xs text-stone-500">กิน</div><b>${fmt(eaten)}</b></div><div class="bg-orange-50 rounded-2xl p-3"><div class="text-xs text-orange-700">เผา</div><b>${fmt(burned)}</b></div><div class="bg-green-50 rounded-2xl p-3"><div class="text-xs text-green-700">โปรตีน</div><b>${fmt(protein)}g</b></div></div>
-  <div class="space-y-2">${out.reverse().map(x => `<button onclick="state.selectedDate='${x.date}';state.tab='today';render()" class="w-full bg-stone-50 rounded-2xl p-3 text-sm text-left"><b>${x.date}</b><div class="text-xs text-stone-500">กิน ${fmt(x.eaten)} • เผา ${fmt(x.burned)} • เหลือสุทธิ ${fmt(x.remain)} • Goal ${fmt(x.goalRemain)}</div></button>`).join('')}</div>`;
+  const out = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const date = d.toISOString().slice(0,10);
+    const t = dayTotals(date);
+    out.push({ date, ...t, remain: netRemaining(date), goalRemain: goalRemaining(date) });
+  }
+
+  const eaten = sum(out,'eaten');
+  const burned = sum(out,'burned');
+  const protein = sum(out,'protein');
+  const open = state.ui?.history7Open !== false;
+
+  return card(`
+    <div class="flex justify-between items-center mb-3">
+      <div>
+        <h2 class="text-xl font-black">สรุป 7 วันล่าสุด</h2>
+        <p class="text-xs text-stone-400 mt-1">กิน • เผาผลาญ • โปรตีน • เหลือสุทธิ</p>
+      </div>
+      <button class="history-toggle-btn" onclick="toggleHistory7Days()">${open ? 'ซ่อน' : 'แสดง'}</button>
+    </div>
+
+    <div class="grid grid-cols-3 gap-2 mb-3">
+      <div class="bg-stone-100 rounded-2xl p-3">
+        <div class="text-xs text-stone-500">กิน</div>
+        <b>${fmt(eaten)}</b>
+      </div>
+      <div class="bg-orange-50 rounded-2xl p-3">
+        <div class="text-xs text-orange-700">เผา</div>
+        <b>${fmt(burned)}</b>
+      </div>
+      <div class="bg-green-50 rounded-2xl p-3">
+        <div class="text-xs text-green-700">โปรตีน</div>
+        <b>${fmt(protein)}g</b>
+      </div>
+    </div>
+
+    ${open ? `
+      <div class="space-y-2">
+        ${out.reverse().map(x => `
+          <button onclick="state.selectedDate='${x.date}';state.tab='today';render()" class="w-full bg-stone-50 rounded-2xl p-3 text-sm text-left">
+            <b>${new Date(x.date).toLocaleDateString('th-TH', { day:'2-digit', month:'2-digit', year:'2-digit' })}</b>
+            <div class="text-xs text-stone-500">
+              กิน ${fmt(x.eaten)} • เผา ${fmt(x.burned)} • เหลือสุทธิ ${fmt(x.remain)} • Goal ${fmt(x.goalRemain)}
+            </div>
+          </button>
+        `).join('')}
+      </div>
+    ` : `
+      <div class="text-xs text-stone-500 bg-stone-50 rounded-2xl p-3">
+        ซ่อนรายการ 7 วันล่าสุดอยู่
+      </div>
+    `}
+  `);
 }
+
+function renderHistoryCalendar() {
+  const dataDates = [...new Set([
+    ...(state.data.foods || []).map(x => x.date),
+    ...(state.data.workouts || []).map(x => x.date),
+    ...(state.data.steps || []).map(x => x.date)
+  ])];
+
+  const dateSet = new Set(dataDates);
+  const monthKey = state.ui?.historyMonth || state.selectedDate.slice(0, 7);
+  const first = new Date(`${monthKey}-01T00:00:00`);
+  const year = first.getFullYear();
+  const month = first.getMonth();
+  const monthLabel = first.toLocaleDateString('th-TH', { month:'long', year:'numeric' });
+
+  const startDay = first.getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const cells = [];
+
+  for (let i = 0; i < startDay; i++) cells.push(null);
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dt = new Date(year, month, day);
+    const date = dt.toISOString().slice(0,10);
+    const hasData = dateSet.has(date);
+    const remain = netRemaining(date);
+    const selected = date === state.selectedDate;
+    cells.push({ day, date, hasData, remain, selected });
+  }
+
+  const weekdays = ['อา','จ','อ','พ','พฤ','ศ','ส'];
+
+  return card(`
+    <div class="flex items-center justify-between mb-4">
+      <button onclick="shiftHistoryMonth(-1)" class="w-10 h-10 rounded-2xl bg-stone-100 font-black text-stone-500">‹</button>
+      <div class="text-center">
+        <h2 class="text-xl font-black">ปฏิทินย้อนหลัง</h2>
+        <p class="text-xs text-stone-500">${monthLabel}</p>
+      </div>
+      <button onclick="shiftHistoryMonth(1)" class="w-10 h-10 rounded-2xl bg-stone-100 font-black text-stone-500">›</button>
+    </div>
+
+    <div class="history-calendar-grid mb-2">
+      ${weekdays.map(w => `<div class="history-calendar-head">${w}</div>`).join('')}
+    </div>
+
+    <div class="history-calendar-grid">
+      ${cells.map(c => {
+        if (!c) return `<div></div>`;
+
+        const color = !c.hasData
+          ? '#d6d3d1'
+          : c.remain >= 0
+            ? 'var(--green)'
+            : 'var(--red)';
+
+        const mini = c.hasData
+          ? `${c.remain >= 0 ? '+' : ''}${fmt(c.remain)}`
+          : '';
+
+        return `
+          <button
+            onclick="state.selectedDate='${c.date}';state.tab='today';render()"
+            class="history-day ${c.hasData ? 'has-data' : ''} ${c.selected ? 'selected' : ''}"
+          >
+            <span>${c.day}</span>
+            <span class="dot" style="background:${color}"></span>
+            <span class="mini">${mini}</span>
+          </button>
+        `;
+      }).join('')}
+    </div>
+
+    <div class="flex gap-3 text-[11px] text-stone-500 mt-4">
+      <span><span class="ring-legend-dot" style="background:var(--green)"></span>เหลือสุทธิ</span>
+      <span><span class="ring-legend-dot" style="background:var(--red)"></span>เกิน TDEE</span>
+      <span><span class="ring-legend-dot" style="background:#d6d3d1"></span>ไม่มีข้อมูล</span>
+    </div>
+  `);
+}
+
 function renderHistoryDay(date) { const t=dayTotals(date); return `<button onclick="state.selectedDate='${date}';state.tab='today';render()" class="w-full text-left bg-stone-50 rounded-2xl p-3 mb-2"><b>${date}</b><div class="text-xs text-stone-500">Food ${fmt(t.eaten)} kcal • Workout ${fmt(t.burned)} kcal • Net remain ${fmt(netRemaining(date))}</div></button>`; }
 
 function renderProfile() {
