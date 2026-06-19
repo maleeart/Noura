@@ -487,11 +487,20 @@
 
 
 <div id="profileModal" class="hidden fixed inset-0 z-50 bg-black/40 px-4 items-center justify-center">
-  <div class="bg-white rounded-[32px] p-5 w-full max-w-sm shadow-2xl">
-    <div class="flex items-center justify-between mb-4">
+  <div class="bg-white rounded-[32px] p-5 w-full max-w-sm shadow-2xl max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between mb-2">
       <h2 class="text-xl font-black">ข้อมูลส่วนตัว</h2>
-      <button onclick="closeProfileModal()" class="w-10 h-10 rounded-2xl bg-stone-100 font-black text-xl">×</button>
+      <button id="profileModalCloseBtn" onclick="closeProfileModal()" class="w-10 h-10 rounded-2xl bg-stone-100 font-black text-xl">×</button>
     </div>
+    <p id="profileModalRequiredNote" class="hidden text-xs text-orange-600 bg-orange-50 border border-orange-100 rounded-2xl px-3 py-2 mb-3 font-bold">
+      กรอกข้อมูลให้ครบก่อนเริ่มใช้งาน — ใช้คำนวณ BMR/TDEE ของคุณโดยเฉพาะ ไม่เกี่ยวกับคนอื่น
+    </p>
+
+    <label class="text-xs font-black text-stone-500">เพศ</label>
+    <select id="profileSex" class="w-full bg-stone-100 rounded-2xl px-4 py-3 mb-3 outline-none">
+      <option value="male">ชาย</option>
+      <option value="female">หญิง</option>
+    </select>
 
     <label class="text-xs font-black text-stone-500">น้ำหนัก (kg)</label>
     <input id="profileWeight" type="number" step="0.1" class="w-full bg-stone-100 rounded-2xl px-4 py-3 mb-3 outline-none">
@@ -502,9 +511,18 @@
     <label class="text-xs font-black text-stone-500">อายุ</label>
     <input id="profileAge" type="number" class="w-full bg-stone-100 rounded-2xl px-4 py-3 mb-3 outline-none">
 
+    <label class="text-xs font-black text-stone-500">ระดับกิจกรรม</label>
+    <select id="profileActivity" class="w-full bg-stone-100 rounded-2xl px-4 py-3 mb-3 outline-none">
+      <option value="1.2">นั่งทำงาน แทบไม่ออกกำลังกาย</option>
+      <option value="1.375">ออกกำลังกายเบา 1-3 วัน/สัปดาห์</option>
+      <option value="1.55">ออกกำลังกายปานกลาง 3-5 วัน/สัปดาห์</option>
+      <option value="1.725">ออกกำลังกายหนัก 6-7 วัน/สัปดาห์</option>
+    </select>
+
     <label class="text-xs font-black text-stone-500">Protein Goal / วัน</label>
     <input id="profileProteinGoal" type="number" class="w-full bg-stone-100 rounded-2xl px-4 py-3 mb-4 outline-none">
 
+    <p id="profileModalError" class="hidden text-xs text-red-500 mb-3 font-bold"></p>
     <button onclick="saveProfileModal()" class="w-full bg-stone-950 text-white rounded-2xl py-3 font-black">บันทึก</button>
   </div>
 </div>
@@ -562,7 +580,7 @@ let state = {
   tab: 'today',
   selectedDate: todayStr(),
   data: {
-    profile: { weight: 64.0, height: 167, age: 31, sex: 'male', activity: 1.55, proteinGoal: 120, calorieGoalMode: 'tdee', customCalorieGoal: 2300, deficitRate: 0.20 },
+    profile: { weight: 0, height: 0, age: 0, sex: '', activity: 1.55, proteinGoal: 120, calorieGoalMode: 'tdee', customCalorieGoal: 2300, deficitRate: 0.20 },
     foods: [], workouts: [], steps: [], meta: { app: 'Noura', version: '1.2.0' }
   },
   sha: null,
@@ -630,7 +648,7 @@ function storeSession(token, user) {
 function clearSession() {
   state.sessionToken = null;
   state.user = {};
-  state.data = { profile: { weight:64,height:167,age:31,sex:'male',activity:1.55,proteinGoal:120,calorieGoalMode:'tdee',customCalorieGoal:2300,deficitRate:0.20 }, foods:[], workouts:[], steps:[], meta:{} };
+  state.data = { profile: { weight:0,height:0,age:0,sex:'',activity:1.55,proteinGoal:120,calorieGoalMode:'tdee',customCalorieGoal:2300,deficitRate:0.20 }, foods:[], workouts:[], steps:[], meta:{} };
   localStorage.removeItem(SESSION_KEY);
   localStorage.removeItem(USER_KEY);
   localStorage.removeItem(DATA_KEY);
@@ -674,8 +692,11 @@ async function handleGoogleSignIn(response) {
     storeSession(j.sessionToken, j.user);
     hideLoginScreen();
     await loadData();      // โหลดข้อมูล user ก่อน
-    updateHeaderUser();    // ค่อย render avatar    
+    updateHeaderUser();    // ค่อย render avatar
     render();
+    if (!isProfileComplete(state.data.profile)) {
+      openProfileModal(true); // ข้อมูลส่วนตัวยังไม่ครบ → บังคับกรอกก่อนใช้งาน
+    }
   } catch(e) {
     if (errEl) { errEl.textContent = e.message; errEl.classList.remove('hidden'); }
   }
@@ -806,33 +827,76 @@ function closeMenus() {
   document.getElementById('avatarMenu')?.classList.add('hidden');
 }
 
-function openProfileModal() {
+/** เช็คว่าโปรไฟล์มีข้อมูลครบสำหรับคำนวณ BMR/TDEE หรือยัง (weight, height, age, sex ต้องเป็นค่าจริง > 0) */
+function isProfileComplete(profile) {
+  const p = profile || {};
+  return Number(p.weight) > 0 && Number(p.height) > 0 && Number(p.age) > 0 && (p.sex === 'male' || p.sex === 'female');
+}
+
+/** เปิด modal กรอกโปรไฟล์
+ *  force=true ใช้ตอนผู้ใช้ login ครั้งแรกแล้วข้อมูลยังไม่ครบ → ปิด modal ไม่ได้จนกว่าจะกรอกครบ
+ */
+function openProfileModal(force = false) {
   const p = state.data.profile || {};
+  document.getElementById('profileSex').value = (p.sex === 'female') ? 'female' : (p.sex === 'male' ? 'male' : '');
   document.getElementById('profileWeight').value = p.weight || '';
   document.getElementById('profileHeight').value = p.height || '';
   document.getElementById('profileAge').value = p.age || '';
+  document.getElementById('profileActivity').value = p.activity || '1.55';
   document.getElementById('profileProteinGoal').value = p.proteinGoal || '';
+
   const modal = document.getElementById('profileModal');
   modal.classList.remove('hidden');
   modal.classList.add('flex');
+  modal.dataset.force = force ? '1' : '0';
+
+  const closeBtn = document.getElementById('profileModalCloseBtn');
+  const note = document.getElementById('profileModalRequiredNote');
+  if (force) {
+    closeBtn.classList.add('hidden');     // บังคับกรอก: ซ่อนปุ่มปิด
+    note.classList.remove('hidden');
+  } else {
+    closeBtn.classList.remove('hidden');
+    note.classList.add('hidden');
+  }
+  const errEl = document.getElementById('profileModalError');
+  errEl.classList.add('hidden');
+  errEl.textContent = '';
 }
 
 function closeProfileModal() {
   const modal = document.getElementById('profileModal');
+  if (modal.dataset.force === '1') return; // บังคับกรอกอยู่ ห้ามปิด
   modal.classList.add('hidden');
   modal.classList.remove('flex');
 }
 
 async function saveProfileModal() {
+  const sex = document.getElementById('profileSex').value;
+  const weight = Number(document.getElementById('profileWeight').value || 0);
+  const height = Number(document.getElementById('profileHeight').value || 0);
+  const age = Number(document.getElementById('profileAge').value || 0);
+  const activity = Number(document.getElementById('profileActivity').value || 1.55);
+  const proteinGoal = Number(document.getElementById('profileProteinGoal').value || 120);
+
+  const errEl = document.getElementById('profileModalError');
+  if (!sex || weight <= 0 || height <= 0 || age <= 0) {
+    errEl.textContent = 'กรุณากรอกเพศ น้ำหนัก ส่วนสูง และอายุให้ครบ (ต้องมากกว่า 0) เพื่อให้คำนวณ BMR/TDEE ได้ถูกต้อง';
+    errEl.classList.remove('hidden');
+    return;
+  }
+
   state.data.profile = {
     ...(state.data.profile || {}),
-    weight: Number(document.getElementById('profileWeight').value || 0),
-    height: Number(document.getElementById('profileHeight').value || 0),
-    age: Number(document.getElementById('profileAge').value || 0),
-    proteinGoal: Number(document.getElementById('profileProteinGoal').value || 120)
+    sex, weight, height, age, activity, proteinGoal
   };
+
+  const modal = document.getElementById('profileModal');
+  const wasForced = modal.dataset.force === '1';
+  modal.dataset.force = '0';
   closeProfileModal();
   await saveData('Update profile');
+  if (wasForced) { state.message = 'บันทึกข้อมูลส่วนตัวเรียบร้อย เริ่มใช้งานได้เลย'; render(); clearMessageAfter(2500); }
 }
 
 function pickProfileImage() {
@@ -1522,13 +1586,15 @@ function renderProfile() {
     </div>` : '';
   return card(`<h2 class="text-xl font-black mb-3">Profile / TDEE</h2>
     ${userCard}
+    <label class="block text-xs font-black text-stone-500 mb-1">เพศ</label>
+    <select id="pSex" class="w-full bg-stone-100 rounded-2xl px-4 py-3 mb-3 outline-none"><option value="male" ${p.sex==='male'?'selected':''}>ชาย</option><option value="female" ${p.sex==='female'?'selected':''}>หญิง</option></select>
     <div class="grid grid-cols-2 gap-3"><div>${input('Weight kg','pWeight',p.weight,'number','step="0.1"')}</div><div>${input('Height cm','pHeight',p.height,'number')}</div><div>${input('Age','pAge',p.age,'number')}</div><div>${input('Protein goal','pProtein',p.proteinGoal,'number')}</div></div>
     <label class="block text-xs font-black text-stone-500 mb-1">Activity</label><select id="pActivity" class="w-full bg-stone-100 rounded-2xl px-4 py-3 mb-3 outline-none">${[[1.2,'นั่งทำงาน'],[1.375,'เบา 1-3 วัน'],[1.55,'ปานกลาง 3-5 วัน'],[1.725,'หนัก 6-7 วัน']].map(a=>`<option value="${a[0]}" ${Number(p.activity)==a[0]?'selected':''}>${a[1]} (${a[0]})</option>`).join('')}</select>
     <label class="block text-xs font-black text-stone-500 mb-1">Deficit Rate</label><select id="pDeficit" class="w-full bg-stone-100 rounded-2xl px-4 py-3 mb-3 outline-none">${[[0.10,'เบา 10%'],[0.15,'กลาง 15%'],[0.20,'สูงสุดแนะนำ 20%'],[0.25,'เข้ม 25%'],[0.30,'สูงมาก 30%']].map(a=>`<option value="${a[0]}" ${Number(deficitRate(p))==a[0]?'selected':''}>${a[1]}</option>`).join('')}</select>
     <button onclick="saveProfile()" class="w-full bg-stone-950 text-white rounded-2xl py-3 font-black">บันทึก Profile</button>
     <p class="text-sm text-stone-500 mt-3">BMR ${fmt(bmr(p))} • Base TDEE ${fmt(baseTDEE(p))} • Deficit ${Math.round(deficitRate(p)*100)}%</p>`);
 }
-function saveProfile() { state.data.profile = { ...state.data.profile, weight:Number($('#pWeight').value), height:Number($('#pHeight').value), age:Number($('#pAge').value), proteinGoal:Number($('#pProtein').value), activity:Number($('#pActivity').value), deficitRate:Number($('#pDeficit').value) }; saveData('Update profile'); }
+function saveProfile() { state.data.profile = { ...state.data.profile, sex:$('#pSex').value, weight:Number($('#pWeight').value), height:Number($('#pHeight').value), age:Number($('#pAge').value), proteinGoal:Number($('#pProtein').value), activity:Number($('#pActivity').value), deficitRate:Number($('#pDeficit').value) }; saveData('Update profile'); }
 function deleteItem(collection, id) { state.data[collection] = (state.data[collection] || []).filter(x => x.id !== id); saveData(`Delete ${collection}`); }
 function setToday(){ state.selectedDate = todayStr(); render(); }
 function shiftDate(delta){ const d=new Date(state.selectedDate); d.setDate(d.getDate()+delta); state.selectedDate=d.toISOString().slice(0,10); render(); }
@@ -1571,6 +1637,9 @@ $('#syncBtn').onclick = async () => { state.message='กำลังโหลด
   initGoogleSignIn(); // init ไว้เผื่อ session หมดอายุ (clearSession → showLoginScreen ทำให้ GIS พร้อมใช้)
   await loadData();
   render();
+  if (!isProfileComplete(state.data.profile)) {
+    openProfileModal(true); // ข้อมูลส่วนตัวยังไม่ครบ (เช่น ปิดแอพไปก่อนกรอกเสร็จ) → บังคับกรอกก่อนใช้งานต่อ
+  }
 })();
 
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
