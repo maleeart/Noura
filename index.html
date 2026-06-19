@@ -673,8 +673,8 @@ async function handleGoogleSignIn(response) {
     if (!r.ok || !j.success) throw new Error(j.error || 'Sign in ไม่สำเร็จ');
     storeSession(j.sessionToken, j.user);
     hideLoginScreen();
-    updateHeaderUser();
-    await loadData();
+    await loadData();      // โหลดข้อมูล user ก่อน
+    updateHeaderUser();    // ค่อย render avatar    
     render();
   } catch(e) {
     if (errEl) { errEl.textContent = e.message; errEl.classList.remove('hidden'); }
@@ -686,15 +686,34 @@ function updateHeaderUser() {
   const avatarEl = document.getElementById('userAvatar');
   if (!avatarEl) return;
 
-  const customAvatar = state.data?.profile?.avatar;
-  const picture = customAvatar || state.user?.picture;
+  const customAvatar = state.data?.profile?.avatar?.trim();
+  const googleAvatar = state.user?.picture?.trim();
+
+  const picture = customAvatar || googleAvatar;
 
   if (picture) {
-    avatarEl.innerHTML = `<img src="${picture}" class="w-10 h-10 rounded-2xl object-cover" referrerpolicy="no-referrer" alt="${state.user?.name || ''}" />`;
-  } else {
-    const initial = (state.user?.name || state.user?.email || '?')[0].toUpperCase();
-    avatarEl.innerHTML = `<div class="w-10 h-10 rounded-2xl glass flex items-center justify-center text-white font-black text-lg">${initial}</div>`;
+    avatarEl.innerHTML = `
+      <img
+        src="${picture}"
+        class="w-10 h-10 rounded-2xl object-cover"
+        referrerpolicy="no-referrer"
+        alt="${state.user?.name || ''}"
+      />
+    `;
+    return;
   }
+
+  const initial =
+    (state.user?.name ||
+     state.user?.email ||
+     state.data?.profile?.email ||
+     '?')[0].toUpperCase();
+
+  avatarEl.innerHTML = `
+    <div class="w-10 h-10 rounded-2xl glass flex items-center justify-center text-white font-black text-lg">
+      ${initial}
+    </div>
+  `;
 }
 
 /** เริ่มต้นระบบ Google Sign-In (เรียกหลัง GIS script โหลดเสร็จ) */
@@ -723,8 +742,13 @@ async function loadData() {
     if (!r.ok || !j.success) throw new Error(j.error || 'โหลดข้อมูลจาก Vercel API ไม่สำเร็จ');
     state.sha = j.sha || null;
     state.data = { ...state.data, ...(j.data || {}) };
-    state.data.profile = { deficitRate: 0.20, ...state.data.profile };
-    localStorage.setItem(DATA_KEY, JSON.stringify(state.data));
+    state.data.profile = {
+      deficitRate: 0.20,
+    ...(state.data.profile || {}),
+  email: state.user?.email || state.data.profile?.email || ''
+  };
+
+localStorage.setItem(DATA_KEY, JSON.stringify(state.data));
   } catch (e) {
     if (String(e.message).startsWith('UNAUTHORIZED')) { clearSession(); return; }
     state.message = `ใช้ข้อมูลในเครื่องก่อน: ${e.message}`;
