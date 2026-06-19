@@ -1,0 +1,21 @@
+{
+  "profile": {
+    "deficitRate": 0.2,
+    "weight": 58,
+    "height": 167,
+    "age": 26,
+    "sex": "male",
+    "activity": 1.55,
+    "proteinGoal": 80,
+    "calorieGoalMode": "tdee",
+    "customCalorieGoal": 2300
+  },
+  "foods": [],
+  "workouts": [],
+  "steps": [],
+  "meta": {
+    "app": "Noura",
+    "version": "1.2.0",
+    "updatedAt": "2026-06-19T04:50:43.129Z"
+  }
+}
