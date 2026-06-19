@@ -11,12 +11,21 @@
     "customCalorieGoal": 2300,
     "email": "popkhema@gmail.com"
   },
-  "foods": [],
+  "foods": [
+    {
+      "id": "food-1781858547187-a5bb8d60187e68",
+      "date": "2026-06-19",
+      "time": "15:42",
+      "menu": "ข้าวขาหมู",
+      "calories": 600,
+      "protein": 30
+    }
+  ],
   "workouts": [],
   "steps": [],
   "meta": {
     "app": "Noura",
     "version": "1.2.0",
-    "updatedAt": "2026-06-19T08:40:38.672Z"
+    "updatedAt": "2026-06-19T08:42:28.135Z"
   }
 }
