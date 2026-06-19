@@ -10,12 +10,21 @@
     "calorieGoalMode": "tdee",
     "customCalorieGoal": 2300
   },
-  "foods": [],
+  "foods": [
+    {
+      "id": "food-1781844692245-71d4c31b0b855",
+      "date": "2026-06-19",
+      "time": "11:51",
+      "menu": "ข้าวไก่ทอด",
+      "calories": 600,
+      "protein": 30
+    }
+  ],
   "workouts": [],
   "steps": [],
   "meta": {
     "app": "Noura",
     "version": "1.2.0",
-    "updatedAt": "2026-06-19T04:51:04.177Z"
+    "updatedAt": "2026-06-19T04:51:33.326Z"
   }
 }
