@@ -1374,17 +1374,6 @@
         "type": "WeightTraining"
       },
       "importedAt": "2026-06-18T12:58:02.588Z"
-    },
-    {
-      "id": "workout-1781853365086-31335c715af87",
-      "source": "manual",
-      "date": "2026-06-19",
-      "time": "14:16",
-      "type": "Run",
-      "name": "Run",
-      "durationMin": 30,
-      "distanceKm": 0,
-      "calories": 314
     }
   ],
   "steps": [],
@@ -1392,6 +1381,7 @@
     "app": "Noura",
     "version": "1.2.0",
     "migratedFrom": "dataold.json",
-    "migratedAt": "2026-06-19T00:00:00.000Z"
+    "migratedAt": "2026-06-19T00:00:00.000Z",
+    "updatedAt": "2026-06-19T07:29:21.390Z"
   }
 }
