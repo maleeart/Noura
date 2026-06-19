@@ -452,7 +452,7 @@
         </div>
         <button id="syncBtn" class="w-10 h-10 rounded-2xl glass text-xl" title="โหลดข้อมูลล่าสุด">↻</button>
         <!-- Avatar ผู้ใช้ที่ login อยู่ -->
-        <div id="userAvatar" class="cursor-pointer" onclick="toggleAvatarMenu()" title="โปรไฟล์"></div>
+        <div id="userAvatar" class="w-10 h-10 rounded-2xl overflow-hidden cursor-pointer flex items-center justify-center" onclick="toggleAvatarMenu()" title="โปรไฟล์"></div>
       </div>
       <div class="mt-7 flex items-end gap-4">
         <div class="flex-1">
@@ -486,6 +486,30 @@
 <input id="profileImageInput" type="file" accept="image/*" class="hidden" onchange="handleProfileImage(event)">
 
 
+<div id="profileModal" class="hidden fixed inset-0 z-50 bg-black/40 px-4 items-center justify-center">
+  <div class="bg-white rounded-[32px] p-5 w-full max-w-sm shadow-2xl">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-black">ข้อมูลส่วนตัว</h2>
+      <button onclick="closeProfileModal()" class="w-10 h-10 rounded-2xl bg-stone-100 font-black text-xl">×</button>
+    </div>
+
+    <label class="text-xs font-black text-stone-500">น้ำหนัก (kg)</label>
+    <input id="profileWeight" type="number" step="0.1" class="w-full bg-stone-100 rounded-2xl px-4 py-3 mb-3 outline-none">
+
+    <label class="text-xs font-black text-stone-500">ส่วนสูง (cm)</label>
+    <input id="profileHeight" type="number" class="w-full bg-stone-100 rounded-2xl px-4 py-3 mb-3 outline-none">
+
+    <label class="text-xs font-black text-stone-500">อายุ</label>
+    <input id="profileAge" type="number" class="w-full bg-stone-100 rounded-2xl px-4 py-3 mb-3 outline-none">
+
+    <label class="text-xs font-black text-stone-500">Protein Goal / วัน</label>
+    <input id="profileProteinGoal" type="number" class="w-full bg-stone-100 rounded-2xl px-4 py-3 mb-4 outline-none">
+
+    <button onclick="saveProfileModal()" class="w-full bg-stone-950 text-white rounded-2xl py-3 font-black">บันทึก</button>
+  </div>
+</div>
+
+
     
     <main id="app" class="px-4 -mt-7 fade-in"></main>
   </div>
@@ -500,8 +524,7 @@
   </nav>
 
 <!-- หน้า Login — จะแสดงทับแอพถ้ายังไม่ได้ Sign in -->
-<div id="loginScreen" style="display:none" class="fixed inset-0 z-50 flex flex-col items-center justify-center px-6"
-  style="background: radial-gradient(circle at 15% 0%, rgba(255,122,26,.14), transparent 30%), radial-gradient(circle at 85% 10%, rgba(52,198,107,.16), transparent 32%), #f4f0e9;">
+<div id="loginScreen" style="display:none;background:radial-gradient(circle at 15% 0%, rgba(255,122,26,.14), transparent 30%), radial-gradient(circle at 85% 10%, rgba(52,198,107,.16), transparent 32%), #f4f0e9;" class="fixed inset-0 z-50 flex flex-col items-center justify-center px-6">
   <div class="w-full max-w-sm bg-white rounded-[36px] shadow-2xl p-8 flex flex-col items-center gap-5">
     <img src="Noura.png" class="w-20 h-20 rounded-[28px] shadow-lg object-cover" alt="Noura" />
     <div class="text-center">
@@ -547,7 +570,7 @@ let state = {
   ui: { mealsOpen: true, workoutsOpen: true, mealsLimit: 3, workoutsLimit: 3, history7Open: false, historyMonth: null },
   // ── Auth ──
   sessionToken: null,     // Noura session token (HMAC-signed, เก็บใน localStorage)
-  user: null              // { email, name, picture } จาก Google
+  user: {}                // { email, name, picture } จาก Google
 };
 
 function bmr(profile) {
@@ -606,7 +629,7 @@ function storeSession(token, user) {
 /** ล้าง session ทั้งหมด (Sign out) */
 function clearSession() {
   state.sessionToken = null;
-  state.user = null;
+  state.user = {};
   state.data = { profile: { weight:64,height:167,age:31,sex:'male',activity:1.55,proteinGoal:120,calorieGoalMode:'tdee',customCalorieGoal:2300,deficitRate:0.20 }, foods:[], workouts:[], steps:[], meta:{} };
   localStorage.removeItem(SESSION_KEY);
   localStorage.removeItem(USER_KEY);
@@ -659,46 +682,18 @@ async function handleGoogleSignIn(response) {
 }
 
 /** อัปเดต header ให้แสดง avatar + ชื่อผู้ใช้ */
-
-
- const customAvatar = state.data?.profile?.avatar;
-const picture = customAvatar || state.user?.picture;
-
-if (picture) {
-  avatarEl.innerHTML = `<img src="${picture}" class="w-10 h-10 rounded-2xl object-cover" referrerpolicy="no-referrer" alt="${state.user?.name||''}" />`;
-} else {
-  const initial = (state.user?.name || state.user?.email || '?')[0].toUpperCase();
-  avatarEl.innerHTML = `<div class="w-10 h-10 rounded-2xl glass flex items-center justify-center text-white font-black text-lg">${initial}</div>`;
-} 
 function updateHeaderUser() {
   const avatarEl = document.getElementById('userAvatar');
-
   if (!avatarEl) return;
 
   const customAvatar = state.data?.profile?.avatar;
   const picture = customAvatar || state.user?.picture;
 
   if (picture) {
-    avatarEl.innerHTML = `
-      <img
-        src="${picture}"
-        class="w-10 h-10 rounded-2xl object-cover"
-        referrerpolicy="no-referrer"
-        alt="${state.user?.name || ''}"
-      />
-    `;
+    avatarEl.innerHTML = `<img src="${picture}" class="w-10 h-10 rounded-2xl object-cover" referrerpolicy="no-referrer" alt="${state.user?.name || ''}" />`;
   } else {
-    const initial = (
-      state.user?.name ||
-      state.user?.email ||
-      '?'
-    )[0].toUpperCase();
-
-    avatarEl.innerHTML = `
-      <div class="w-10 h-10 rounded-2xl glass flex items-center justify-center text-white font-black text-lg">
-        ${initial}
-      </div>
-    `;
+    const initial = (state.user?.name || state.user?.email || '?')[0].toUpperCase();
+    avatarEl.innerHTML = `<div class="w-10 h-10 rounded-2xl glass flex items-center justify-center text-white font-black text-lg">${initial}</div>`;
   }
 }
 
@@ -1295,7 +1290,7 @@ function addFood() {
 function renderWorkout() {
   const d=dayTotals();
   // แสดงปุ่ม Strava เฉพาะ owner email เท่านั้น (CONFIG.OWNER_EMAIL)
-  const isOwner = state.user && CONFIG.OWNER_EMAIL && state.user?.email.toLowerCase() === CONFIG.OWNER_EMAIL.toLowerCase();
+  const isOwner = !!(state.user?.email && CONFIG.OWNER_EMAIL && state.user.email.toLowerCase() === CONFIG.OWNER_EMAIL.toLowerCase());
   const stravaBtn = isOwner ? `<button onclick="importStrava()" class="text-xs bg-orange-50 text-orange-600 border border-orange-100 px-3 py-2 rounded-full font-black">เชื่อมต่อ Strava</button>` : '';
   return `
     ${card(`<div class="flex items-center justify-between mb-3"><h2 class="text-xl font-black">ออกกำลังกายวันนี้</h2>${stravaBtn}</div>
