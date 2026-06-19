@@ -11,12 +11,21 @@
     "customCalorieGoal": 2300,
     "email": "ploynapataon@gmail.com"
   },
-  "foods": [],
+  "foods": [
+    {
+      "id": "food-1781861484113-e09cc2557abcf",
+      "date": "2026-06-19",
+      "time": "16:31",
+      "menu": "มินิเปาไส้ครีม",
+      "calories": 100,
+      "protein": 2
+    }
+  ],
   "workouts": [],
   "steps": [],
   "meta": {
     "app": "Noura",
     "version": "1.2.0",
-    "updatedAt": "2026-06-19T08:12:17.993Z"
+    "updatedAt": "2026-06-19T09:31:24.501Z"
   }
 }
