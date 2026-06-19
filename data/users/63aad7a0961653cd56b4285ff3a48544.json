@@ -5,7 +5,7 @@
     "height": 167,
     "age": 31,
     "sex": "male",
-    "activity": 1.55,
+    "activity": 1.2,
     "proteinGoal": 120,
     "calorieGoalMode": "tdee",
     "customCalorieGoal": 2300,
@@ -1409,6 +1409,6 @@
     "version": "1.2.0",
     "migratedFrom": "dataold.json",
     "migratedAt": "2026-06-19T00:00:00.000Z",
-    "updatedAt": "2026-06-19T09:36:32.709Z"
+    "updatedAt": "2026-06-19T09:41:22.590Z"
   }
 }
