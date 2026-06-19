@@ -11,8 +11,1370 @@
     "customCalorieGoal": 2300,
     "email": "tuangphetch@gmail.com"
   },
-  "foods": [],
+  "foods": [
+    {
+      "id": "food-legacy-1780550049563",
+      "date": "2026-06-04",
+      "time": "12:14",
+      "menu": "อเมริกาโนไม่หวาน",
+      "calories": 15,
+      "protein": 0
+    },
+    {
+      "id": "food-legacy-1780550328898",
+      "date": "2026-06-04",
+      "time": "12:18",
+      "menu": "แซนวิชไข่ปูอัด",
+      "calories": 350,
+      "protein": 13
+    },
+    {
+      "id": "food-legacy-1780551450192",
+      "date": "2026-06-04",
+      "time": "12:37",
+      "menu": "เวย์ 1 สกู๊ป",
+      "calories": 120,
+      "protein": 24
+    },
+    {
+      "id": "food-legacy-1780551515451",
+      "date": "2026-06-04",
+      "time": "12:38",
+      "menu": "อโวคาโดมะพร้าวปั่นไม่หวาน 1 แก้ว",
+      "calories": 240,
+      "protein": 3
+    },
+    {
+      "id": "food-legacy-1780551486265",
+      "date": "2026-06-04",
+      "time": "12:38",
+      "menu": "ข้าวราดไข่ลูกเขย 1 ลูก + แหนมหมูผัดวุ้นเส้น",
+      "calories": 580,
+      "protein": 18
+    },
+    {
+      "id": "food-legacy-1780566123507",
+      "date": "2026-06-04",
+      "time": "16:42",
+      "menu": "ซาลาเปาหมูสับวราภรณ์ 1 ลูก",
+      "calories": 250,
+      "protein": 10
+    },
+    {
+      "id": "food-legacy-1780566568440",
+      "date": "2026-06-04",
+      "time": "16:49",
+      "menu": "ถั่วอัลมอน 13 เม็ด",
+      "calories": 91,
+      "protein": 3.3
+    },
+    {
+      "id": "food-legacy-1780571602263",
+      "date": "2026-06-04",
+      "time": "18:13",
+      "menu": "เมล็ดทานตะวันชาช่าสีแดงในเซเว่น ครึ่งถึง",
+      "calories": 130,
+      "protein": 4.5
+    },
+    {
+      "id": "food-legacy-1780579243225",
+      "date": "2026-06-04",
+      "time": "20:20",
+      "menu": "กระเพราไก่ไข่ดาว(ข้าวน้อย)",
+      "calories": 520,
+      "protein": 30
+    },
+    {
+      "id": "food-legacy-1780620175880",
+      "date": "2026-06-05",
+      "time": "07:42",
+      "menu": "อเมริกาโน่ไม่หวาน",
+      "calories": 15,
+      "protein": 0.8
+    },
+    {
+      "id": "food-legacy-1780707611132",
+      "date": "2026-06-05",
+      "time": "08:00",
+      "menu": "หมูปิ้งโบราณ 5 ไม้เล็ก",
+      "calories": 450,
+      "protein": 25
+    },
+    {
+      "id": "food-legacy-1780637450448",
+      "date": "2026-06-05",
+      "time": "12:30",
+      "menu": "ไมโล ไม่หวาน แก้วเล็ก 15 oz",
+      "calories": 130,
+      "protein": 4
+    },
+    {
+      "id": "food-legacy-1780637418405",
+      "date": "2026-06-05",
+      "time": "12:30",
+      "menu": "ข้าวเหนียว 1 ห่อ 5 บาท",
+      "calories": 200,
+      "protein": 3.5
+    },
+    {
+      "id": "food-legacy-1780637499452",
+      "date": "2026-06-05",
+      "time": "12:31",
+      "menu": "ปลาทูแมวทอด 1 ตัว",
+      "calories": 110,
+      "protein": 11
+    },
+    {
+      "id": "food-legacy-1780637479377",
+      "date": "2026-06-05",
+      "time": "12:31",
+      "menu": "ข้าวขาหมู 1 จาน",
+      "calories": 690,
+      "protein": 25
+    },
+    {
+      "id": "food-legacy-1780637552427",
+      "date": "2026-06-05",
+      "time": "12:32",
+      "menu": "เลือดหมู 2 ชิ้น",
+      "calories": 40,
+      "protein": 10
+    },
+    {
+      "id": "food-legacy-1780637521272",
+      "date": "2026-06-05",
+      "time": "12:32",
+      "menu": "ลูกชิ้นหมู 3 ลูก",
+      "calories": 66,
+      "protein": 4.5
+    },
+    {
+      "id": "food-legacy-1780649446814",
+      "date": "2026-06-05",
+      "time": "15:50",
+      "menu": "เปปซี่กระป๋อง 245 mL 80 kCal",
+      "calories": 80,
+      "protein": 0
+    },
+    {
+      "id": "food-legacy-1780666717618",
+      "date": "2026-06-05",
+      "time": "20:38",
+      "menu": "บะหมี่เป็ดน้ำ",
+      "calories": 450,
+      "protein": 26
+    },
+    {
+      "id": "food-legacy-1780666776182",
+      "date": "2026-06-05",
+      "time": "20:39",
+      "menu": "หมูเด้งในต้มเลือดหมูชิ้นเล็ก 3 ชิ้น",
+      "calories": 75,
+      "protein": 5.4
+    },
+    {
+      "id": "food-legacy-1780765551166",
+      "date": "2026-06-06",
+      "time": "00:05",
+      "menu": "เส้นเล็กแห้งเนื้อตุ๋นเนื้อเปื่อยเอ็นแก้วพิเศษ, เวย์ 1 สกู๊ป",
+      "calories": 780,
+      "protein": 59
+    },
+    {
+      "id": "food-legacy-1780725749291",
+      "date": "2026-06-06",
+      "time": "13:02",
+      "menu": "ข้าวเหนียวหมูปิ้งโบราณ 5 ไม้เล็ก, ข้าวกระเพราหมูสับไข่เยี่ยวม้า+ไข่ดาว",
+      "calories": 1430,
+      "protein": 60
+    },
+    {
+      "id": "food-legacy-1780818290496",
+      "date": "2026-06-07",
+      "time": "14:44",
+      "menu": "ป๊อบคอร์นชีส เมเจอร์,โค๊กซีโร่กระป๋อง",
+      "calories": 450,
+      "protein": 8
+    },
+    {
+      "id": "food-legacy-1780819589528",
+      "date": "2026-06-07",
+      "time": "15:06",
+      "menu": "ซูชิโระ แซลมอน 6 คำ แซลมอนเบิร์นซอสเบซิล 2 คำ ซูชิหน้าไก่ทอด 2 คำ โอโทโระ 1 คำ แซลมอนคัดพิเศษกับโอฮากิ 1 คำ",
+      "calories": 765,
+      "protein": 37.9
+    },
+    {
+      "id": "food-legacy-1780823855388",
+      "date": "2026-06-07",
+      "time": "16:17",
+      "menu": "Dairy queen amazing sundae chocolate belgium ferero rocher 129 บาท",
+      "calories": 520,
+      "protein": 8.5
+    },
+    {
+      "id": "food-legacy-1780836100169",
+      "date": "2026-06-07",
+      "time": "19:41",
+      "menu": "สุกี้แห้งหมู, เวย์ 1 สกู๊ป",
+      "calories": 620,
+      "protein": 44
+    },
+    {
+      "id": "food-legacy-1780889458118",
+      "date": "2026-06-08",
+      "time": "10:30",
+      "menu": "แซนวิชทอดไส้ปูอัดมายองแนส, อเมริกาโนไม่หวาน",
+      "calories": 510,
+      "protein": 7
+    },
+    {
+      "id": "food-legacy-1780893769325",
+      "date": "2026-06-08",
+      "time": "11:42",
+      "menu": "ข้าวซอยไก่+ไข่ต้มครึ่งฟอง",
+      "calories": 575,
+      "protein": 25
+    },
+    {
+      "id": "food-legacy-1780914421923",
+      "date": "2026-06-08",
+      "time": "17:27",
+      "menu": "อัลมอน 25 เม็ด",
+      "calories": 170,
+      "protein": 6
+    },
+    {
+      "id": "food-legacy-1780920981623",
+      "date": "2026-06-08",
+      "time": "19:16",
+      "menu": "Proten 40 g protein 1 ขวด, หมูหยองกรอบตราหมูดี 22 กรัม, ไข่ลวกเซเว่น 2 ฟอง, ชีส dairygold mix 4 cheezy 1 ซอง, ราดหน้าเส้นใหญ่ไข่เจียว 1 ถ้วย",
+      "calories": 1026,
+      "protein": 78
+    },
+    {
+      "id": "food-legacy-1780996200203",
+      "date": "2026-06-09",
+      "time": "16:10",
+      "menu": "ข้าวเหนียวหมูปิ้งโบราณ 5 ไม้, อเมริกาโนไม่หวาน, กระเพราเนื้อไข่ดาว, อโวคาโดมะพร้าวปั่นไม่หวาน, ซองเดอฟู๊ดฟิดบาร์ สตอเบอรี่",
+      "calories": 1765,
+      "protein": 59
+    },
+    {
+      "id": "food-legacy-1781007868997",
+      "date": "2026-06-09",
+      "time": "19:24",
+      "menu": "Whey proten รสนมฮอกไกโด, หมี่เป็ดแห้ง, ไข่ลวก2ฟอง",
+      "calories": 700,
+      "protein": 55
+    },
+    {
+      "id": "food-legacy-1781055523025",
+      "date": "2026-06-10",
+      "time": "08:38",
+      "menu": "ข้าวเหนียวหมูปิ้งโบราณ5ไม้,อเมริกาโนไม่หวาน",
+      "calories": 815,
+      "protein": 34
+    },
+    {
+      "id": "food-legacy-1781069746536",
+      "date": "2026-06-10",
+      "time": "12:35",
+      "menu": "บะหมี่ต้มยำลูกชิ้นปลา, ชาเขียวนมไม่หวาน",
+      "calories": 470,
+      "protein": 21
+    },
+    {
+      "id": "food-legacy-1781095837016",
+      "date": "2026-06-10",
+      "time": "19:50",
+      "menu": "ชิคฟิงเกอร์",
+      "calories": 268,
+      "protein": 16
+    },
+    {
+      "id": "food-legacy-1781095802405",
+      "date": "2026-06-10",
+      "time": "19:50",
+      "menu": "ซองเดอฟู๊ดฟิดบาร์ช็อคโกแลต, เวย์ proten รสชานม, สเต๊กสันคอหมู, ไก่นิวออลีน 4 น่อง",
+      "calories": 880,
+      "protein": 71
+    },
+    {
+      "id": "food-legacy-1781142256532",
+      "date": "2026-06-11",
+      "time": "08:44",
+      "menu": "อเมริกาโน ไม่หวาน, ข้าวไข่พะโล้(ไข่2ฟอง, สามชั้น, เต้าหู้)",
+      "calories": 675,
+      "protein": 26
+    },
+    {
+      "id": "food-legacy-1781171939219",
+      "date": "2026-06-11",
+      "time": "16:58",
+      "menu": "เส้นเล็กก๋วยเตี๋ยวน้ำตก,ข้าวหมูแดง, ข้าวโอ๊ต55กรัม,ไข่1ฟอง,เนยทากระทะ1ก้อน,นูเทลลา1ปาด",
+      "calories": 1301,
+      "protein": 45.5
+    },
+    {
+      "id": "food-legacy-1781186083960",
+      "date": "2026-06-11",
+      "time": "20:54",
+      "menu": "มาม่าต้มยำกุ้งน้ำข้น, หมูหมักนุ่มเซเว่น 200 กรัม",
+      "calories": 510,
+      "protein": 35
+    },
+    {
+      "id": "food-legacy-1781242796583",
+      "date": "2026-06-12",
+      "time": "12:39",
+      "menu": "อเมริกาโนไม่หวาน,หมูทอด3ไม้ข้าวเหนียว1ห่อ",
+      "calories": 585,
+      "protein": 23
+    },
+    {
+      "id": "food-legacy-1781254177532",
+      "date": "2026-06-12",
+      "time": "15:49",
+      "menu": "ข้าวมันไก่ต้ม",
+      "calories": 590,
+      "protein": 24
+    },
+    {
+      "id": "food-legacy-1781275637330",
+      "date": "2026-06-12",
+      "time": "21:47",
+      "menu": "เวย์ proten ช้อคโกแลต, หนมจีบหมูสับไข่เค็มเซเว่น2ไม้,ข้าวโพดเซเว่น1/3ฝัก, บะหมี่เป็ดย่างแห้ง",
+      "calories": 860,
+      "protein": 56
+    },
+    {
+      "id": "food-legacy-1781329786266",
+      "date": "2026-06-13",
+      "time": "12:49",
+      "menu": "CP เบอเกอร์ดับเบิลหมูชีส",
+      "calories": 650,
+      "protein": 35
+    },
+    {
+      "id": "food-legacy-1781329754942",
+      "date": "2026-06-13",
+      "time": "12:49",
+      "menu": "อเมริกาโนไม่หวาน",
+      "calories": 130,
+      "protein": 8
+    },
+    {
+      "id": "food-legacy-1781329808818",
+      "date": "2026-06-13",
+      "time": "12:50",
+      "menu": "ข้าวเนื้อกระเทียม+ไข่ข้น",
+      "calories": 680,
+      "protein": 28
+    },
+    {
+      "id": "food-legacy-1781337201269",
+      "date": "2026-06-13",
+      "time": "14:53",
+      "menu": "Meji greek style yoghurt natura flavour 190 kcal protein 9 gram ตามฉลาก",
+      "calories": 190,
+      "protein": 9
+    },
+    {
+      "id": "food-legacy-1781342588269",
+      "date": "2026-06-13",
+      "time": "16:23",
+      "menu": "เวย์ iso soy dark chocolate 1 serve 210 kcal 13 g protein",
+      "calories": 210,
+      "protein": 13
+    },
+    {
+      "id": "food-legacy-1781357699277",
+      "date": "2026-06-13",
+      "time": "20:34",
+      "menu": "ข้าวกระเพราเนื้อไข่ดาวข้าวน้อยจานเล็ก",
+      "calories": 690,
+      "protein": 34
+    },
+    {
+      "id": "food-legacy-1781409787647",
+      "date": "2026-06-14",
+      "time": "11:03",
+      "menu": "ก๋วยเตี๋ยวเรือ",
+      "calories": 450,
+      "protein": 25
+    },
+    {
+      "id": "food-legacy-1781409940767",
+      "date": "2026-06-14",
+      "time": "11:05",
+      "menu": "กากหมูเจียว 400 kCal",
+      "calories": 400,
+      "protein": 10
+    },
+    {
+      "id": "food-legacy-1781429207913",
+      "date": "2026-06-14",
+      "time": "16:26",
+      "menu": "หมูสะเต๊ะ 5 ไม้",
+      "calories": 350,
+      "protein": 25
+    },
+    {
+      "id": "food-legacy-1781429275541",
+      "date": "2026-06-14",
+      "time": "16:27",
+      "menu": "Wall ยักษ์คู่ ครึ่งเดียว 25 kCal",
+      "calories": 25,
+      "protein": 0.5
+    },
+    {
+      "id": "food-legacy-1781429366985",
+      "date": "2026-06-14",
+      "time": "16:29",
+      "menu": "Ferrero rocher 1 ลูก  62.5 kcal",
+      "calories": 62.5,
+      "protein": 0.8
+    },
+    {
+      "id": "food-legacy-1781455085941",
+      "date": "2026-06-14",
+      "time": "23:38",
+      "menu": "หมูกระทะ",
+      "calories": 1000,
+      "protein": 43
+    },
+    {
+      "id": "food-legacy-1781487207151",
+      "date": "2026-06-15",
+      "time": "08:33",
+      "menu": "อเมริกาโนไม่หวาน",
+      "calories": 10,
+      "protein": 1
+    },
+    {
+      "id": "food-legacy-1781487184787",
+      "date": "2026-06-15",
+      "time": "08:33",
+      "menu": "ข้าวโอ๊ต 50 กรัม, เวย์ 1 สกู๊ป, ไข่1ฟอง,นมโอ๊ต 50 ml",
+      "calories": 405,
+      "protein": 37
+    },
+    {
+      "id": "food-legacy-1781500041532",
+      "date": "2026-06-15",
+      "time": "12:07",
+      "menu": "ข้าวราดแกง2อย่าง (พแนงเนื้อ,ไก่กระเทียม)",
+      "calories": 610,
+      "protein": 36
+    },
+    {
+      "id": "food-legacy-1781500584701",
+      "date": "2026-06-15",
+      "time": "12:16",
+      "menu": "อโวคาโดปั่นมะพร้าวไม่หวาน 260 kCal",
+      "calories": 260,
+      "protein": 2
+    },
+    {
+      "id": "food-legacy-1781528511330",
+      "date": "2026-06-15",
+      "time": "20:01",
+      "menu": "ไข่ต้ม",
+      "calories": 70,
+      "protein": 6
+    },
+    {
+      "id": "food-legacy-1781528500287",
+      "date": "2026-06-15",
+      "time": "20:01",
+      "menu": "ข้าวหน้าเป็ด",
+      "calories": 620,
+      "protein": 23
+    },
+    {
+      "id": "food-legacy-1781528546091",
+      "date": "2026-06-15",
+      "time": "20:02",
+      "menu": "เมล็ดทานตะวัน 1 กำมือ",
+      "calories": 175,
+      "protein": 6
+    },
+    {
+      "id": "food-legacy-1781574780130",
+      "date": "2026-06-16",
+      "time": "08:53",
+      "menu": "ข้าวโอ๊ต 50 กรัม, นมโอ๊ต 50 ml, เวย์ 1 สกู๊ป,นูเทลลา 1 ช้อนชา",
+      "calories": 360,
+      "protein": 31.4
+    },
+    {
+      "id": "food-legacy-1781585316096",
+      "date": "2026-06-16",
+      "time": "11:48",
+      "menu": "อเมริกาโนไม่หวาน",
+      "calories": 10,
+      "protein": 1
+    },
+    {
+      "id": "food-legacy-1781585300774",
+      "date": "2026-06-16",
+      "time": "11:48",
+      "menu": "ข้าวเหนียว,หมูปิ้งโบราณ 5 ไม้",
+      "calories": 510,
+      "protein": 28
+    },
+    {
+      "id": "food-legacy-1781611914859",
+      "date": "2026-06-16",
+      "time": "19:11",
+      "menu": "หนังไก่ทอด3ชิ้น, ข้าวโพด 1/3 ฝัก, เวย์ถั่วเหลือง 1 เสิร์ฟ",
+      "calories": 470,
+      "protein": 42
+    },
+    {
+      "id": "food-legacy-1781618596744",
+      "date": "2026-06-16",
+      "time": "21:03",
+      "menu": "ข้าวหมูทอดกระเทียมกรอบ+ไข่ข้น",
+      "calories": 850,
+      "protein": 40
+    },
+    {
+      "id": "food-legacy-1781662755840",
+      "date": "2026-06-17",
+      "time": "09:19",
+      "menu": "ข้าวโอ๊ต 50 g",
+      "calories": 190,
+      "protein": 7
+    },
+    {
+      "id": "food-legacy-1781688227923",
+      "date": "2026-06-17",
+      "time": "16:23",
+      "menu": "กล้วยครึ่งลูก",
+      "calories": 53,
+      "protein": 0.6
+    },
+    {
+      "id": "food-legacy-1781688214853",
+      "date": "2026-06-17",
+      "time": "16:23",
+      "menu": "กรีกโยเกิร์ต ในเซเว่น 1 ถ้วย",
+      "calories": 190,
+      "protein": 7
+    },
+    {
+      "id": "food-legacy-1781688189183",
+      "date": "2026-06-17",
+      "time": "16:23",
+      "menu": "เวย์ 1 สกู๊ป",
+      "calories": 120,
+      "protein": 25
+    },
+    {
+      "id": "food-legacy-1781688240988",
+      "date": "2026-06-17",
+      "time": "16:24",
+      "menu": "นมโอ๊ต 50 ml",
+      "calories": 25,
+      "protein": 0.5
+    },
+    {
+      "id": "food-legacy-1781688407225",
+      "date": "2026-06-17",
+      "time": "16:26",
+      "menu": "ก๋วยเตี๋ยวเส้นเล็กคลุกแห้ง",
+      "calories": 450,
+      "protein": 20
+    },
+    {
+      "id": "food-legacy-1781688387157",
+      "date": "2026-06-17",
+      "time": "16:26",
+      "menu": "อัลมอนด์ 10 เม็ด 100 kcal โปรตีน 4 กรัม",
+      "calories": 100,
+      "protein": 4
+    },
+    {
+      "id": "food-legacy-1781695115435",
+      "date": "2026-06-17",
+      "time": "18:18",
+      "menu": "เบนโตะ 1 ซอง",
+      "calories": 150,
+      "protein": 3
+    },
+    {
+      "id": "food-legacy-1781695156576",
+      "date": "2026-06-17",
+      "time": "18:19",
+      "menu": "กล้วย ครึ่งลูก",
+      "calories": 53,
+      "protein": 0.6
+    },
+    {
+      "id": "food-legacy-1781695140200",
+      "date": "2026-06-17",
+      "time": "18:19",
+      "menu": "โค๊กซีโร่ 1 ขวดเล็ก",
+      "calories": 0,
+      "protein": 0
+    },
+    {
+      "id": "food-legacy-1781705314992",
+      "date": "2026-06-17",
+      "time": "21:08",
+      "menu": "ไก่นิวออลีน 4 ชิ้น",
+      "calories": 400,
+      "protein": 30
+    },
+    {
+      "id": "food-legacy-1781705301727",
+      "date": "2026-06-17",
+      "time": "21:08",
+      "menu": "สเต๊กสันคอหมูพริกไทยดำ+เครื่องเคียง",
+      "calories": 550,
+      "protein": 35
+    },
+    {
+      "id": "food-1781708751123-0369a69b62c6b8",
+      "date": "2026-06-17",
+      "time": "22:05",
+      "menu": "ข้าวโอ๊ต 50 กรัม",
+      "calories": 160,
+      "protein": 5
+    },
+    {
+      "id": "food-1781747967797-c2c5fd6b42ded",
+      "date": "2026-06-18",
+      "time": "08:59",
+      "menu": "ข้าวเหนียวหมูปิ้ง 5 ไม้",
+      "calories": 600,
+      "protein": 30
+    },
+    {
+      "id": "food-1781759834301-9a0324003d837",
+      "date": "2026-06-18",
+      "time": "12:17",
+      "menu": "ข้าวราดหมูผัดถั่วฝักยาว+ไข่ดาว",
+      "calories": 650,
+      "protein": 30
+    },
+    {
+      "id": "food-1781760408601-ec1064ca01372",
+      "date": "2026-06-18",
+      "time": "12:26",
+      "menu": "โกโก้เย็นไม่หวาน",
+      "calories": 150,
+      "protein": 5
+    },
+    {
+      "id": "food-1781776655119-89fb1303328e2",
+      "date": "2026-06-18",
+      "time": "16:57",
+      "menu": "ไก่ห่อสาหร่าย 7/11",
+      "calories": 190,
+      "protein": 16
+    },
+    {
+      "id": "food-1781790715402-169f5afc81692",
+      "date": "2026-06-18",
+      "time": "20:51",
+      "menu": "ข้าวราดหมูหมักผัดไข่2ฟอง",
+      "calories": 550,
+      "protein": 25
+    },
+    {
+      "id": "food-1781790769873-5cbd8baf7b3578",
+      "date": "2026-06-18",
+      "time": "20:52",
+      "menu": "Iso soy bamm 1 serve",
+      "calories": 130,
+      "protein": 25
+    },
+    {
+      "id": "food-1781832225362-c9e9da9240fcc8",
+      "date": "2026-06-19",
+      "time": "08:23",
+      "menu": "ข้าวโอ๊ต 50 g,เวย์ถั่วเหลือง 1 สกู๊ป, ไข่ไก่ 1 ฟอง, นูลเทลลา 1 ช้อนชา,",
+      "calories": 350,
+      "protein": 30
+    }
+  ],
   "workouts": [
+    {
+      "id": "strava-18515956571",
+      "source": "strava",
+      "sourceId": "18515956571",
+      "date": "2026-05-15",
+      "time": "18:30",
+      "type": "Run",
+      "name": "Outdoor run",
+      "durationMin": 31,
+      "distanceKm": 2.96,
+      "calories": 323,
+      "raw": {
+        "moving_time": 1835,
+        "elapsed_time": 1843,
+        "average_heartrate": 142.8,
+        "total_elevation_gain": 43.5,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-18T05:38:07.502Z"
+    },
+    {
+      "id": "strava-18529758192",
+      "source": "strava",
+      "sourceId": "18529758192",
+      "date": "2026-05-16",
+      "time": "19:52",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 40,
+      "distanceKm": 0,
+      "calories": 193,
+      "raw": {
+        "moving_time": 2395,
+        "elapsed_time": 2395,
+        "average_heartrate": 94.9,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-18T12:58:02.590Z"
+    },
+    {
+      "id": "strava-18550708748",
+      "source": "strava",
+      "sourceId": "18550708748",
+      "date": "2026-05-18",
+      "time": "12:01",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 18,
+      "distanceKm": 0,
+      "calories": 85,
+      "raw": {
+        "moving_time": 1055,
+        "elapsed_time": 1055,
+        "average_heartrate": 114.9,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-18T12:58:02.590Z"
+    },
+    {
+      "id": "strava-18554088332",
+      "source": "strava",
+      "sourceId": "18554088332",
+      "date": "2026-05-18",
+      "time": "18:51",
+      "type": "Run",
+      "name": "Indoor run",
+      "durationMin": 35,
+      "distanceKm": 3.61,
+      "calories": 372,
+      "raw": {
+        "moving_time": 2115,
+        "elapsed_time": 2115,
+        "average_heartrate": 142.6,
+        "total_elevation_gain": 0,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-18T12:58:02.590Z"
+    },
+    {
+      "id": "strava-18567598714",
+      "source": "strava",
+      "sourceId": "18567598714",
+      "date": "2026-05-19",
+      "time": "18:45",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 64,
+      "distanceKm": 0,
+      "calories": 311,
+      "raw": {
+        "moving_time": 3850,
+        "elapsed_time": 3850,
+        "average_heartrate": 117.4,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-18T12:58:02.590Z"
+    },
+    {
+      "id": "strava-18580876830",
+      "source": "strava",
+      "sourceId": "18580876830",
+      "date": "2026-05-20",
+      "time": "18:32",
+      "type": "Run",
+      "name": "Indoor run",
+      "durationMin": 36,
+      "distanceKm": 3.73,
+      "calories": 382,
+      "raw": {
+        "moving_time": 2170,
+        "elapsed_time": 2170,
+        "average_heartrate": 143.4,
+        "total_elevation_gain": 0,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-18T12:58:02.590Z"
+    },
+    {
+      "id": "strava-18595058661",
+      "source": "strava",
+      "sourceId": "18595058661",
+      "date": "2026-05-21",
+      "time": "19:01",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 70,
+      "distanceKm": 0,
+      "calories": 339,
+      "raw": {
+        "moving_time": 4200,
+        "elapsed_time": 4200,
+        "average_heartrate": 103.7,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-18T12:58:02.590Z"
+    },
+    {
+      "id": "strava-18607572302",
+      "source": "strava",
+      "sourceId": "18607572302",
+      "date": "2026-05-22",
+      "time": "18:40",
+      "type": "Run",
+      "name": "Outdoor run",
+      "durationMin": 30,
+      "distanceKm": 3.24,
+      "calories": 320,
+      "raw": {
+        "moving_time": 1819,
+        "elapsed_time": 1828,
+        "average_heartrate": 142.7,
+        "total_elevation_gain": 42.6,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-18T12:58:02.590Z"
+    },
+    {
+      "id": "strava-18620640318",
+      "source": "strava",
+      "sourceId": "18620640318",
+      "date": "2026-05-23",
+      "time": "17:56",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 75,
+      "distanceKm": 0,
+      "calories": 361,
+      "raw": {
+        "moving_time": 4470,
+        "elapsed_time": 4470,
+        "average_heartrate": 97.6,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-18T12:58:02.590Z"
+    },
+    {
+      "id": "strava-18635593480",
+      "source": "strava",
+      "sourceId": "18635593480",
+      "date": "2026-05-24",
+      "time": "20:29",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 16,
+      "distanceKm": 0,
+      "calories": 77,
+      "raw": {
+        "moving_time": 950,
+        "elapsed_time": 950,
+        "average_heartrate": 111.6,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-18T12:58:02.590Z"
+    },
+    {
+      "id": "strava-18648082606",
+      "source": "strava",
+      "sourceId": "18648082606",
+      "date": "2026-05-25",
+      "time": "18:38",
+      "type": "Run",
+      "name": "Outdoor run",
+      "durationMin": 33,
+      "distanceKm": 2.66,
+      "calories": 347,
+      "raw": {
+        "moving_time": 1973,
+        "elapsed_time": 1985,
+        "average_heartrate": 132.7,
+        "total_elevation_gain": 36.7,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-18T12:58:02.590Z"
+    },
+    {
+      "id": "strava-18660797188",
+      "source": "strava",
+      "sourceId": "18660797188",
+      "date": "2026-05-26",
+      "time": "18:44",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 69,
+      "distanceKm": 0,
+      "calories": 334,
+      "raw": {
+        "moving_time": 4135,
+        "elapsed_time": 4135,
+        "average_heartrate": 116.4,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-18T12:58:02.590Z"
+    },
+    {
+      "id": "strava-18675315165",
+      "source": "strava",
+      "sourceId": "18675315165",
+      "date": "2026-05-27",
+      "time": "18:33",
+      "type": "Run",
+      "name": "Outdoor run",
+      "durationMin": 31,
+      "distanceKm": 3.26,
+      "calories": 324,
+      "raw": {
+        "moving_time": 1841,
+        "elapsed_time": 1850,
+        "average_heartrate": 152.6,
+        "total_elevation_gain": 44.3,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-18T12:58:02.590Z"
+    },
+    {
+      "id": "strava-18688810091",
+      "source": "strava",
+      "sourceId": "18688810091",
+      "date": "2026-05-28",
+      "time": "18:45",
+      "type": "Badminton",
+      "name": "Badminton",
+      "durationMin": 75,
+      "distanceKm": 0,
+      "calories": 406,
+      "raw": {
+        "moving_time": 4525,
+        "elapsed_time": 4525,
+        "average_heartrate": 136.2,
+        "total_elevation_gain": 0,
+        "sport_type": "Badminton",
+        "type": "Workout"
+      },
+      "importedAt": "2026-06-18T12:58:02.590Z"
+    },
+    {
+      "id": "strava-18702058261",
+      "source": "strava",
+      "sourceId": "18702058261",
+      "date": "2026-05-29",
+      "time": "18:48",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 70,
+      "distanceKm": 0,
+      "calories": 340,
+      "raw": {
+        "moving_time": 4205,
+        "elapsed_time": 4205,
+        "average_heartrate": 95.6,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-18T12:58:02.590Z"
+    },
+    {
+      "id": "strava-18741758335",
+      "source": "strava",
+      "sourceId": "18741758335",
+      "date": "2026-06-01",
+      "time": "18:51",
+      "type": "Run",
+      "name": "Indoor run",
+      "durationMin": 31,
+      "distanceKm": 3.25,
+      "calories": 328,
+      "raw": {
+        "moving_time": 1865,
+        "elapsed_time": 1865,
+        "average_heartrate": 136.6,
+        "total_elevation_gain": 0,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-18T12:58:02.590Z"
+    },
+    {
+      "id": "strava-18755798910",
+      "source": "strava",
+      "sourceId": "18755798910",
+      "date": "2026-06-02",
+      "time": "19:11",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 74,
+      "distanceKm": 0,
+      "calories": 357,
+      "raw": {
+        "moving_time": 4415,
+        "elapsed_time": 4415,
+        "average_heartrate": 110.6,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-18T12:58:02.590Z"
+    },
+    {
+      "id": "strava-18769619283",
+      "source": "strava",
+      "sourceId": "18769619283",
+      "date": "2026-06-03",
+      "time": "18:13",
+      "type": "Run",
+      "name": "Outdoor run",
+      "durationMin": 40,
+      "distanceKm": 4.14,
+      "calories": 420,
+      "raw": {
+        "moving_time": 2390,
+        "elapsed_time": 2476,
+        "average_heartrate": 153.6,
+        "total_elevation_gain": 54.2,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-18T12:58:02.590Z"
+    },
+    {
+      "id": "strava-18783960310",
+      "source": "strava",
+      "sourceId": "18783960310",
+      "date": "2026-06-04",
+      "time": "18:56",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 71,
+      "distanceKm": 0,
+      "calories": 346,
+      "raw": {
+        "moving_time": 4280,
+        "elapsed_time": 4280,
+        "average_heartrate": 116.2,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-18T12:58:02.590Z"
+    },
+    {
+      "id": "strava-18796737883",
+      "source": "strava",
+      "sourceId": "18796737883",
+      "date": "2026-06-05",
+      "time": "18:40",
+      "type": "Run",
+      "name": "Outdoor run",
+      "durationMin": 34,
+      "distanceKm": 3.52,
+      "calories": 361,
+      "raw": {
+        "moving_time": 2054,
+        "elapsed_time": 2061,
+        "average_heartrate": 147.7,
+        "total_elevation_gain": 43.4,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-18T12:58:02.590Z"
+    },
+    {
+      "id": "strava-18810153398",
+      "source": "strava",
+      "sourceId": "18810153398",
+      "date": "2026-06-06",
+      "time": "18:05",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 75,
+      "distanceKm": 0,
+      "calories": 365,
+      "raw": {
+        "moving_time": 4515,
+        "elapsed_time": 4515,
+        "average_heartrate": 110.7,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-18T12:58:02.590Z"
+    },
+    {
+      "id": "strava-18835953906",
+      "source": "strava",
+      "sourceId": "18835953906",
+      "date": "2026-06-08",
+      "time": "17:57",
+      "type": "Run",
+      "name": "Outdoor run",
+      "durationMin": 35,
+      "distanceKm": 3.4,
+      "calories": 370,
+      "raw": {
+        "moving_time": 2103,
+        "elapsed_time": 2110,
+        "average_heartrate": 148.3,
+        "total_elevation_gain": 47.1,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-18T12:58:02.590Z"
+    },
+    {
+      "id": "strava-18849833331",
+      "source": "strava",
+      "sourceId": "18849833331",
+      "date": "2026-06-09",
+      "time": "18:29",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 54,
+      "distanceKm": 0,
+      "calories": 260,
+      "raw": {
+        "moving_time": 3225,
+        "elapsed_time": 3225,
+        "average_heartrate": 116.9,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-18T12:58:02.589Z"
+    },
+    {
+      "id": "strava-18864056673",
+      "source": "strava",
+      "sourceId": "18864056673",
+      "date": "2026-06-10",
+      "time": "18:29",
+      "type": "Run",
+      "name": "Outdoor run",
+      "durationMin": 33,
+      "distanceKm": 3.26,
+      "calories": 346,
+      "raw": {
+        "moving_time": 1966,
+        "elapsed_time": 1976,
+        "average_heartrate": 146.6,
+        "total_elevation_gain": 45.2,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-18T12:58:02.589Z"
+    },
+    {
+      "id": "strava-18878057755",
+      "source": "strava",
+      "sourceId": "18878057755",
+      "date": "2026-06-11",
+      "time": "19:06",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 79,
+      "distanceKm": 0,
+      "calories": 384,
+      "raw": {
+        "moving_time": 4750,
+        "elapsed_time": 4750,
+        "average_heartrate": 101.7,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-18T12:58:02.589Z"
+    },
+    {
+      "id": "strava-18889789283",
+      "source": "strava",
+      "sourceId": "18889789283",
+      "date": "2026-06-12",
+      "time": "18:37",
+      "type": "Run",
+      "name": "Indoor run",
+      "durationMin": 31,
+      "distanceKm": 3.18,
+      "calories": 325,
+      "raw": {
+        "moving_time": 1850,
+        "elapsed_time": 1850,
+        "average_heartrate": 137.7,
+        "total_elevation_gain": 0,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-18T12:58:02.589Z"
+    },
+    {
+      "id": "strava-18903673825",
+      "source": "strava",
+      "sourceId": "18903673825",
+      "date": "2026-06-13",
+      "time": "19:28",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 59,
+      "distanceKm": 0,
+      "calories": 284,
+      "raw": {
+        "moving_time": 3520,
+        "elapsed_time": 3520,
+        "average_heartrate": 97.2,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-18T12:58:02.589Z"
+    },
+    {
+      "id": "strava-18929505881",
+      "source": "strava",
+      "sourceId": "18929505881",
+      "date": "2026-06-15",
+      "time": "18:35",
+      "type": "Run",
+      "name": "Outdoor run",
+      "durationMin": 29,
+      "distanceKm": 3.08,
+      "calories": 305,
+      "raw": {
+        "moving_time": 1734,
+        "elapsed_time": 1744,
+        "average_heartrate": 148.5,
+        "total_elevation_gain": 40.1,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-18T12:58:02.589Z"
+    },
+    {
+      "id": "workout-1781716334087-410f8b29b037e8",
+      "source": "manual",
+      "date": "2026-06-16",
+      "time": "00:12",
+      "type": "Basketball",
+      "name": "Basketball",
+      "durationMin": 46,
+      "distanceKm": 0,
+      "calories": 396
+    },
+    {
+      "id": "strava-18943047306",
+      "source": "strava",
+      "sourceId": "18943047306",
+      "date": "2026-06-16",
+      "time": "18:56",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 65,
+      "distanceKm": 0,
+      "calories": 313,
+      "raw": {
+        "moving_time": 3870,
+        "elapsed_time": 3870,
+        "average_heartrate": 115.9,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-18T12:58:02.588Z"
+    },
+    {
+      "id": "strava-18957073486",
+      "source": "strava",
+      "sourceId": "18957073486",
+      "date": "2026-06-17",
+      "time": "18:26",
+      "type": "Run",
+      "name": "Outdoor run",
+      "durationMin": 31,
+      "distanceKm": 3.17,
+      "calories": 322,
+      "raw": {
+        "moving_time": 1832,
+        "elapsed_time": 1836,
+        "average_heartrate": 152.2,
+        "total_elevation_gain": 43.3,
+        "sport_type": "Run",
+        "type": "Run"
+      },
+      "importedAt": "2026-06-18T12:58:02.588Z"
+    },
+    {
+      "id": "workout-1781712791714-5451f7b292418",
+      "source": "manual",
+      "date": "2026-06-17",
+      "time": "23:13",
+      "type": "Basketball",
+      "name": "Basketball",
+      "durationMin": 51,
+      "distanceKm": 0,
+      "calories": 439
+    },
+    {
+      "id": "strava-18971145346",
+      "source": "strava",
+      "sourceId": "18971145346",
+      "date": "2026-06-18",
+      "time": "18:51",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 64,
+      "distanceKm": 0,
+      "calories": 310,
+      "raw": {
+        "moving_time": 3835,
+        "elapsed_time": 3835,
+        "average_heartrate": 97.8,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-18T12:58:02.588Z"
+    },
     {
       "id": "workout-1781853365086-31335c715af87",
       "source": "manual",
@@ -28,6 +1390,8 @@
   "steps": [],
   "meta": {
     "app": "Noura",
-    "updatedAt": "2026-06-19T07:16:05.284Z"
+    "version": "1.2.0",
+    "migratedFrom": "dataold.json",
+    "migratedAt": "2026-06-19T00:00:00.000Z"
   }
 }
