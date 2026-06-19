@@ -1,0 +1,22 @@
+{
+  "profile": {
+    "deficitRate": 0.2,
+    "weight": 110,
+    "height": 169,
+    "age": 34,
+    "sex": "male",
+    "activity": 1.375,
+    "proteinGoal": 120,
+    "calorieGoalMode": "tdee",
+    "customCalorieGoal": 2300,
+    "email": "popkhema@gmail.com"
+  },
+  "foods": [],
+  "workouts": [],
+  "steps": [],
+  "meta": {
+    "app": "Noura",
+    "version": "1.2.0",
+    "updatedAt": "2026-06-19T08:40:38.672Z"
+  }
+}
