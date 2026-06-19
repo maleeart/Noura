@@ -9,6 +9,8 @@
   <title>Noura</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="config.js"></script>
+  <!-- Google Identity Services (Sign in with Google) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     :root{
       --ink:#05070a;
@@ -449,6 +451,8 @@
           <p class="text-xs text-white/55 mt-1">Calories • TDEE • Workout</p>
         </div>
         <button id="syncBtn" class="w-10 h-10 rounded-2xl glass text-xl" title="โหลดข้อมูลล่าสุด">↻</button>
+        <!-- Avatar ผู้ใช้ที่ login อยู่ -->
+        <div id="userAvatar" class="cursor-pointer" onclick="state.tab='profile';render()" title="โปรไฟล์ / Sign out"></div>
       </div>
       <div class="mt-7 flex items-end gap-4">
         <div class="flex-1">
@@ -475,6 +479,22 @@
       <button data-tab="history" class="tabBtn rounded-[24px] py-3 text-xs font-black">📊<br>History</button>
     </div>
   </nav>
+
+<!-- หน้า Login — จะแสดงทับแอพถ้ายังไม่ได้ Sign in -->
+<div id="loginScreen" style="display:none" class="fixed inset-0 z-50 flex flex-col items-center justify-center px-6"
+  style="background: radial-gradient(circle at 15% 0%, rgba(255,122,26,.14), transparent 30%), radial-gradient(circle at 85% 10%, rgba(52,198,107,.16), transparent 32%), #f4f0e9;">
+  <div class="w-full max-w-sm bg-white rounded-[36px] shadow-2xl p-8 flex flex-col items-center gap-5">
+    <img src="Noura.png" class="w-20 h-20 rounded-[28px] shadow-lg object-cover" alt="Noura" />
+    <div class="text-center">
+      <h1 class="text-3xl font-black tracking-tight">Noura</h1>
+      <p class="text-stone-500 text-sm mt-1">Calories • TDEE • Workout</p>
+    </div>
+    <p class="text-stone-600 text-sm text-center">เข้าสู่ระบบด้วย Google เพื่อบันทึกและดูข้อมูลของคุณเองแบบส่วนตัว</p>
+    <!-- Google Sign-In button จะ render ที่นี่ -->
+    <div id="googleSignInBtn" class="w-full flex justify-center"></div>
+    <p id="loginError" class="text-red-500 text-xs text-center hidden"></p>
+  </div>
+</div>
 
 <script>
 const $ = (s) => document.querySelector(s);
@@ -505,7 +525,10 @@ let state = {
   },
   sha: null,
   message: '',
-  ui: { mealsOpen: true, workoutsOpen: true, mealsLimit: 3, workoutsLimit: 3, history7Open: false, historyMonth: null }
+  ui: { mealsOpen: true, workoutsOpen: true, mealsLimit: 3, workoutsLimit: 3, history7Open: false, historyMonth: null },
+  // ── Auth ──
+  sessionToken: null,     // Noura session token (HMAC-signed, เก็บใน localStorage)
+  user: null              // { email, name, picture } จาก Google
 };
 
 function bmr(profile) {
@@ -533,32 +556,151 @@ function goalRemaining(date = state.selectedDate) { return goal(date) - dayTotal
 
 function apiUrl(path) { const base = (CONFIG.API_BASE || '').replace(/\/$/, ''); return `${base}${path}`; }
 
+// ── Auth helpers ──────────────────────────────────────────────────────────────
+
+const SESSION_KEY = 'noura-session';   // key สำหรับเก็บ session ใน localStorage
+const USER_KEY    = 'noura-user';      // key สำหรับเก็บ user info ใน localStorage
+const DATA_KEY    = 'noura-data';      // key สำหรับ cache ข้อมูล
+
+/** ดึง session token + user จาก localStorage เมื่อเปิดหน้าใหม่ */
+function loadStoredSession() {
+  try {
+    const token = localStorage.getItem(SESSION_KEY);
+    const user  = JSON.parse(localStorage.getItem(USER_KEY) || 'null');
+    if (token && user && user.email) {
+      state.sessionToken = token;
+      state.user = user;
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+
+/** บันทึก session token + user info ลง localStorage */
+function storeSession(token, user) {
+  state.sessionToken = token;
+  state.user = user;
+  localStorage.setItem(SESSION_KEY, token);
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+}
+
+/** ล้าง session ทั้งหมด (Sign out) */
+function clearSession() {
+  state.sessionToken = null;
+  state.user = null;
+  state.data = { profile: { weight:64,height:167,age:31,sex:'male',activity:1.55,proteinGoal:120,calorieGoalMode:'tdee',customCalorieGoal:2300,deficitRate:0.20 }, foods:[], workouts:[], steps:[], meta:{} };
+  localStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem(USER_KEY);
+  localStorage.removeItem(DATA_KEY);
+  showLoginScreen();
+}
+
+/** fetch wrapper — แนบ Authorization: Bearer <token> ให้ทุก request อัตโนมัติ */
+async function authFetch(url, options = {}) {
+  if (!state.sessionToken) throw new Error('UNAUTHORIZED: กรุณา Sign in ก่อนใช้งาน');
+  const headers = { ...(options.headers || {}), 'Authorization': `Bearer ${state.sessionToken}` };
+  return fetch(url, { ...options, headers });
+}
+
+/** แสดงหน้า Login ทับแอพ */
+function showLoginScreen() {
+  const el = document.getElementById('loginScreen');
+  if (el) {
+    el.style.display = 'flex';
+    el.style.background = 'radial-gradient(circle at 15% 0%, rgba(255,122,26,.14), transparent 30%), radial-gradient(circle at 85% 10%, rgba(52,198,107,.16), transparent 32%), #f4f0e9';
+  }
+}
+
+/** ซ่อนหน้า Login */
+function hideLoginScreen() {
+  const el = document.getElementById('loginScreen');
+  if (el) el.style.display = 'none';
+}
+
+/** callback จาก Google GIS — รับ credential (Google ID Token) แล้วส่งไป verify ที่ server */
+async function handleGoogleSignIn(response) {
+  const errEl = document.getElementById('loginError');
+  if (errEl) { errEl.textContent = ''; errEl.classList.add('hidden'); }
+  try {
+    const r = await fetch(apiUrl('/api/auth-google'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken: response.credential })
+    });
+    const j = await r.json();
+    if (!r.ok || !j.success) throw new Error(j.error || 'Sign in ไม่สำเร็จ');
+    storeSession(j.sessionToken, j.user);
+    hideLoginScreen();
+    updateHeaderUser();
+    await loadData();
+    render();
+  } catch(e) {
+    if (errEl) { errEl.textContent = e.message; errEl.classList.remove('hidden'); }
+  }
+}
+
+/** อัปเดต header ให้แสดง avatar + ชื่อผู้ใช้ */
+function updateHeaderUser() {
+  const avatarEl = document.getElementById('userAvatar');
+  if (!avatarEl || !state.user) return;
+  if (state.user.picture) {
+    avatarEl.innerHTML = `<img src="${state.user.picture}" class="w-10 h-10 rounded-2xl object-cover" referrerpolicy="no-referrer" alt="${state.user.name||''}" />`;
+  } else {
+    const initial = (state.user.name || state.user.email || '?')[0].toUpperCase();
+    avatarEl.innerHTML = `<div class="w-10 h-10 rounded-2xl glass flex items-center justify-center text-white font-black text-lg">${initial}</div>`;
+  }
+}
+
+/** เริ่มต้นระบบ Google Sign-In (เรียกหลัง GIS script โหลดเสร็จ) */
+function initGoogleSignIn() {
+  if (!window.google?.accounts?.id) { setTimeout(initGoogleSignIn, 300); return; }
+  google.accounts.id.initialize({
+    client_id: CONFIG.GOOGLE_CLIENT_ID,
+    callback: handleGoogleSignIn,
+    auto_select: false,
+    cancel_on_tap_outside: false
+  });
+  google.accounts.id.renderButton(
+    document.getElementById('googleSignInBtn'),
+    { theme: 'outline', size: 'large', shape: 'pill', width: 280, text: 'signin_with', locale: 'th' }
+  );
+}
+
+
 async function loadData() {
-  const local = localStorage.getItem('noura-data');
+  const local = localStorage.getItem(DATA_KEY);
   if (local) { try { state.data = { ...state.data, ...JSON.parse(local) }; } catch(e) {} }
   try {
-    const r = await fetch(apiUrl('/api/data'), { cache: 'no-store' });
+    const r = await authFetch(apiUrl('/api/data'), { cache: 'no-store' });
     const j = await r.json();
+    if (r.status === 401) { clearSession(); return; }
     if (!r.ok || !j.success) throw new Error(j.error || 'โหลดข้อมูลจาก Vercel API ไม่สำเร็จ');
     state.sha = j.sha || null;
     state.data = { ...state.data, ...(j.data || {}) };
     state.data.profile = { deficitRate: 0.20, ...state.data.profile };
-    localStorage.setItem('noura-data', JSON.stringify(state.data));
-  } catch (e) { state.message = `ใช้ข้อมูลในเครื่องก่อน: ${e.message}`; }
+    localStorage.setItem(DATA_KEY, JSON.stringify(state.data));
+  } catch (e) {
+    if (String(e.message).startsWith('UNAUTHORIZED')) { clearSession(); return; }
+    state.message = `ใช้ข้อมูลในเครื่องก่อน: ${e.message}`;
+  }
 }
 
 async function saveData(message = 'Update Noura data') {
   state.data.meta = { ...(state.data.meta || {}), app: 'Noura', updatedAt: new Date().toISOString() };
-  localStorage.setItem('noura-data', JSON.stringify(state.data));
+  localStorage.setItem(DATA_KEY, JSON.stringify(state.data));
   try {
-    const r = await fetch(apiUrl('/api/data'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message, data: state.data }) });
+    const r = await authFetch(apiUrl('/api/data'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message, data: state.data }) });
     const j = await r.json();
+    if (r.status === 401) { clearSession(); return; }
     if (!r.ok || !j.success) throw new Error(j.error || 'บันทึกผ่าน Vercel API ไม่สำเร็จ');
     state.sha = j.sha || null;
     state.data = { ...state.data, ...(j.data || {}) };
-    localStorage.setItem('noura-data', JSON.stringify(state.data));
+    localStorage.setItem(DATA_KEY, JSON.stringify(state.data));
     state.message = 'บันทึกเรียบร้อย';
-  } catch(e) { state.message = `บันทึกในเครื่องแล้ว แต่ยังไม่ขึ้น GitHub: ${e.message}`; }
+  } catch(e) {
+    if (String(e.message).startsWith('UNAUTHORIZED')) { clearSession(); return; }
+    state.message = `บันทึกในเครื่องแล้ว แต่ยังไม่ขึ้น GitHub: ${e.message}`;
+  }
   render();
   clearMessageAfter(state.message && state.message.includes('เรียบร้อย') ? 1800 : 3500);
 }
@@ -1024,7 +1166,7 @@ function renderFoodsForDate() {
 }
 async function analyzeFood() {
   const menu = $('#foodMenu').value.trim(); if (!menu) return alert('ใส่ชื่อเมนูก่อน');
-  try { const r = await fetch(apiUrl('/api/ai-food'), { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({menu}) }); const j=await r.json(); if(!r.ok||!j.success) throw new Error(j.error||'AI วิเคราะห์ไม่สำเร็จ'); $('#foodCal').value=Math.round(j.calories||0); $('#foodProtein').value=Math.round(j.protein||0); } catch(e){ alert(e.message); }
+  try { const r = await authFetch(apiUrl('/api/ai-food'), { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({menu}) }); const j=await r.json(); if(!r.ok||!j.success) throw new Error(j.error||'AI วิเคราะห์ไม่สำเร็จ'); $('#foodCal').value=Math.round(j.calories||0); $('#foodProtein').value=Math.round(j.protein||0); } catch(e){ alert(e.message); }
 }
 function addFood() {
   const item = { id: uid('food'), date: $('#foodDate').value, time: new Date().toTimeString().slice(0,5), menu: $('#foodMenu').value.trim(), calories: Number($('#foodCal').value || 0), protein: Number($('#foodProtein').value || 0) };
@@ -1033,8 +1175,11 @@ function addFood() {
 
 function renderWorkout() {
   const d=dayTotals();
+  // แสดงปุ่ม Strava เฉพาะ owner email เท่านั้น (CONFIG.OWNER_EMAIL)
+  const isOwner = state.user && CONFIG.OWNER_EMAIL && state.user.email.toLowerCase() === CONFIG.OWNER_EMAIL.toLowerCase();
+  const stravaBtn = isOwner ? `<button onclick="importStrava()" class="text-xs bg-orange-50 text-orange-600 border border-orange-100 px-3 py-2 rounded-full font-black">เชื่อมต่อ Strava</button>` : '';
   return `
-    ${card(`<div class="flex items-center justify-between mb-3"><h2 class="text-xl font-black">ออกกำลังกายวันนี้</h2><button onclick="importStrava()" class="text-xs bg-orange-50 text-orange-600 border border-orange-100 px-3 py-2 rounded-full font-black">เชื่อมต่อ Strava</button></div>
+    ${card(`<div class="flex items-center justify-between mb-3"><h2 class="text-xl font-black">ออกกำลังกายวันนี้</h2>${stravaBtn}</div>
       <div class="bg-stone-950 text-white rounded-[26px] p-4 grid grid-cols-2 gap-4 mb-4"><div><div class="text-2xl">🔥</div><div class="text-xs text-white/60">เผาผลาญ</div><div class="text-3xl font-black">${fmt(d.burned)}</div><div class="text-xs">kcal</div></div><div><div class="text-2xl">⏱️</div><div class="text-xs text-white/60">เวลารวม</div><div class="text-3xl font-black">${fmt(sum(d.workouts,'durationMin'))}</div><div class="text-xs">นาที</div></div></div>
       ${input('วันที่', 'workDate', state.selectedDate, 'date')}
       <label class="block text-xs font-black text-stone-500 mb-1">ประเภท</label>
@@ -1060,7 +1205,7 @@ function renderWorkoutsForDate() {
   return items.map(x => `<div class="flex gap-3 py-3 border-b border-stone-100"><div class="icon-bubble bg-orange-50">${workEmoji(x.type)}</div><div class="flex-1"><b>${x.name || x.type}</b><div class="text-xs text-stone-500">${fmt(x.durationMin)} min • ${fmt1(x.distanceKm)} km • ${fmt(x.calories)} kcal ${x.source ? '• '+x.source : ''}</div></div><button onclick="deleteItem('workouts','${x.id}')" class="text-red-500 text-sm">ลบ</button></div>`).join('');
 }
 async function importStrava() {
-  try { state.message='กำลัง import Strava...'; render(); const r=await fetch('/api/strava-import-all?limit=30'); const j=await r.json(); if(!j.success) throw new Error(j.error||'Import failed'); state.message=`Import สำเร็จ: added ${j.added}, updated ${j.updated}`; await loadData(); } catch(e){ state.message=e.message; } render();
+  try { state.message='กำลัง import Strava...'; render(); const r=await authFetch('/api/strava-import-all?limit=30'); const j=await r.json(); if(!j.success) throw new Error(j.error||'Import failed'); state.message=`Import สำเร็จ: added ${j.added}, updated ${j.updated}`; await loadData(); } catch(e){ state.message=e.message; } render();
 }
 
 function renderHistory() {
@@ -1228,7 +1373,17 @@ function renderHistoryDay(date) { const t=dayTotals(date); return `<button oncli
 
 function renderProfile() {
   const p=state.data.profile;
+  const userCard = state.user ? `
+    <div class="flex items-center gap-3 mb-4 p-3 bg-stone-50 rounded-2xl border border-stone-100">
+      ${state.user.picture ? `<img src="${state.user.picture}" class="w-12 h-12 rounded-2xl object-cover" referrerpolicy="no-referrer"/>` : `<div class="w-12 h-12 rounded-2xl bg-stone-200 flex items-center justify-center text-xl font-black">${(state.user.name||'?')[0].toUpperCase()}</div>`}
+      <div class="flex-1 min-w-0">
+        <div class="font-black text-sm truncate">${state.user.name || ''}</div>
+        <div class="text-xs text-stone-500 truncate">${state.user.email || ''}</div>
+      </div>
+      <button onclick="clearSession()" class="text-xs text-red-500 border border-red-100 bg-red-50 px-3 py-2 rounded-xl font-black whitespace-nowrap">Sign Out</button>
+    </div>` : '';
   return card(`<h2 class="text-xl font-black mb-3">Profile / TDEE</h2>
+    ${userCard}
     <div class="grid grid-cols-2 gap-3"><div>${input('Weight kg','pWeight',p.weight,'number','step="0.1"')}</div><div>${input('Height cm','pHeight',p.height,'number')}</div><div>${input('Age','pAge',p.age,'number')}</div><div>${input('Protein goal','pProtein',p.proteinGoal,'number')}</div></div>
     <label class="block text-xs font-black text-stone-500 mb-1">Activity</label><select id="pActivity" class="w-full bg-stone-100 rounded-2xl px-4 py-3 mb-3 outline-none">${[[1.2,'นั่งทำงาน'],[1.375,'เบา 1-3 วัน'],[1.55,'ปานกลาง 3-5 วัน'],[1.725,'หนัก 6-7 วัน']].map(a=>`<option value="${a[0]}" ${Number(p.activity)==a[0]?'selected':''}>${a[1]} (${a[0]})</option>`).join('')}</select>
     <label class="block text-xs font-black text-stone-500 mb-1">Deficit Rate</label><select id="pDeficit" class="w-full bg-stone-100 rounded-2xl px-4 py-3 mb-3 outline-none">${[[0.10,'เบา 10%'],[0.15,'กลาง 15%'],[0.20,'สูงสุดแนะนำ 20%'],[0.25,'เข้ม 25%'],[0.30,'สูงมาก 30%']].map(a=>`<option value="${a[0]}" ${Number(deficitRate(p))==a[0]?'selected':''}>${a[1]}</option>`).join('')}</select>
@@ -1262,7 +1417,24 @@ function render() {
 document.querySelectorAll('.tabBtn').forEach(b => b.onclick = () => { state.tab = b.dataset.tab; render(); });
 $('#syncBtn').onclick = async () => { state.message='กำลังโหลดข้อมูลล่าสุด...'; render(); await loadData(); state.message='โหลดล่าสุดแล้ว'; render(); clearMessageAfter(1800); };
 
-loadData().then(render);
+// ── Boot ─────────────────────────────────────────────────────────────────────
+(async () => {
+  // 1) ลอง restore session จาก localStorage ก่อน
+  const hasSession = loadStoredSession();
+  if (!hasSession) {
+    // ไม่มี session → แสดงหน้า login แล้วรอผู้ใช้กด Sign in
+    showLoginScreen();
+    initGoogleSignIn();
+    return;
+  }
+  // 2) มี session → ซ่อนหน้า login, อัปเดต header, โหลดข้อมูล
+  hideLoginScreen();
+  updateHeaderUser();
+  initGoogleSignIn(); // init ไว้เผื่อ session หมดอายุ (clearSession → showLoginScreen ทำให้ GIS พร้อมใช้)
+  await loadData();
+  render();
+})();
+
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
 </script>
 </body>
