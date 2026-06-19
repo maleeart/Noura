@@ -815,19 +815,19 @@ function pickProfileImage() {
   document.getElementById('profileImageInput')?.click();
 }
 
-function handleProfileImage(e) {
-  const file = e.target.files?.[0];
+async function handleProfileImage(event) {
+  const file = event.target.files?.[0];
   if (!file) return;
 
   const reader = new FileReader();
+
   reader.onload = async () => {
-    state.data.profile = {
-      ...(state.data.profile || {}),
-      avatar: reader.result
-    };
+    state.data.profile.avatar = reader.result;
+
+    await saveData();      // สำคัญมาก
     updateHeaderUser();
-    await saveData('Update profile image');
   };
+
   reader.readAsDataURL(file);
 }
 
