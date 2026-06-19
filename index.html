@@ -444,7 +444,7 @@
   <div class="phone-shell min-h-screen">
     <header class="hero text-white px-5 pt-5 pb-10">
       <div class="flex items-center gap-3">
-        <button class="w-10 h-10 rounded-2xl glass text-xl" onclick="state.tab='profile';render()">☰</button>
+        <button class="w-10 h-10 rounded-2xl glass text-xl" onclick="toggleMainMenu()">☰</button>
         <img src="Noura.png" class="w-11 h-11 rounded-2xl bg-white object-cover shadow" alt="Noura logo" />
         <div class="flex-1">
           <h1 class="text-3xl font-black leading-none tracking-tight">Noura</h1>
@@ -452,7 +452,7 @@
         </div>
         <button id="syncBtn" class="w-10 h-10 rounded-2xl glass text-xl" title="โหลดข้อมูลล่าสุด">↻</button>
         <!-- Avatar ผู้ใช้ที่ login อยู่ -->
-        <div id="userAvatar" class="cursor-pointer" onclick="state.tab='profile';render()" title="โปรไฟล์ / Sign out"></div>
+        <div id="userAvatar" class="cursor-pointer" onclick="toggleAvatarMenu()" title="โปรไฟล์"></div>
       </div>
       <div class="mt-7 flex items-end gap-4">
         <div class="flex-1">
@@ -468,6 +468,25 @@
       </div>
     </header>
 
+<div id="mainMenu" class="hidden fixed top-16 left-5 z-50 bg-white rounded-3xl shadow-xl p-2 w-56">
+  <button onclick="openProfileModal();closeMenus()" class="w-full text-left px-4 py-3 rounded-2xl font-black hover:bg-stone-100">
+    แก้ไขข้อมูลส่วนตัว
+  </button>
+  <button onclick="clearSession()" class="w-full text-left px-4 py-3 rounded-2xl font-black text-red-500 hover:bg-red-50">
+    ออกจากระบบ
+  </button>
+</div>
+
+<div id="avatarMenu" class="hidden fixed top-16 right-5 z-50 bg-white rounded-3xl shadow-xl p-2 w-56">
+  <button onclick="pickProfileImage();closeMenus()" class="w-full text-left px-4 py-3 rounded-2xl font-black hover:bg-stone-100">
+    เปลี่ยนรูปโปรไฟล์
+  </button>
+</div>
+
+<input id="profileImageInput" type="file" accept="image/*" class="hidden" onchange="handleProfileImage(event)">
+
+
+    
     <main id="app" class="px-4 -mt-7 fade-in"></main>
   </div>
 
@@ -640,6 +659,17 @@ async function handleGoogleSignIn(response) {
 }
 
 /** อัปเดต header ให้แสดง avatar + ชื่อผู้ใช้ */
+
+
+ const customAvatar = state.data?.profile?.avatar;
+const picture = customAvatar || state.user.picture;
+
+if (picture) {
+  avatarEl.innerHTML = `<img src="${picture}" class="w-10 h-10 rounded-2xl object-cover" referrerpolicy="no-referrer" alt="${state.user.name||''}" />`;
+} else {
+  const initial = (state.user.name || state.user.email || '?')[0].toUpperCase();
+  avatarEl.innerHTML = `<div class="w-10 h-10 rounded-2xl glass flex items-center justify-center text-white font-black text-lg">${initial}</div>`;
+} 
 function updateHeaderUser() {
   const avatarEl = document.getElementById('userAvatar');
   if (!avatarEl || !state.user) return;
@@ -720,6 +750,74 @@ function clearMessageAfter(ms = 2500) {
   }, ms);
 }
 
+
+function toggleMainMenu() {
+  document.getElementById('mainMenu')?.classList.toggle('hidden');
+  document.getElementById('avatarMenu')?.classList.add('hidden');
+}
+
+function toggleAvatarMenu() {
+  document.getElementById('avatarMenu')?.classList.toggle('hidden');
+  document.getElementById('mainMenu')?.classList.add('hidden');
+}
+
+function closeMenus() {
+  document.getElementById('mainMenu')?.classList.add('hidden');
+  document.getElementById('avatarMenu')?.classList.add('hidden');
+}
+
+function openProfileModal() {
+  const p = state.data.profile || {};
+  document.getElementById('profileWeight').value = p.weight || '';
+  document.getElementById('profileHeight').value = p.height || '';
+  document.getElementById('profileAge').value = p.age || '';
+  document.getElementById('profileProteinGoal').value = p.proteinGoal || '';
+  const modal = document.getElementById('profileModal');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+function closeProfileModal() {
+  const modal = document.getElementById('profileModal');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+}
+
+async function saveProfileModal() {
+  state.data.profile = {
+    ...(state.data.profile || {}),
+    weight: Number(document.getElementById('profileWeight').value || 0),
+    height: Number(document.getElementById('profileHeight').value || 0),
+    age: Number(document.getElementById('profileAge').value || 0),
+    proteinGoal: Number(document.getElementById('profileProteinGoal').value || 120)
+  };
+  closeProfileModal();
+  await saveData('Update profile');
+}
+
+function pickProfileImage() {
+  document.getElementById('profileImageInput')?.click();
+}
+
+function handleProfileImage(e) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async () => {
+    state.data.profile = {
+      ...(state.data.profile || {}),
+      avatar: reader.result
+    };
+    updateHeaderUser();
+    await saveData('Update profile image');
+  };
+  reader.readAsDataURL(file);
+}
+
+
+
+  
 function renderToday() {
   const p = state.data.profile;
   const d = dayTotals();
