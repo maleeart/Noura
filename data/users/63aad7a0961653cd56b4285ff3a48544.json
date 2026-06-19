@@ -8,13 +8,26 @@
     "activity": 1.55,
     "proteinGoal": 120,
     "calorieGoalMode": "tdee",
-    "customCalorieGoal": 2300
+    "customCalorieGoal": 2300,
+    "email": "tuangphetch@gmail.com"
   },
   "foods": [],
-  "workouts": [],
+  "workouts": [
+    {
+      "id": "workout-1781853365086-31335c715af87",
+      "source": "manual",
+      "date": "2026-06-19",
+      "time": "14:16",
+      "type": "Run",
+      "name": "Run",
+      "durationMin": 30,
+      "distanceKm": 0,
+      "calories": 314
+    }
+  ],
   "steps": [],
   "meta": {
     "app": "Noura",
-    "updatedAt": "2026-06-19T06:38:42.264Z"
+    "updatedAt": "2026-06-19T07:16:05.284Z"
   }
 }
