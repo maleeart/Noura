@@ -662,12 +662,12 @@ async function handleGoogleSignIn(response) {
 
 
  const customAvatar = state.data?.profile?.avatar;
-const picture = customAvatar || state.user.picture;
+const picture = customAvatar || state.user?.picture;
 
 if (picture) {
-  avatarEl.innerHTML = `<img src="${picture}" class="w-10 h-10 rounded-2xl object-cover" referrerpolicy="no-referrer" alt="${state.user.name||''}" />`;
+  avatarEl.innerHTML = `<img src="${picture}" class="w-10 h-10 rounded-2xl object-cover" referrerpolicy="no-referrer" alt="${state.user?.name||''}" />`;
 } else {
-  const initial = (state.user.name || state.user.email || '?')[0].toUpperCase();
+  const initial = (state.user?.name || state.user?.email || '?')[0].toUpperCase();
   avatarEl.innerHTML = `<div class="w-10 h-10 rounded-2xl glass flex items-center justify-center text-white font-black text-lg">${initial}</div>`;
 } 
 function updateHeaderUser() {
@@ -1278,7 +1278,7 @@ function addFood() {
 function renderWorkout() {
   const d=dayTotals();
   // แสดงปุ่ม Strava เฉพาะ owner email เท่านั้น (CONFIG.OWNER_EMAIL)
-  const isOwner = state.user && CONFIG.OWNER_EMAIL && state.user.email.toLowerCase() === CONFIG.OWNER_EMAIL.toLowerCase();
+  const isOwner = state.user && CONFIG.OWNER_EMAIL && state.user?.email.toLowerCase() === CONFIG.OWNER_EMAIL.toLowerCase();
   const stravaBtn = isOwner ? `<button onclick="importStrava()" class="text-xs bg-orange-50 text-orange-600 border border-orange-100 px-3 py-2 rounded-full font-black">เชื่อมต่อ Strava</button>` : '';
   return `
     ${card(`<div class="flex items-center justify-between mb-3"><h2 class="text-xl font-black">ออกกำลังกายวันนี้</h2>${stravaBtn}</div>
@@ -1477,10 +1477,10 @@ function renderProfile() {
   const p=state.data.profile;
   const userCard = state.user ? `
     <div class="flex items-center gap-3 mb-4 p-3 bg-stone-50 rounded-2xl border border-stone-100">
-      ${state.user.picture ? `<img src="${state.user.picture}" class="w-12 h-12 rounded-2xl object-cover" referrerpolicy="no-referrer"/>` : `<div class="w-12 h-12 rounded-2xl bg-stone-200 flex items-center justify-center text-xl font-black">${(state.user.name||'?')[0].toUpperCase()}</div>`}
+      ${state.user?.picture ? `<img src="${state.user?.picture}" class="w-12 h-12 rounded-2xl object-cover" referrerpolicy="no-referrer"/>` : `<div class="w-12 h-12 rounded-2xl bg-stone-200 flex items-center justify-center text-xl font-black">${(state.user?.name||'?')[0].toUpperCase()}</div>`}
       <div class="flex-1 min-w-0">
-        <div class="font-black text-sm truncate">${state.user.name || ''}</div>
-        <div class="text-xs text-stone-500 truncate">${state.user.email || ''}</div>
+        <div class="font-black text-sm truncate">${state.user?.name || ''}</div>
+        <div class="text-xs text-stone-500 truncate">${state.user?.email || ''}</div>
       </div>
       <button onclick="clearSession()" class="text-xs text-red-500 border border-red-100 bg-red-50 px-3 py-2 rounded-xl font-black whitespace-nowrap">Sign Out</button>
     </div>` : '';
