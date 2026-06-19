@@ -672,16 +672,33 @@ if (picture) {
 } 
 function updateHeaderUser() {
   const avatarEl = document.getElementById('userAvatar');
+
   if (!avatarEl) return;
 
   const customAvatar = state.data?.profile?.avatar;
   const picture = customAvatar || state.user?.picture;
 
   if (picture) {
-    avatarEl.innerHTML = `<img src="${picture}" class="w-10 h-10 rounded-2xl object-cover" referrerpolicy="no-referrer" alt="${state.user?.name || ''}" />`;
+    avatarEl.innerHTML = `
+      <img
+        src="${picture}"
+        class="w-10 h-10 rounded-2xl object-cover"
+        referrerpolicy="no-referrer"
+        alt="${state.user?.name || ''}"
+      />
+    `;
   } else {
-    const initial = (state.user?.name || state.user?.email || '?')[0].toUpperCase();
-    avatarEl.innerHTML = `<div class="w-10 h-10 rounded-2xl glass flex items-center justify-center text-white font-black text-lg">${initial}</div>`;
+    const initial = (
+      state.user?.name ||
+      state.user?.email ||
+      '?'
+    )[0].toUpperCase();
+
+    avatarEl.innerHTML = `
+      <div class="w-10 h-10 rounded-2xl glass flex items-center justify-center text-white font-black text-lg">
+        ${initial}
+      </div>
+    `;
   }
 }
 
