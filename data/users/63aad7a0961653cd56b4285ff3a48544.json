@@ -703,6 +703,17 @@
   ],
   "workouts": [
     {
+      "id": "workout-1781854221341-7f21ff32dc3d78",
+      "source": "manual",
+      "date": "2026-06-19",
+      "time": "14:30",
+      "type": "Workout",
+      "name": "pickleball",
+      "durationMin": 65,
+      "distanceKm": 0,
+      "calories": 426
+    },
+    {
       "id": "strava-18971145346",
       "source": "strava",
       "sourceId": "18971145346",
@@ -1382,6 +1393,6 @@
     "version": "1.2.0",
     "migratedFrom": "dataold.json",
     "migratedAt": "2026-06-19T00:00:00.000Z",
-    "updatedAt": "2026-06-19T07:29:26.988Z"
+    "updatedAt": "2026-06-19T07:30:23.205Z"
   }
 }
