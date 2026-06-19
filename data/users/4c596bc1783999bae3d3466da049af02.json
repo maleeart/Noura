@@ -21,11 +21,23 @@
       "protein": 30
     }
   ],
-  "workouts": [],
+  "workouts": [
+    {
+      "id": "workout-1781844802137-23ebc97420b338",
+      "source": "manual",
+      "date": "2026-06-19",
+      "time": "11:53",
+      "type": "Run",
+      "name": "zone 3",
+      "durationMin": 0,
+      "distanceKm": 0,
+      "calories": 0
+    }
+  ],
   "steps": [],
   "meta": {
     "app": "Noura",
     "version": "1.2.0",
-    "updatedAt": "2026-06-19T04:52:56.880Z"
+    "updatedAt": "2026-06-19T04:53:28.248Z"
   }
 }
