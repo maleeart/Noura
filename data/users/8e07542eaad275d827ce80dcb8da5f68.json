@@ -1,9 +1,9 @@
 {
   "profile": {
     "deficitRate": 0.2,
-    "weight": 64.6,
+    "weight": 60,
     "height": 167,
-    "age": 31,
+    "age": 30,
     "sex": "male",
     "activity": 1.2,
     "proteinGoal": 120,
@@ -1334,6 +1334,6 @@
   "meta": {
     "app": "Noura",
     "version": "1.0.0",
-    "updatedAt": "2026-06-19T02:51:25.084Z"
+    "updatedAt": "2026-06-19T02:51:44.177Z"
   }
 }
