@@ -13,6 +13,14 @@
   },
   "foods": [
     {
+      "id": "food-1781959697302-47bf48fc5e032",
+      "date": "2026-06-20",
+      "time": "19:48",
+      "menu": "มาม่า oriental kitchen สีแดง",
+      "calories": 320,
+      "protein": 12
+    },
+    {
       "id": "food-1781935037391-95ff041f9a6878",
       "date": "2026-06-20",
       "time": "12:57",
@@ -1502,6 +1510,6 @@
     "version": "1.2.0",
     "migratedFrom": "dataold.json",
     "migratedAt": "2026-06-19T00:00:00.000Z",
-    "updatedAt": "2026-06-20T12:41:57.784Z"
+    "updatedAt": "2026-06-20T12:48:18.874Z"
   }
 }
