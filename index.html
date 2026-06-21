@@ -9,6 +9,7 @@
   <title>Noura</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="config.js"></script>
+  <!-- Google Identity Services (Sign in with Google) -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     :root{
@@ -437,7 +438,7 @@
       line-height:1;
     }
 
-    /* ── Loading spinner สำหรับปุ่มที่กำลังทำงาน (AI วิเคราะห์ / บันทึก / sync ฯลฯ) ── */
+    /* ── Loading spinner สำหรับปุ่มที่กำลังทำงาน ── */
     @keyframes noura-spin { to { transform: rotate(360deg); } }
     .noura-spinner {
       display: inline-block;
@@ -456,7 +457,7 @@
       cursor: not-allowed;
     }
 
-    /* ===== NEW: 7-DAY LINE CHART RESPONSIVE STYLES ===== */
+    /* ===== 7-DAY LINE CHART RESPONSIVE STYLES ===== */
     .chart-x-labels {
       display: flex;
       justify-content: space-between;
@@ -477,6 +478,7 @@
           <p class="text-xs text-white/55 mt-1">Calories • TDEE • Workout</p>
         </div>
         <button id="syncBtn" class="w-10 h-10 rounded-2xl glass text-xl" title="โหลดข้อมูลล่าสุด">↻</button>
+        <!-- Avatar ผู้ใช้ที่ login อยู่ -->
         <div id="userAvatar" class="w-10 h-10 rounded-2xl overflow-hidden cursor-pointer flex items-center justify-center" onclick="toggleAvatarMenu()" title="โปรไฟล์"></div>
       </div>
       <div class="mt-7 flex items-end gap-4">
@@ -493,6 +495,7 @@
       </div>
     </header>
 
+<!-- Backdrop โปร่งใส คลิกที่ไหนก็ได้นอกเมนูเพื่อปิด -->
 <div id="menuBackdrop" class="hidden fixed inset-0 z-40" onclick="closeMenus()"></div>
 
 <div id="mainMenu" class="hidden fixed top-16 left-5 z-50 bg-white rounded-3xl shadow-xl p-2 w-56">
@@ -569,6 +572,7 @@
     </div>
   </nav>
 
+<!-- หน้า Login -->
 <div id="loginScreen" style="display:none;background:radial-gradient(circle at 15% 0%, rgba(255,122,26,.14), transparent 30%), radial-gradient(circle at 85% 10%, rgba(52,198,107,.16), transparent 32%), #f4f0e9;" class="fixed inset-0 z-50 flex flex-col items-center justify-center px-6">
   <div class="w-full max-w-sm bg-white rounded-[36px] shadow-2xl p-8 flex flex-col items-center gap-5">
     <img src="Noura.png" class="w-20 h-20 rounded-[28px] shadow-lg object-cover" alt="Noura" />
@@ -577,6 +581,7 @@
       <p class="text-stone-500 text-sm mt-1">Calories • TDEE • Workout</p>
     </div>
     <p class="text-stone-600 text-sm text-center">เข้าสู่ระบบด้วย Google เพื่อบันทึกและดูข้อมูลของคุณเองแบบส่วนตัว</p>
+    <!-- Google Sign-In button -->
     <div id="googleSignInBtn" class="w-full flex justify-center"></div>
     <p id="loginError" class="text-red-500 text-xs text-center hidden"></p>
   </div>
@@ -613,8 +618,8 @@ let state = {
   message: '',
   ui: { mealsOpen: true, workoutsOpen: true, mealsLimit: 3, workoutsLimit: 3, history7Open: false, historyMonth: null },
   // ── Auth ──
-  sessionToken: null,     // Noura session token (HMAC-signed, เก็บใน localStorage)
-  user: {}                // { email, name, picture } จาก Google
+  sessionToken: null,
+  user: {}
 };
 
 function bmr(profile) {
@@ -644,11 +649,10 @@ function apiUrl(path) { const base = (CONFIG.API_BASE || '').replace(/\/$/, '');
 
 // ── Auth helpers ──────────────────────────────────────────────────────────────
 
-const SESSION_KEY = 'noura-session';   // key สำหรับเก็บ session ใน localStorage
-const USER_KEY    = 'noura-user';      // key สำหรับเก็บ user info ใน localStorage
-const DATA_KEY    = 'noura-data';      // key สำหรับ cache ข้อมูล
+const SESSION_KEY = 'noura-session';
+const USER_KEY    = 'noura-user';
+const DATA_KEY    = 'noura-data';
 
-/** ดึง session token + user จาก localStorage เมื่อเปิดหน้าใหม่ */
 function loadStoredSession() {
   try {
     const token = localStorage.getItem(SESSION_KEY);
@@ -662,7 +666,6 @@ function loadStoredSession() {
   return false;
 }
 
-/** บันทึก session token + user info ลง localStorage */
 function storeSession(token, user) {
   state.sessionToken = token;
   state.user = user;
@@ -670,7 +673,6 @@ function storeSession(token, user) {
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 
-/** ล้าง session ทั้งหมด (Sign out) */
 function clearSession() {
   state.sessionToken = null;
   state.user = {};
@@ -681,14 +683,12 @@ function clearSession() {
   showLoginScreen();
 }
 
-/** fetch wrapper — แนบ Authorization: Bearer <token> ให้ทุก request อัตโนมัติ */
 async function authFetch(url, options = {}) {
   if (!state.sessionToken) throw new Error('UNAUTHORIZED: กรุณา Sign in ก่อนใช้งาน');
   const headers = { ...(options.headers || {}), 'Authorization': `Bearer ${state.sessionToken}` };
   return fetch(url, { ...options, headers });
 }
 
-/** แสดงหน้า Login ทับแอพ */
 function showLoginScreen() {
   const el = document.getElementById('loginScreen');
   if (el) {
@@ -697,13 +697,11 @@ function showLoginScreen() {
   }
 }
 
-/** ซ่อนหน้า Login */
 function hideLoginScreen() {
   const el = document.getElementById('loginScreen');
   if (el) el.style.display = 'none';
 }
 
-/** callback จาก Google GIS — รับ credential (Google ID Token) แล้วส่งไป verify ที่ server */
 async function handleGoogleSignIn(response) {
   const errEl = document.getElementById('loginError');
   if (errEl) { errEl.textContent = ''; errEl.classList.add('hidden'); }
@@ -717,25 +715,23 @@ async function handleGoogleSignIn(response) {
     if (!r.ok || !j.success) throw new Error(j.error || 'Sign in ไม่สำเร็จ');
     storeSession(j.sessionToken, j.user);
     hideLoginScreen();
-    await loadData();      // โหลดข้อมูล user ก่อน
-    updateHeaderUser();    // ค่อย render avatar
+    await loadData();
+    updateHeaderUser();
     render();
     if (!isProfileComplete(state.data.profile)) {
-      openProfileModal(true); // ข้อมูลส่วนตัวยังไม่ครบ → บังคับกรอกก่อนใช้งาน
+      openProfileModal(true);
     }
   } catch(e) {
     if (errEl) { errEl.textContent = e.message; errEl.classList.remove('hidden'); }
   }
 }
 
-/** อัปเดต header ให้แสดง avatar + ชื่อผู้ใช้ */
 function updateHeaderUser() {
   const avatarEl = document.getElementById('userAvatar');
   if (!avatarEl) return;
 
   const customAvatar = state.data?.profile?.avatar?.trim();
   const googleAvatar = state.user?.picture?.trim();
-
   const picture = customAvatar || googleAvatar;
 
   if (picture) {
@@ -750,12 +746,7 @@ function updateHeaderUser() {
     return;
   }
 
-  const initial =
-    (state.user?.name ||
-     state.user?.email ||
-     state.data?.profile?.email ||
-     '?')[0].toUpperCase();
-
+  const initial = (state.user?.name || state.user?.email || state.data?.profile?.email || '?')[0].toUpperCase();
   avatarEl.innerHTML = `
     <div class="w-10 h-10 rounded-2xl glass flex items-center justify-center text-white font-black text-lg">
       ${initial}
@@ -763,7 +754,6 @@ function updateHeaderUser() {
   `;
 }
 
-/** เริ่มต้นระบบ Google Sign-In (เรียกหลัง GIS script โหลดเสร็จ) */
 function initGoogleSignIn() {
   if (!window.google?.accounts?.id) { setTimeout(initGoogleSignIn, 300); return; }
   google.accounts.id.initialize({
@@ -778,7 +768,6 @@ function initGoogleSignIn() {
   );
 }
 
-
 async function loadData() {
   const local = localStorage.getItem(DATA_KEY);
   if (local) { try { state.data = { ...state.data, ...JSON.parse(local) }; } catch(e) {} }
@@ -791,11 +780,10 @@ async function loadData() {
     state.data = { ...state.data, ...(j.data || {}) };
     state.data.profile = {
       deficitRate: 0.20,
-    ...(state.data.profile || {}),
-  email: state.user?.email || state.data.profile?.email || ''
-  };
-
-localStorage.setItem(DATA_KEY, JSON.stringify(state.data));
+      ...(state.data.profile || {}),
+      email: state.user?.email || state.data.profile?.email || ''
+    };
+    localStorage.setItem(DATA_KEY, JSON.stringify(state.data));
   } catch (e) {
     if (String(e.message).startsWith('UNAUTHORIZED')) { clearSession(); return; }
     state.message = `ใช้ข้อมูลในเครื่องก่อน: ${e.message}`;
@@ -837,11 +825,6 @@ function clearMessageAfter(ms = 2500) {
   }, ms);
 }
 
-/** ── Loading state สำหรับปุ่ม ──────────────────────────────────────────────
- * ใช้กับปุ่มที่กดแล้วต้องรอ (เรียก API เช่น AI วิเคราะห์, บันทึกข้อมูล, sync)
- * เก็บ HTML เดิมของปุ่มไว้ใน dataset แล้วเปลี่ยนเป็น spinner + ข้อความระหว่างรอ
- * จากนั้น restore กลับเมื่อทำงานเสร็จ (ไม่ว่าจะสำเร็จหรือ error)
- */
 function setBtnLoading(btn, loadingText = 'กำลังทำงาน...') {
   if (!btn || btn.dataset.loading === '1') return;
   btn.dataset.loading = '1';
@@ -858,7 +841,6 @@ function clearBtnLoading(btn) {
   delete btn.dataset.originalHtml;
 }
 
-/** wrapper: รัน async function พร้อมแสดง loading บนปุ่มที่กด อัตโนมัติ คืนค่ากลับเหมือน fn เดิม */
 async function withBtnLoading(btn, loadingText, fn) {
   setBtnLoading(btn, loadingText);
   try {
@@ -867,7 +849,6 @@ async function withBtnLoading(btn, loadingText, fn) {
     clearBtnLoading(btn);
   }
 }
-
 
 function toggleMainMenu() {
   const isHidden = document.getElementById('mainMenu')?.classList.contains('hidden');
@@ -889,15 +870,11 @@ function closeMenus() {
   document.getElementById('menuBackdrop')?.classList.add('hidden');
 }
 
-/** เช็คว่าโปรไฟล์มีข้อมูลครบสำหรับคำนวณ BMR/TDEE หรือยัง (weight, height, age, sex ต้องเป็นค่าจริง > 0) */
 function isProfileComplete(profile) {
   const p = profile || {};
   return Number(p.weight) > 0 && Number(p.height) > 0 && Number(p.age) > 0 && (p.sex === 'male' || p.sex === 'female');
 }
 
-/** เปิด modal กรอกโปรไฟล์
- * force=true ใช้ตอนผู้ใช้ login ครั้งแรกแล้วข้อมูลยังไม่ครบ → ปิด modal ไม่ได้จนกว่าจะกรอกครบ
- */
 function openProfileModal(force = false) {
   const p = state.data.profile || {};
   document.getElementById('profileSex').value = (p.sex === 'female') ? 'female' : (p.sex === 'male' ? 'male' : '');
@@ -905,7 +882,6 @@ function openProfileModal(force = false) {
   document.getElementById('profileHeight').value = p.height || '';
   document.getElementById('profileAge').value = p.age || '';
   document.getElementById('profileActivity').value = p.activity || '1.55';
-  // โปรตีนแนะนำ: ถ้ามีค่าที่บันทึกไว้แล้วใช้ค่าเดิม, ถ้ายังไม่มีให้คำนวณจากน้ำหนักตัว (1.8 g/kg) เป็นค่าตั้งต้น
   document.getElementById('profileProteinGoal').value = p.proteinGoal || suggestProteinGoal(p.weight) || '';
 
   const modal = document.getElementById('profileModal');
@@ -916,7 +892,7 @@ function openProfileModal(force = false) {
   const closeBtn = document.getElementById('profileModalCloseBtn');
   const note = document.getElementById('profileModalRequiredNote');
   if (force) {
-    closeBtn.classList.add('hidden');     // บังคับกรอก: ซ่อนปุ่มปิด
+    closeBtn.classList.add('hidden');
     note.classList.remove('hidden');
   } else {
     closeBtn.classList.remove('hidden');
@@ -927,29 +903,26 @@ function openProfileModal(force = false) {
   errEl.textContent = '';
 }
 
-/** คำนวณค่าโปรตีนแนะนำต่อวันจากน้ำหนักตัว (1.8 g/kg เหมาะกับคนออกกำลังกายทั่วไป) */
 function suggestProteinGoal(weightKg) {
   const w = Number(weightKg || 0);
   if (w <= 0) return 0;
-  return Math.round(w * 1.8 / 5) * 5; // ปัดเศษให้ลงตัวที่ 5g จะได้ดูเป็นเลขสวย
+  return Math.round(w * 1.8 / 5) * 5;
 }
 
-/** เรียกตอนผู้ใช้กรอก/แก้ "น้ำหนัก" ใน modal — auto-fill ช่องโปรตีนแนะนำให้ทันที ถ้าผู้ใช้ยังไม่ได้แก้เองมาก่อน */
 function onProfileWeightInput() {
   const weight = Number(document.getElementById('profileWeight').value || 0);
   const proteinInput = document.getElementById('profileProteinGoal');
-  // แก้ค่าแนะนำให้เฉพาะตอนช่องโปรตีนยังว่าง หรือยังเป็นค่าที่ระบบ auto-fill ไว้ก่อนหน้า (ไม่ทับค่าที่ผู้ใช้ตั้งใจแก้เอง)
   if (proteinInput.dataset.userEdited === '1') return;
   const suggestion = suggestProteinGoal(weight);
   if (suggestion > 0) {
     proteinInput.value = suggestion;
-    proteinInput.dataset.userEdited = '0'; // ยังถือว่าเป็นค่า auto-fill อยู่
+    proteinInput.dataset.userEdited = '0';
   }
 }
 
 function closeProfileModal() {
   const modal = document.getElementById('profileModal');
-  if (modal.dataset.force === '1') return; // บังคับกรอกอยู่ ห้ามปิด
+  if (modal.dataset.force === '1') return;
   modal.classList.add('hidden');
   modal.classList.remove('flex');
 }
@@ -964,7 +937,7 @@ async function saveProfileModal(ev) {
 
   const errEl = document.getElementById('profileModalError');
   if (!sex || weight <= 0 || height <= 0 || age <= 0) {
-    errEl.textContent = 'กรุณากรอกเพศ น้ำหนัก ส่วนสูง และอายุให้ครบ (ต้องมากกว่า 0) เพื่อให้คำนวณ BMR/TDEE ได้ถูกต้อง';
+    errEl.textContent = 'กรุณากรอกเพศ น้ำหนัก ส่วนสูง และอายุให้ครบ เพื่อให้คำนวณ BMR/TDEE ได้ถูกต้อง';
     errEl.classList.remove('hidden');
     return;
   }
@@ -979,7 +952,6 @@ async function saveProfileModal(ev) {
   const wasForced = modal.dataset.force === '1';
   const btn = ev?.currentTarget;
 
-  // แสดง spinner บนปุ่มก่อน แล้วค่อยบันทึก เสร็จแล้วค่อยปิด modal (ผู้ใช้จะเห็นสถานะกำลังทำงานจริงๆ)
   await withBtnLoading(btn, 'กำลังบันทึก...', async () => {
     modal.dataset.force = '0';
     await saveData('Update profile');
@@ -995,22 +967,15 @@ function pickProfileImage() {
 async function handleProfileImage(event) {
   const file = event.target.files?.[0];
   if (!file) return;
-
   const reader = new FileReader();
-
   reader.onload = async () => {
     state.data.profile.avatar = reader.result;
-
-    await saveData();      // สำคัญมาก
+    await saveData();
     updateHeaderUser();
   };
-
   reader.readAsDataURL(file);
 }
 
-
-
-  
 function renderToday() {
   const p = state.data.profile;
   const d = dayTotals();
@@ -1036,9 +1001,9 @@ function renderToday() {
   const proteinProgress = (proteinPct / 100) * proteinRingLength;
   let proteinColor = '#34c66b';
   if (proteinPctRaw >= 100 && proteinPctRaw <= 115) {
-    proteinColor = '#f5c542'; // 100-115% = เหลืองทอง
+    proteinColor = '#f5c542';
   } else if (proteinPctRaw > 115) {
-    proteinColor = '#b7c83f'; // >115% = เขียวแกมเหลืองแบบบูด ๆ
+    proteinColor = '#b7c83f';
   }
 
   const fnum = n => Number(n || 0).toLocaleString('th-TH', { maximumFractionDigits: 0 });
@@ -1197,12 +1162,10 @@ function renderToday() {
         <p class="text-[11px] text-stone-400 mt-3 px-1">Goal ${fnum(g)} • Eaten ${fnum(eaten)} • Net ${fnum(remain)}</p>
       </section>
 
-      
       ${renderMiniHistory()}
     </div>
   `;
 }
-
 
 function toggleTodayMeals() {
   state.ui = { mealsOpen: true, workoutsOpen: true, mealsLimit: 3, workoutsLimit: 3, ...(state.ui || {}) };
@@ -1235,7 +1198,6 @@ function renderDayList() {
 }
 function foodEmoji(menu='') { const m=menu.toLowerCase(); if(m.includes('กาแฟ')||m.includes('อเมริกาโน'))return'☕'; if(m.includes('เวย์'))return'🥤'; if(m.includes('ข้าว'))return'🍚'; if(m.includes('ไก่'))return'🍗'; if(m.includes('กล้วย'))return'🍌'; return'🍽️'; }
 function workEmoji(type='') { const t=String(type).toLowerCase(); if(t.includes('run'))return'🏃'; if(t.includes('walk'))return'🚶'; if(t.includes('ride'))return'🚴'; if(t.includes('basket'))return'🏀'; if(t.includes('weight'))return'🏋️'; return'⚡'; }
-
 
 function renderMiniHistory() {
   const out = [];
@@ -1288,17 +1250,20 @@ function renderMiniHistory() {
     const textOffset = isPositive ? -18 : 25; 
 
     return `
+      <!-- เส้น Grid แนวตั้งผ่าผ่านแต่ละวัน -->
       <line x1="${p.x}" y1="20" x2="${p.x}" y2="${svgHeight - 20}" stroke="#e2e8f0" stroke-width="1.5" stroke-dasharray="2 4" />
       
+      <!-- ข้อความแสดงค่าตัวเลขแคลอรีสุทธิเหนือ/ใต้ปมกราฟ -->
       <text x="${p.x}" y="${p.y + textOffset}" fill="${textColor}" font-size="22" font-weight="800" text-anchor="middle">
         ${p.val > 0 ? '+' : ''}${fmt(p.val)}
       </text>
       
+      <!-- จุดวงกลม Marker -->
       <circle cx="${p.x}" cy="${p.y}" r="9" fill="#ffffff" stroke="${dotColor}" stroke-width="4" />
     `;
   }).join('');
 
-  // แสดงป้ายระบุวันที่ด้านล่าง
+  // แสดงป้ายระบุวันที่ด้านล่าง (ปรับให้ฟอนต์เล็กลง สไตล์มินิมอลเพื่อลดความเบียด)
   const xLabelsHtml = points.map(p => {
     const dateObj = new Date(p.dateStr);
     const dateLabel = dateObj.toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit' });
@@ -1306,8 +1271,8 @@ function renderMiniHistory() {
     return `
       <button 
         onclick="state.selectedDate='${p.dateStr}';state.tab='today';render()"
-        class="text-[11px] font-bold focus:outline-none transition-all px-1 py-0.5 rounded-md ${isSelected ? 'bg-stone-950 text-white shadow-sm' : 'text-stone-400 hover:text-stone-900'}"
-        style="width: 38px; text-align: center;"
+        class="text-[10px] font-semibold tracking-tighter focus:outline-none transition-all py-1 rounded-lg ${isSelected ? 'bg-stone-950 text-white font-bold px-1.5' : 'text-stone-400 hover:text-stone-900'}"
+        style="width: 35px; text-align: center; min-width: 35px;"
       >
         ${dateLabel}
       </button>
@@ -1323,21 +1288,27 @@ function renderMiniHistory() {
       <span class="text-xs bg-stone-100 text-stone-500 font-extrabold px-2.5 py-1 rounded-full">kcal</span>
     </div>
 
+    <!-- บล็อกแสดงผลกราฟ Responsive หดขยายตามหน้าจอ -->
     <div class="w-full bg-[#fbfbf9]/60 border border-stone-200/60 rounded-2xl p-2.5">
       <svg viewBox="0 0 ${svgWidth} ${svgHeight}" class="w-full h-auto overflow-visible select-none">
+        <!-- เส้นแกนกลางศูนย์ (Baseline 0) -->
         <line x1="10" y1="${centerY}" x2="${svgWidth - paddingRight + 20}" y2="${centerY}" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4 4" />
         
+        <!-- ป้ายกำกับบอกระดับแกนพลังงานขวาสุด -->
         <text x="${svgWidth - paddingRight + 30}" y="35" fill="#a8a29e" font-size="20" font-weight="750">+${fmt(maxVal)}</text>
         <text x="${svgWidth - paddingRight + 30}" y="${centerY + 6}" fill="#78716c" font-size="22" font-weight="900">0</text>
         <text x="${svgWidth - paddingRight + 30}" y="${svgHeight - 25}" fill="#a8a29e" font-size="20" font-weight="750">-${fmt(maxVal)}</text>
 
+        <!-- เส้นตรงกราฟเชื่อมตัดพิกัด -->
         <path d="${dPath}" fill="none" stroke="#94a3b8" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
         
+        <!-- ชุดองค์ประกอบวงกลมและตัวหนังสือทั้งหมดภายใน SVG -->
         ${svgElements}
       </svg>
     </div>
 
-    <div class="flex justify-between px-1.5 mt-2.5" style="padding-right: calc(${paddingRight}px * (100% / ${svgWidth}));">
+    <!-- แถบระบุวันที่ในแกน X -->
+    <div class="flex justify-between px-2 mt-3" style="padding-right: calc(${paddingRight}px * (100% / ${svgWidth})); gap: 4px;">
       ${xLabelsHtml}
     </div>
   `);
@@ -1355,14 +1326,12 @@ function getInsight() {
       text: 'ไม่เป็นไร พรุ่งนี้คุมให้กลับเข้าโซนได้ เน้นโปรตีนให้พอและลดของหวาน/เครื่องดื่มแคลอรีสูงลงนิดนึง'
     };
   }
-
   if (d.protein >= proteinGoal && proteinGoal > 0) {
     return {
       title: 'โปรตีนวันนี้ดีมาก 💪',
       text: 'คุณทำยอดโปรตีนถึงเป้าแล้ว เหลือแค่คุมแคลอรีให้อยู่ใกล้ TDEE/Goal ผลลัพธ์จะนิ่งขึ้นเรื่อย ๆ'
     };
   }
-
   return {
     title: 'เติมโปรตีนอีกนิดนะ',
     text: 'วันนี้โปรตีนยังต่ำกว่าเป้าหมาย ลองเพิ่มเวย์ ไข่ หรืออกไก่อีกนิด จะช่วยให้อิ่มและรักษากล้ามเนื้อได้ดีขึ้น'
@@ -1378,12 +1347,11 @@ function renderFood() {
   const d = dayTotals();
   const dynamic = dynamicTDEE();
   const g = goal();
-  const remain = netRemaining(); // เหลือสุทธิ = Dynamic TDEE - กินแล้ว
+  const remain = netRemaining();
   const goalRemain = goalRemaining();
   const goalPct = Math.max(0, Math.round((d.eaten / Math.max(g, 1)) * 100));
   const barPct = Math.min(140, goalPct);
   const remainCls = remain >= 0 ? 'text-green-300' : 'text-red-300';
-  const goalRemainCls = goalRemain >= 0 ? 'text-orange-300' : 'text-red-300';
   const netRemainCls = remain >= 0 ? 'text-green-300' : 'text-red-300';
 
   return `
@@ -1640,17 +1608,8 @@ function renderHistoryCalendar() {
     <div class="history-calendar-grid">
       ${cells.map(c => {
         if (!c) return `<div></div>`;
-
-        const color = !c.hasData
-          ? '#d6d3d1'
-          : c.remain >= 0
-            ? 'var(--green)'
-            : 'var(--red)';
-
-        const mini = c.hasData
-          ? `${c.remain >= 0 ? '+' : ''}${fmt(c.remain)}`
-          : '';
-
+        const color = !c.hasData ? '#d6d3d1' : c.remain >= 0 ? 'var(--green)' : 'var(--red)';
+        const mini = c.hasData ? `${c.remain >= 0 ? '+' : ''}${fmt(c.remain)}` : '';
         return `
           <button
             onclick="state.selectedDate='${c.date}';state.tab='today';render()"
