@@ -6,7 +6,7 @@
     "age": 29,
     "sex": "female",
     "activity": 1.2,
-    "proteinGoal": 60,
+    "proteinGoal": 120,
     "calorieGoalMode": "tdee",
     "customCalorieGoal": 2300,
     "email": "ploynapataon@gmail.com"
@@ -82,6 +82,6 @@
   "meta": {
     "app": "Noura",
     "version": "1.2.0",
-    "updatedAt": "2026-06-20T15:24:18.605Z"
+    "updatedAt": "2026-06-21T07:37:43.832Z"
   }
 }
