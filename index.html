@@ -456,30 +456,7 @@
       cursor: not-allowed;
     }
 
-    /* ===== NEW: 7-DAY LINE CHART STYLES ===== */
-    .chart-container-7d {
-      width: 100%;
-      height: 130px;
-      position: relative;
-      margin-top: 12px;
-      background: #fafaf9;
-      border-radius: 20px;
-      padding: 10px;
-      border: 1px solid #eee9df;
-    }
-    .chart-label-bubble {
-      position: absolute;
-      transform: translate(-50%, -50%);
-      font-size: 9px;
-      font-weight: 800;
-      padding: 2px 6px;
-      border-radius: 8px;
-      pointer-events: none;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      border: 1px solid rgba(255,255,255,0.6);
-    }
-    .chart-label-pos { background: #e6f7ed; color: #15803d; }
-    .chart-label-neg { background: #fee2e2; color: #b91c1c; }
+    /* ===== NEW: 7-DAY LINE CHART RESPONSIVE STYLES ===== */
     .chart-x-labels {
       display: flex;
       justify-content: space-between;
@@ -1274,25 +1251,27 @@ function renderMiniHistory() {
     });
   }
 
-  // หาค่า Absolute สูงสุดเพื่อนำมา Scale กราฟแบบ Dynamic ให้แกน 0 อยู่ตรงกลางสมบูรณ์แบบ
+  // หาค่าสูงสุดสำหรับตั้งสเกลแกน 0 ให้อยู่ตรงกลางสมบูรณ์แบบ
   const maxVal = Math.max(...out.map(x => Math.abs(x.remain)), 100);
 
-  // กำหนดมิติของ SVG 
-  const width = 360;
-  const height = 120;
-  const paddingX = 25;
-  const centerY = height / 2; 
-  const usableHeight = height - 40; 
+  // กำหนดพิกัดจำลองบนอัตราส่วน viewBox 100% เพื่อให้รองรับทุกขนาดหน้าจอโดยไม่ล้น
+  const svgWidth = 1000;
+  const svgHeight = 280;
+  const paddingLeft = 40;
+  const paddingRight = 100; 
+  const chartWidth = svgWidth - paddingLeft - paddingRight;
+  const centerY = svgHeight / 2;
+  const usableHeight = svgHeight - 80;
 
-  // คำนวณพิกัด (X, Y) สำหรับจุดทั้ง 7 วัน
+  // คำนวณพิกัดแต่ละจุดลงบนแกนสเกลของ SVG
   const points = out.map((x, i) => {
-    const ptX = paddingX + (i * (width - paddingX * 2) / 6);
+    const ptX = paddingLeft + (i * (chartWidth / 6));
     const ratio = x.remain / maxVal;
     const ptY = centerY - (ratio * (usableHeight / 2));
     return { x: ptX, y: ptY, val: x.remain, dateStr: x.date };
   });
 
-  // เปลี่ยนเป็นเส้นตรงตัด (Straight Line Path) เพื่อความชัดเจนและไม่เบี้ยวหลุดขอบ
+  // สร้างเส้นตรงเชื่อมโยงจุด (Straight Line Path)
   let dPath = "";
   if (points.length > 0) {
     dPath = `M ${points[0].x} ${points[0].y}`;
@@ -1301,33 +1280,34 @@ function renderMiniHistory() {
     }
   }
 
-  // ปรับพิกัดบับเบิ้ลตัวเลขให้อยู่กับที่แบ่งแถวบน-ล่างชัดเจน
-  const nodeMarkers = points.map(p => {
+  // วาดวงกลมจุดตัด และข้อความค่าตัวเลขภายในพื้นที่ SVG ทั้งหมด
+  const svgElements = points.map(p => {
     const isPositive = p.val >= 0;
-    const dotColor = isPositive ? '#a2e8a2' : '#f8a2a2'; 
-    const textClass = isPositive ? 'chart-label-pos' : 'chart-label-neg';
-    
-    // ตั้งพิกัดแถวตายตัว: ค่าบวกอยู่แถวบน / ค่าลบอยู่แถวล่าง ไม่ซ้อนทับกัน
-    const labelTop = isPositive ? (centerY - 38) : (centerY + 16);
+    const dotColor = isPositive ? '#34c66b' : '#ff4d3d'; 
+    const textColor = isPositive ? '#16a34a' : '#dc2626';
+    const textOffset = isPositive ? -18 : 25; 
 
     return `
-      <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="${dotColor}" stroke="#ffffff" stroke-width="2" />
+      <line x1="${p.x}" y1="20" x2="${p.x}" y2="${svgHeight - 20}" stroke="#e2e8f0" stroke-width="1.5" stroke-dasharray="2 4" />
       
-      <div class="chart-label-bubble ${textClass}" style="left: ${p.x}px; top: ${labelTop + 14}px; font-size: 9px;">
+      <text x="${p.x}" y="${p.y + textOffset}" fill="${textColor}" font-size="22" font-weight="800" text-anchor="middle">
         ${p.val > 0 ? '+' : ''}${fmt(p.val)}
-      </div>
+      </text>
+      
+      <circle cx="${p.x}" cy="${p.y}" r="9" fill="#ffffff" stroke="${dotColor}" stroke-width="4" />
     `;
   }).join('');
 
-  // ข้อความแสดงป้ายกำกับแกน X
+  // แสดงป้ายระบุวันที่ด้านล่าง
   const xLabelsHtml = points.map(p => {
     const dateObj = new Date(p.dateStr);
     const dateLabel = dateObj.toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit' });
+    const isSelected = p.dateStr === state.selectedDate;
     return `
       <button 
         onclick="state.selectedDate='${p.dateStr}';state.tab='today';render()"
-        class="text-[11px] text-stone-500 font-bold focus:outline-none hover:text-stone-900 transition-colors"
-        style="width: 40px; text-align: center;"
+        class="text-[11px] font-bold focus:outline-none transition-all px-1 py-0.5 rounded-md ${isSelected ? 'bg-stone-950 text-white shadow-sm' : 'text-stone-400 hover:text-stone-900'}"
+        style="width: 38px; text-align: center;"
       >
         ${dateLabel}
       </button>
@@ -1335,25 +1315,29 @@ function renderMiniHistory() {
   }).join('');
 
   return card(`
-    <div class="flex justify-between items-center mb-1">
+    <div class="flex justify-between items-center mb-2">
       <div>
-        <h2 class="font-black text-lg">ภาพรวม 7 วันล่าสุด</h2>
-        <p class="text-xs text-stone-400">เทรนด์พลังงานสุทธิเทียบกับ TDEE</p>
+        <h2 class="font-black text-lg text-stone-900">ภาพรวม 7 วันล่าสุด</h2>
+        <p class="text-xs text-stone-400">พลังงานสุทธิที่เหลือเทียบกับ TDEE</p>
       </div>
-      <span class="text-xs text-stone-400 font-bold">kcal</span>
+      <span class="text-xs bg-stone-100 text-stone-500 font-extrabold px-2.5 py-1 rounded-full">kcal</span>
     </div>
 
-    <div class="chart-container-7d select-none" style="height: 130px;">
-      <svg class="w-full h-full overflow-visible z-10 relative">
-        <line x1="15" y1="${centerY}" x2="${width - 15}" y2="${centerY}" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3 3" />
+    <div class="w-full bg-[#fbfbf9]/60 border border-stone-200/60 rounded-2xl p-2.5">
+      <svg viewBox="0 0 ${svgWidth} ${svgHeight}" class="w-full h-auto overflow-visible select-none">
+        <line x1="10" y1="${centerY}" x2="${svgWidth - paddingRight + 20}" y2="${centerY}" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4 4" />
         
-        <path d="${dPath}" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+        <text x="${svgWidth - paddingRight + 30}" y="35" fill="#a8a29e" font-size="20" font-weight="750">+${fmt(maxVal)}</text>
+        <text x="${svgWidth - paddingRight + 30}" y="${centerY + 6}" fill="#78716c" font-size="22" font-weight="900">0</text>
+        <text x="${svgWidth - paddingRight + 30}" y="${svgHeight - 25}" fill="#a8a29e" font-size="20" font-weight="750">-${fmt(maxVal)}</text>
+
+        <path d="${dPath}" fill="none" stroke="#94a3b8" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+        
+        ${svgElements}
       </svg>
-      
-      ${nodeMarkers}
     </div>
 
-    <div class="chart-x-labels">
+    <div class="flex justify-between px-1.5 mt-2.5" style="padding-right: calc(${paddingRight}px * (100% / ${svgWidth}));">
       ${xLabelsHtml}
     </div>
   `);
@@ -1483,7 +1467,6 @@ async function addFood(ev) {
 
 function renderWorkout() {
   const d=dayTotals();
-  // แสดงปุ่ม Strava เฉพาะ owner email เท่านั้น (CONFIG.OWNER_EMAIL)
   const isOwner = !!(state.user?.email && CONFIG.OWNER_EMAIL && state.user.email.toLowerCase() === CONFIG.OWNER_EMAIL.toLowerCase());
   const stravaBtn = isOwner ? `<button onclick="importStrava(event)" class="text-xs bg-orange-50 text-orange-600 border border-orange-100 px-3 py-2 rounded-full font-black">เชื่อมต่อ Strava</button>` : '';
   return `
