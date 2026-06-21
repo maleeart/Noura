@@ -9,7 +9,6 @@
   <title>Noura</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="config.js"></script>
-  <!-- Google Identity Services (Sign in with Google) -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     :root{
@@ -457,6 +456,37 @@
       cursor: not-allowed;
     }
 
+    /* ===== NEW: 7-DAY LINE CHART STYLES ===== */
+    .chart-container-7d {
+      width: 100%;
+      height: 160px;
+      position: relative;
+      margin-top: 12px;
+      background: #fafaf9;
+      border-radius: 20px;
+      padding: 10px;
+      border: 1px solid #eee9df;
+    }
+    .chart-label-bubble {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 8px;
+      pointer-events: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      border: 1px solid rgba(255,255,255,0.6);
+    }
+    .chart-label-pos { background: #e6f7ed; color: #15803d; }
+    .chart-label-neg { background: #fee2e2; color: #b91c1c; }
+    .chart-x-labels {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 10px;
+      margin-top: 6px;
+    }
+
   </style>
 </head>
 <body class="text-stone-950 min-h-screen pb-28">
@@ -470,7 +500,6 @@
           <p class="text-xs text-white/55 mt-1">Calories • TDEE • Workout</p>
         </div>
         <button id="syncBtn" class="w-10 h-10 rounded-2xl glass text-xl" title="โหลดข้อมูลล่าสุด">↻</button>
-        <!-- Avatar ผู้ใช้ที่ login อยู่ -->
         <div id="userAvatar" class="w-10 h-10 rounded-2xl overflow-hidden cursor-pointer flex items-center justify-center" onclick="toggleAvatarMenu()" title="โปรไฟล์"></div>
       </div>
       <div class="mt-7 flex items-end gap-4">
@@ -487,7 +516,6 @@
       </div>
     </header>
 
-<!-- Backdrop โปร่งใส คลิกที่ไหนก็ได้นอกเมนูเพื่อปิด -->
 <div id="menuBackdrop" class="hidden fixed inset-0 z-40" onclick="closeMenus()"></div>
 
 <div id="mainMenu" class="hidden fixed top-16 left-5 z-50 bg-white rounded-3xl shadow-xl p-2 w-56">
@@ -564,7 +592,6 @@
     </div>
   </nav>
 
-<!-- หน้า Login — จะแสดงทับแอพถ้ายังไม่ได้ Sign in -->
 <div id="loginScreen" style="display:none;background:radial-gradient(circle at 15% 0%, rgba(255,122,26,.14), transparent 30%), radial-gradient(circle at 85% 10%, rgba(52,198,107,.16), transparent 32%), #f4f0e9;" class="fixed inset-0 z-50 flex flex-col items-center justify-center px-6">
   <div class="w-full max-w-sm bg-white rounded-[36px] shadow-2xl p-8 flex flex-col items-center gap-5">
     <img src="Noura.png" class="w-20 h-20 rounded-[28px] shadow-lg object-cover" alt="Noura" />
@@ -573,7 +600,6 @@
       <p class="text-stone-500 text-sm mt-1">Calories • TDEE • Workout</p>
     </div>
     <p class="text-stone-600 text-sm text-center">เข้าสู่ระบบด้วย Google เพื่อบันทึกและดูข้อมูลของคุณเองแบบส่วนตัว</p>
-    <!-- Google Sign-In button จะ render ที่นี่ -->
     <div id="googleSignInBtn" class="w-full flex justify-center"></div>
     <p id="loginError" class="text-red-500 text-xs text-center hidden"></p>
   </div>
@@ -835,9 +861,9 @@ function clearMessageAfter(ms = 2500) {
 }
 
 /** ── Loading state สำหรับปุ่ม ──────────────────────────────────────────────
- *  ใช้กับปุ่มที่กดแล้วต้องรอ (เรียก API เช่น AI วิเคราะห์, บันทึกข้อมูล, sync)
- *  เก็บ HTML เดิมของปุ่มไว้ใน dataset แล้วเปลี่ยนเป็น spinner + ข้อความระหว่างรอ
- *  จากนั้น restore กลับเมื่อทำงานเสร็จ (ไม่ว่าจะสำเร็จหรือ error)
+ * ใช้กับปุ่มที่กดแล้วต้องรอ (เรียก API เช่น AI วิเคราะห์, บันทึกข้อมูล, sync)
+ * เก็บ HTML เดิมของปุ่มไว้ใน dataset แล้วเปลี่ยนเป็น spinner + ข้อความระหว่างรอ
+ * จากนั้น restore กลับเมื่อทำงานเสร็จ (ไม่ว่าจะสำเร็จหรือ error)
  */
 function setBtnLoading(btn, loadingText = 'กำลังทำงาน...') {
   if (!btn || btn.dataset.loading === '1') return;
@@ -893,7 +919,7 @@ function isProfileComplete(profile) {
 }
 
 /** เปิด modal กรอกโปรไฟล์
- *  force=true ใช้ตอนผู้ใช้ login ครั้งแรกแล้วข้อมูลยังไม่ครบ → ปิด modal ไม่ได้จนกว่าจะกรอกครบ
+ * force=true ใช้ตอนผู้ใช้ login ครั้งแรกแล้วข้อมูลยังไม่ครบ → ปิด modal ไม่ได้จนกว่าจะกรอกครบ
  */
 function openProfileModal(force = false) {
   const p = state.data.profile || {};
@@ -1237,116 +1263,105 @@ function workEmoji(type='') { const t=String(type).toLowerCase(); if(t.includes(
 function renderMiniHistory() {
   const out = [];
 
+  // เก็บรวบรวมข้อมูลย้อนหลัง 7 วัน
   for (let i = 6; i >= 0; i--) {
     const d = new Date();
     d.setDate(d.getDate() - i);
-
     const date = d.toISOString().slice(0, 10);
-
     out.push({
       date,
       remain: netRemaining(date)
     });
   }
 
-  const max = Math.max(
-    ...out.map(x => Math.abs(x.remain)),
-    100
-  );
+  // หาค่า Absolute สูงสุดเพื่อนำมา Scale กราฟแบบ Dynamic ให้แกน 0 อยู่ตรงกลางสมบูรณ์แบบ
+  const maxVal = Math.max(...out.map(x => Math.abs(x.remain)), 100);
 
-  const chartH = 170;
-  const axisY = 78;
-  const topRoom = axisY;
-  const bottomRoom = chartH - axisY;
-  const maxBarH = 72;
+  // กำหนดมิติและเลย์เอาต์ของ SVG กราฟเส้น
+  const width = 360;
+  const height = 120;
+  const paddingX = 25;
+  const centerY = height / 2; // แกน 0 อยู่กึ่งกลางความสูงพอดี
+  const usableHeight = height - 30; // รัศมีขอบเขตการวาดเส้นกราฟ
+
+  // คำนวณพิกัด (X, Y) สำหรับจุดทั้ง 7 วัน
+  const points = out.map((x, i) => {
+    const ptX = paddingX + (i * (width - paddingX * 2) / 6);
+    // ค่าบวกวิ่งขึ้นด้านบน (Y ลดลง), ค่าลบวิ่งลงด้านล่าง (Y เพิ่มขึ้น)
+    const ratio = x.remain / maxVal;
+    const ptY = centerY - (ratio * (usableHeight / 2));
+    return { x: ptX, y: ptY, val: x.remain, dateStr: x.date };
+  });
+
+  // สร้างเส้น Path แบบ Smooth (Curved line) เชื่อมแต่ละพิกัด
+  let dPath = "";
+  if (points.length > 0) {
+    dPath = `M ${points[0].x} ${points[0].y}`;
+    for (let i = 0; i < points.length - 1; i++) {
+      const p0 = points[i];
+      const p1 = points[i + 1];
+      const cpX1 = p0.x + (p1.x - p0.x) / 3;
+      const cpY1 = p0.y;
+      const cpX2 = p0.x + 2 * (p1.x - p0.x) / 3;
+      const cpY2 = p1.y;
+      dPath += ` C ${cpX1} ${cpY1}, ${cpX2} ${cpY2}, ${p1.x} ${p1.y}`;
+    }
+  }
+
+  // สร้างจุดวงกลม (Markers) และตัวเลขบอกแคลอรีที่จัดแต่งสีแยกตามบวก/ลบ
+  const nodeMarkers = points.map(p => {
+    const isPositive = p.val >= 0;
+    const dotColor = isPositive ? '#a2e8a2' : '#f8a2a2'; // สีพาสเทลอ่อน (เขียว / แดง)
+    const textClass = isPositive ? 'chart-label-pos' : 'chart-label-neg';
+    
+    // คำนวณขยับตำแหน่งกล่องตัวเลขไม่ให้ทับกับจุดวงกลมบนเส้นกราฟ
+    const labelTop = isPositive ? (p.y - 14) : (p.y + 14);
+
+    return `
+      <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="${dotColor}" stroke="#ffffff" stroke-width="1.5" />
+      
+      <div class="chart-label-bubble ${textClass}" style="left: ${p.x}px; top: ${labelTop + 34}px;">
+        ${p.val > 0 ? '+' : ''}${fmt(p.val)}
+      </div>
+    `;
+  }).join('');
+
+  // ข้อความแสดงป้ายกำกับแกน X (วันที่สั้น ๆ ด้านล่างกราฟ)
+  const xLabelsHtml = points.map(p => {
+    const dateObj = new Date(p.dateStr);
+    const dateLabel = dateObj.toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit' });
+    return `
+      <button 
+        onclick="state.selectedDate='${p.dateStr}';state.tab='today';render()"
+        class="text-[11px] text-stone-500 font-bold focus:outline-none hover:text-stone-900 transition-colors"
+        style="width: 40px; text-align: center;"
+      >
+        ${dateLabel}
+      </button>
+    `;
+  }).join('');
 
   return card(`
-    <div class="flex justify-between items-center mb-3">
-      <h2 class="font-black text-lg">ภาพรวม 7 วันล่าสุด</h2>
-      <span class="text-xs text-stone-400">เหลือสุทธิจาก TDEE</span>
+    <div class="flex justify-between items-center mb-1">
+      <div>
+        <h2 class="font-black text-lg">ภาพรวม 7 วันล่าสุด</h2>
+        <p class="text-xs text-stone-400">เทรนด์พลังงานสุทธิเทียบกับ TDEE</p>
+      </div>
+      <span class="text-xs text-stone-400 font-bold">kcal</span>
     </div>
 
-    <div class="relative px-1 pb-1">
+    <div class="chart-container-7d select-none">
+      <svg class="w-full h-full overflow-visible z-10 relative">
+        <line x1="5" y1="${centerY}" x2="${width - 5}" y2="${centerY}" stroke="#d6d3d1" stroke-width="1.5" stroke-dasharray="4 4" />
+        
+        <path d="${dPath}" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      
+      ${nodeMarkers}
+    </div>
 
-      <div
-        class="absolute left-1 right-1 h-[2px] bg-stone-400 rounded-full z-0"
-        style="top:${axisY + 34}px">
-      </div>
-
-      <div class="flex items-start gap-3 relative z-10 pt-[34px]">
-
-        ${out.map(x => {
-          const positive = x.remain >= 0;
-
-          const color = positive
-            ? 'bg-green-500'
-            : 'bg-red-500';
-
-          const textColor = positive
-            ? 'text-green-600'
-            : 'text-red-500';
-
-          const height = Math.max(
-            14,
-            Math.round(Math.abs(x.remain) / max * maxBarH)
-          );
-
-          const dateLabel = new Date(x.date).toLocaleDateString(
-            'th-TH',
-            {
-              day: '2-digit',
-              month: '2-digit'
-            }
-          );
-
-          return `
-            <button
-              onclick="state.selectedDate='${x.date}';state.tab='today';render()"
-              class="flex-1 flex flex-col items-center"
-            >
-
-              <div
-                class="relative w-full"
-                style="height:${chartH}px"
-              >
-
-                <div
-                  class="absolute left-1/2 -translate-x-1/2 ${color}
-                    ${positive ? 'rounded-t-xl' : 'rounded-b-xl'}"
-                  style="
-                    width:30px;
-                    height:${height}px;
-                    ${positive
-                      ? `bottom:${bottomRoom}px;`
-                      : `top:${axisY}px;`
-                    }
-                  ">
-                </div>
-
-                <div
-                  class="absolute left-1/2 -translate-x-1/2 text-[10px] font-black whitespace-nowrap ${textColor}"
-                  style="
-                    ${positive
-                      ? `bottom:${bottomRoom + height + 5}px;`
-                      : `top:${axisY + height + 5}px;`
-                    }
-                  "
-                >
-                  ${x.remain > 0 ? '+' : ''}${fmt(x.remain)}
-                </div>
-
-              </div>
-
-              <div class="text-[11px] text-stone-500 mt-1">
-                ${dateLabel}
-              </div>
-
-            </button>
-          `;
-        }).join('')}
-
-      </div>
-
+    <div class="chart-x-labels">
+      ${xLabelsHtml}
     </div>
   `);
 }
