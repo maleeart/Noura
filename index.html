@@ -459,7 +459,7 @@
     /* ===== NEW: 7-DAY LINE CHART STYLES ===== */
     .chart-container-7d {
       width: 100%;
-      height: 160px;
+      height: 130px;
       position: relative;
       margin-top: 12px;
       background: #fafaf9;
@@ -470,7 +470,7 @@
     .chart-label-bubble {
       position: absolute;
       transform: translate(-50%, -50%);
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 800;
       padding: 2px 6px;
       border-radius: 8px;
@@ -1277,56 +1277,49 @@ function renderMiniHistory() {
   // หาค่า Absolute สูงสุดเพื่อนำมา Scale กราฟแบบ Dynamic ให้แกน 0 อยู่ตรงกลางสมบูรณ์แบบ
   const maxVal = Math.max(...out.map(x => Math.abs(x.remain)), 100);
 
-  // กำหนดมิติและเลย์เอาต์ของ SVG กราฟเส้น
+  // กำหนดมิติของ SVG 
   const width = 360;
   const height = 120;
   const paddingX = 25;
-  const centerY = height / 2; // แกน 0 อยู่กึ่งกลางความสูงพอดี
-  const usableHeight = height - 30; // รัศมีขอบเขตการวาดเส้นกราฟ
+  const centerY = height / 2; 
+  const usableHeight = height - 40; 
 
   // คำนวณพิกัด (X, Y) สำหรับจุดทั้ง 7 วัน
   const points = out.map((x, i) => {
     const ptX = paddingX + (i * (width - paddingX * 2) / 6);
-    // ค่าบวกวิ่งขึ้นด้านบน (Y ลดลง), ค่าลบวิ่งลงด้านล่าง (Y เพิ่มขึ้น)
     const ratio = x.remain / maxVal;
     const ptY = centerY - (ratio * (usableHeight / 2));
     return { x: ptX, y: ptY, val: x.remain, dateStr: x.date };
   });
 
-  // สร้างเส้น Path แบบ Smooth (Curved line) เชื่อมแต่ละพิกัด
+  // เปลี่ยนเป็นเส้นตรงตัด (Straight Line Path) เพื่อความชัดเจนและไม่เบี้ยวหลุดขอบ
   let dPath = "";
   if (points.length > 0) {
     dPath = `M ${points[0].x} ${points[0].y}`;
-    for (let i = 0; i < points.length - 1; i++) {
-      const p0 = points[i];
-      const p1 = points[i + 1];
-      const cpX1 = p0.x + (p1.x - p0.x) / 3;
-      const cpY1 = p0.y;
-      const cpX2 = p0.x + 2 * (p1.x - p0.x) / 3;
-      const cpY2 = p1.y;
-      dPath += ` C ${cpX1} ${cpY1}, ${cpX2} ${cpY2}, ${p1.x} ${p1.y}`;
+    for (let i = 1; i < points.length; i++) {
+      dPath += ` L ${points[i].x} ${points[i].y}`;
     }
   }
 
-  // สร้างจุดวงกลม (Markers) และตัวเลขบอกแคลอรีที่จัดแต่งสีแยกตามบวก/ลบ
+  // ปรับพิกัดบับเบิ้ลตัวเลขให้อยู่กับที่แบ่งแถวบน-ล่างชัดเจน
   const nodeMarkers = points.map(p => {
     const isPositive = p.val >= 0;
-    const dotColor = isPositive ? '#a2e8a2' : '#f8a2a2'; // สีพาสเทลอ่อน (เขียว / แดง)
+    const dotColor = isPositive ? '#a2e8a2' : '#f8a2a2'; 
     const textClass = isPositive ? 'chart-label-pos' : 'chart-label-neg';
     
-    // คำนวณขยับตำแหน่งกล่องตัวเลขไม่ให้ทับกับจุดวงกลมบนเส้นกราฟ
-    const labelTop = isPositive ? (p.y - 14) : (p.y + 14);
+    // ตั้งพิกัดแถวตายตัว: ค่าบวกอยู่แถวบน / ค่าลบอยู่แถวล่าง ไม่ซ้อนทับกัน
+    const labelTop = isPositive ? (centerY - 38) : (centerY + 16);
 
     return `
-      <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="${dotColor}" stroke="#ffffff" stroke-width="1.5" />
+      <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="${dotColor}" stroke="#ffffff" stroke-width="2" />
       
-      <div class="chart-label-bubble ${textClass}" style="left: ${p.x}px; top: ${labelTop + 34}px;">
+      <div class="chart-label-bubble ${textClass}" style="left: ${p.x}px; top: ${labelTop + 14}px; font-size: 9px;">
         ${p.val > 0 ? '+' : ''}${fmt(p.val)}
       </div>
     `;
   }).join('');
 
-  // ข้อความแสดงป้ายกำกับแกน X (วันที่สั้น ๆ ด้านล่างกราฟ)
+  // ข้อความแสดงป้ายกำกับแกน X
   const xLabelsHtml = points.map(p => {
     const dateObj = new Date(p.dateStr);
     const dateLabel = dateObj.toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit' });
@@ -1350,9 +1343,9 @@ function renderMiniHistory() {
       <span class="text-xs text-stone-400 font-bold">kcal</span>
     </div>
 
-    <div class="chart-container-7d select-none">
+    <div class="chart-container-7d select-none" style="height: 130px;">
       <svg class="w-full h-full overflow-visible z-10 relative">
-        <line x1="5" y1="${centerY}" x2="${width - 5}" y2="${centerY}" stroke="#d6d3d1" stroke-width="1.5" stroke-dasharray="4 4" />
+        <line x1="15" y1="${centerY}" x2="${width - 15}" y2="${centerY}" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3 3" />
         
         <path d="${dPath}" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
       </svg>
@@ -1544,7 +1537,6 @@ function renderHistory() {
 }
 
 function toggleHistory7Days() {
-  // เปลี่ยน history7Open: true เป็น false ตรงนี้ 👇
   state.ui = { mealsOpen: true, workoutsOpen: true, mealsLimit: 3, workoutsLimit: 3, history7Open: false, historyMonth: null, ...(state.ui || {}) };
   state.ui.history7Open = !state.ui.history7Open;
   render();
@@ -1760,22 +1752,19 @@ $('#syncBtn').onclick = async (ev) => {
 
 // ── Boot ─────────────────────────────────────────────────────────────────────
 (async () => {
-  // 1) ลอง restore session จาก localStorage ก่อน
   const hasSession = loadStoredSession();
   if (!hasSession) {
-    // ไม่มี session → แสดงหน้า login แล้วรอผู้ใช้กด Sign in
     showLoginScreen();
     initGoogleSignIn();
     return;
   }
-  // 2) มี session → ซ่อนหน้า login, อัปเดต header, โหลดข้อมูล
   hideLoginScreen();
   updateHeaderUser();
-  initGoogleSignIn(); // init ไว้เผื่อ session หมดอายุ (clearSession → showLoginScreen ทำให้ GIS พร้อมใช้)
+  initGoogleSignIn();
   await loadData();
   render();
   if (!isProfileComplete(state.data.profile)) {
-    openProfileModal(true); // ข้อมูลส่วนตัวยังไม่ครบ (เช่น ปิดแอพไปก่อนกรอกเสร็จ) → บังคับกรอกก่อนใช้งานต่อ
+    openProfileModal(true);
   }
 })();
 
