@@ -935,6 +935,17 @@
   ],
   "workouts": [
     {
+      "id": "workout-1782216735816-cb0f122ec019b",
+      "source": "manual",
+      "date": "2026-06-23",
+      "time": "19:12",
+      "type": "Basketball",
+      "name": "Basketball",
+      "durationMin": 42,
+      "distanceKm": 0,
+      "calories": 420
+    },
+    {
       "id": "workout-1782132344961-6e0944540b8558",
       "source": "manual",
       "date": "2026-06-22",
@@ -1678,6 +1689,6 @@
     "version": "1.2.0",
     "migratedFrom": "dataold.json",
     "migratedAt": "2026-06-19T00:00:00.000Z",
-    "updatedAt": "2026-06-23T04:55:26.219Z"
+    "updatedAt": "2026-06-23T12:12:16.416Z"
   }
 }
