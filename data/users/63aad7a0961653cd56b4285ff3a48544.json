@@ -13,6 +13,14 @@
   },
   "foods": [
     {
+      "id": "food-1782276827741-fc1cd1bcd8dcb8",
+      "date": "2026-06-24",
+      "time": "11:53",
+      "menu": "ข้าวเหนียวหมูทอด",
+      "calories": 650,
+      "protein": 30
+    },
+    {
       "id": "food-1782276802683-74724947fb44f",
       "date": "2026-06-24",
       "time": "11:53",
@@ -1742,6 +1750,6 @@
     "version": "1.2.0",
     "migratedFrom": "dataold.json",
     "migratedAt": "2026-06-19T00:00:00.000Z",
-    "updatedAt": "2026-06-24T04:53:23.476Z"
+    "updatedAt": "2026-06-24T04:53:49.001Z"
   }
 }
