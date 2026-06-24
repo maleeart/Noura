@@ -13,6 +13,14 @@
   },
   "foods": [
     {
+      "id": "food-1782301791064-de8d1f97875f88",
+      "date": "2026-06-24",
+      "time": "18:49",
+      "menu": "โค๊ก1แก้ว",
+      "calories": 150,
+      "protein": 0
+    },
+    {
       "id": "food-1782301746605-9e543cd5aaa92",
       "date": "2026-06-24",
       "time": "18:49",
@@ -1803,6 +1811,6 @@
     "version": "1.2.0",
     "migratedFrom": "dataold.json",
     "migratedAt": "2026-06-19T00:00:00.000Z",
-    "updatedAt": "2026-06-24T11:49:07.865Z"
+    "updatedAt": "2026-06-24T11:49:52.380Z"
   }
 }
