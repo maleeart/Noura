@@ -13,6 +13,14 @@
   },
   "foods": [
     {
+      "id": "food-1782301803933-90af6f85b955",
+      "date": "2026-06-24",
+      "time": "18:50",
+      "menu": "เลย์",
+      "calories": 75,
+      "protein": 1
+    },
+    {
       "id": "food-1782301791064-de8d1f97875f88",
       "date": "2026-06-24",
       "time": "18:49",
@@ -1811,6 +1819,6 @@
     "version": "1.2.0",
     "migratedFrom": "dataold.json",
     "migratedAt": "2026-06-19T00:00:00.000Z",
-    "updatedAt": "2026-06-24T11:49:52.380Z"
+    "updatedAt": "2026-06-24T11:50:05.082Z"
   }
 }
