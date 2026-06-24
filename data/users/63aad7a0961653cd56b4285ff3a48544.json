@@ -13,6 +13,14 @@
   },
   "foods": [
     {
+      "id": "food-1782276802683-74724947fb44f",
+      "date": "2026-06-24",
+      "time": "11:53",
+      "menu": "เวย์ 1 serve",
+      "calories": 210,
+      "protein": 13
+    },
+    {
       "id": "food-1782223774733-2540f09e2683b",
       "date": "2026-06-23",
       "time": "21:09",
@@ -1734,6 +1742,6 @@
     "version": "1.2.0",
     "migratedFrom": "dataold.json",
     "migratedAt": "2026-06-19T00:00:00.000Z",
-    "updatedAt": "2026-06-23T14:09:35.633Z"
+    "updatedAt": "2026-06-24T04:53:23.476Z"
   }
 }
