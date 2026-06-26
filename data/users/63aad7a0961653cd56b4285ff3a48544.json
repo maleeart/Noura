@@ -1095,6 +1095,27 @@
   ],
   "workouts": [
     {
+      "id": "strava-19072416206",
+      "source": "strava",
+      "sourceId": "19072416206",
+      "date": "2026-06-26",
+      "time": "17:35",
+      "type": "WeightTraining",
+      "name": "Strength",
+      "durationMin": 33,
+      "distanceKm": 0,
+      "calories": 158,
+      "raw": {
+        "moving_time": 1955,
+        "elapsed_time": 1955,
+        "average_heartrate": 134.7,
+        "total_elevation_gain": 0,
+        "sport_type": "WeightTraining",
+        "type": "WeightTraining"
+      },
+      "importedAt": "2026-06-26T14:44:48.991Z"
+    },
+    {
       "id": "strava-19060731949",
       "source": "strava",
       "sourceId": "19060731949",
@@ -1113,7 +1134,7 @@
         "sport_type": "WeightTraining",
         "type": "WeightTraining"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.991Z"
     },
     {
       "id": "strava-19048044697",
@@ -1134,7 +1155,7 @@
         "sport_type": "Run",
         "type": "Run"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.991Z"
     },
     {
       "id": "workout-1782216735816-cb0f122ec019b",
@@ -1166,7 +1187,7 @@
         "sport_type": "WeightTraining",
         "type": "WeightTraining"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.991Z"
     },
     {
       "id": "workout-1782132344961-6e0944540b8558",
@@ -1198,7 +1219,7 @@
         "sport_type": "WeightTraining",
         "type": "WeightTraining"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.991Z"
     },
     {
       "id": "strava-18996498493",
@@ -1219,7 +1240,7 @@
         "sport_type": "WeightTraining",
         "type": "WeightTraining"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.991Z"
     },
     {
       "id": "workout-1781854221341-7f21ff32dc3d78",
@@ -1251,7 +1272,7 @@
         "sport_type": "WeightTraining",
         "type": "WeightTraining"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.991Z"
     },
     {
       "id": "workout-1781712791714-5451f7b292418",
@@ -1283,7 +1304,7 @@
         "sport_type": "Run",
         "type": "Run"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.991Z"
     },
     {
       "id": "strava-18943047306",
@@ -1304,7 +1325,7 @@
         "sport_type": "WeightTraining",
         "type": "WeightTraining"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.991Z"
     },
     {
       "id": "workout-1781716334087-410f8b29b037e8",
@@ -1336,7 +1357,7 @@
         "sport_type": "Run",
         "type": "Run"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.991Z"
     },
     {
       "id": "strava-18903673825",
@@ -1357,7 +1378,7 @@
         "sport_type": "WeightTraining",
         "type": "WeightTraining"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.992Z"
     },
     {
       "id": "strava-18889789283",
@@ -1378,7 +1399,7 @@
         "sport_type": "Run",
         "type": "Run"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.992Z"
     },
     {
       "id": "strava-18878057755",
@@ -1399,7 +1420,7 @@
         "sport_type": "WeightTraining",
         "type": "WeightTraining"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.992Z"
     },
     {
       "id": "strava-18864056673",
@@ -1420,7 +1441,7 @@
         "sport_type": "Run",
         "type": "Run"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.992Z"
     },
     {
       "id": "strava-18849833331",
@@ -1441,7 +1462,7 @@
         "sport_type": "WeightTraining",
         "type": "WeightTraining"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.992Z"
     },
     {
       "id": "strava-18835953906",
@@ -1462,7 +1483,7 @@
         "sport_type": "Run",
         "type": "Run"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.992Z"
     },
     {
       "id": "strava-18810153398",
@@ -1483,7 +1504,7 @@
         "sport_type": "WeightTraining",
         "type": "WeightTraining"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.992Z"
     },
     {
       "id": "strava-18796737883",
@@ -1504,7 +1525,7 @@
         "sport_type": "Run",
         "type": "Run"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.992Z"
     },
     {
       "id": "strava-18783960310",
@@ -1525,7 +1546,7 @@
         "sport_type": "WeightTraining",
         "type": "WeightTraining"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.992Z"
     },
     {
       "id": "strava-18769619283",
@@ -1546,7 +1567,7 @@
         "sport_type": "Run",
         "type": "Run"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.992Z"
     },
     {
       "id": "strava-18755798910",
@@ -1567,7 +1588,7 @@
         "sport_type": "WeightTraining",
         "type": "WeightTraining"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.992Z"
     },
     {
       "id": "strava-18741758335",
@@ -1588,7 +1609,7 @@
         "sport_type": "Run",
         "type": "Run"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.992Z"
     },
     {
       "id": "strava-18702058261",
@@ -1609,7 +1630,7 @@
         "sport_type": "WeightTraining",
         "type": "WeightTraining"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.992Z"
     },
     {
       "id": "strava-18688810091",
@@ -1630,7 +1651,7 @@
         "sport_type": "Badminton",
         "type": "Workout"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.992Z"
     },
     {
       "id": "strava-18675315165",
@@ -1651,7 +1672,7 @@
         "sport_type": "Run",
         "type": "Run"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.992Z"
     },
     {
       "id": "strava-18660797188",
@@ -1672,7 +1693,7 @@
         "sport_type": "WeightTraining",
         "type": "WeightTraining"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.992Z"
     },
     {
       "id": "strava-18648082606",
@@ -1693,7 +1714,7 @@
         "sport_type": "Run",
         "type": "Run"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.992Z"
     },
     {
       "id": "strava-18635593480",
@@ -1714,7 +1735,7 @@
         "sport_type": "WeightTraining",
         "type": "WeightTraining"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.992Z"
     },
     {
       "id": "strava-18620640318",
@@ -1735,7 +1756,7 @@
         "sport_type": "WeightTraining",
         "type": "WeightTraining"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.992Z"
     },
     {
       "id": "strava-18607572302",
@@ -1756,7 +1777,7 @@
         "sport_type": "Run",
         "type": "Run"
       },
-      "importedAt": "2026-06-25T14:43:23.093Z"
+      "importedAt": "2026-06-26T14:44:48.992Z"
     },
     {
       "id": "strava-18595058661",
@@ -1912,6 +1933,6 @@
     "version": "1.2.0",
     "migratedFrom": "dataold.json",
     "migratedAt": "2026-06-19T00:00:00.000Z",
-    "updatedAt": "2026-06-26T14:44:41.125Z"
+    "updatedAt": "2026-06-26T14:44:49.141Z"
   }
 }
