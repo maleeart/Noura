@@ -1,5 +1,4 @@
-
-const { readGithubData, writeGithubData } = require('./_github');
+const { readData, writeData } = require('./_db');
 const { requireSession } = require('./_auth');
 
 function send(res, status, data) {
@@ -13,18 +12,18 @@ function userDataPath(userId) {
 
 module.exports = async (req, res) => {
   try {
-    const session = requireSession(req); // throw ถ้าไม่ได้ login หรือ session หมดอายุ
+    const session = requireSession(req);
     const dataPath = userDataPath(session.userId);
 
     if (req.method === 'GET') {
-      const { json, sha } = await readGithubData(dataPath);
-      return send(res, 200, { success: true, data: json, sha });
+      const { json } = await readData(dataPath);
+      return send(res, 200, { success: true, data: json, sha: null });
     }
 
     if (req.method === 'POST' || req.method === 'PUT') {
       const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
-      const result = await writeGithubData(dataPath, body.data || body, body.message || 'Update Noura data');
-      return send(res, 200, { success: true, data: result.data, sha: result.sha });
+      const result = await writeData(dataPath, body.data || body);
+      return send(res, 200, { success: true, data: result.data, sha: null });
     }
 
     return send(res, 405, { success: false, error: 'Method not allowed' });
