@@ -4,6 +4,11 @@
   "private": true,
   "description": "Noura - Calories, TDEE and workout tracker",
   "scripts": {
+    "build": "npx @tailwindcss/cli -i input.css -o output.css --minify",
     "start": "vercel dev"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.1",
+    "tailwindcss": "^4.3.1"
   }
 }
