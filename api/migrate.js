@@ -1,8 +1,8 @@
-// api/migrate.js — one-time migration: GitHub files → Upstash Redis
+// api/migrate.js — one-time migration: GitHub files → Redis
 // Protected: requires MIGRATE_SECRET header
 // Safe to run multiple times
 const { readGithubData, env } = require('./_github');
-const { redis } = require('./_db');
+const { getClient } = require('./_db');
 
 const GH_API = 'https://api.github.com';
 
@@ -34,6 +34,7 @@ module.exports = async (req, res) => {
   if (req.method !== 'POST') return send(res, 405, { success: false, error: 'POST only' });
 
   try {
+    const client = await getClient();
     const userIds = await listGithubUsers();
     if (!userIds.length) return send(res, 200, { success: true, migrated: [], note: 'No users found in GitHub' });
 
@@ -41,7 +42,7 @@ module.exports = async (req, res) => {
     for (const userId of userIds) {
       try {
         const { json } = await readGithubData(`data/users/${userId}.json`);
-        await redis.set(`user:${userId}`, json);
+        await client.set(`user:${userId}`, JSON.stringify(json));
         results.push({ userId, status: 'ok' });
       } catch (e) {
         results.push({ userId, status: 'error', error: e.message });

@@ -1,10 +1,14 @@
-// api/_db.js — Upstash Redis storage, drop-in replacement for _github.js
-const { Redis } = require('@upstash/redis');
+// api/_db.js — Redis storage via REDIS_URL
+const { createClient } = require('redis');
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN
-});
+let _client = null;
+async function getClient() {
+  if (_client) return _client;
+  _client = createClient({ url: process.env.REDIS_URL });
+  _client.on('error', () => { _client = null; });
+  await _client.connect();
+  return _client;
+}
 
 function userKey(dataPath) {
   const match = dataPath.match(/users\/([^/]+)\.json$/);
@@ -13,13 +17,16 @@ function userKey(dataPath) {
 }
 
 async function readData(dataPath) {
-  const json = await redis.get(userKey(dataPath));
-  return { json: json || {}, sha: null };
+  const client = await getClient();
+  const raw = await client.get(userKey(dataPath));
+  return { json: raw ? JSON.parse(raw) : {}, sha: null };
 }
 
 async function writeData(dataPath, nextData) {
+  const client = await getClient();
   const key = userKey(dataPath);
-  const existing = (await redis.get(key)) || {};
+  const raw = await client.get(key);
+  const existing = raw ? JSON.parse(raw) : {};
   const merged = {
     ...existing,
     ...nextData,
@@ -30,8 +37,8 @@ async function writeData(dataPath, nextData) {
       updatedAt: new Date().toISOString()
     }
   };
-  await redis.set(key, merged);
+  await client.set(key, JSON.stringify(merged));
   return { data: merged, sha: null };
 }
 
-module.exports = { readData, writeData, redis };
+module.exports = { readData, writeData, getClient };
