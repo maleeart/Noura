@@ -517,6 +517,35 @@
 
 
 
+<div id="servingModal" class="hidden fixed inset-0 z-50 bg-black/50 px-4 items-center justify-center" onclick="if(event.target===this)closeServingModal()">
+  <div class="bg-white rounded-[32px] p-6 w-full max-w-sm shadow-2xl fade-in">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-black">ผลวิเคราะห์ AI</h2>
+      <button onclick="closeServingModal()" class="w-10 h-10 rounded-2xl bg-stone-100 font-black text-xl leading-none">×</button>
+    </div>
+    <!-- serving size hero -->
+    <div class="bg-stone-950 rounded-2xl px-4 py-4 mb-4 text-center">
+      <p class="text-xs font-black text-stone-400 uppercase tracking-widest mb-1">ขนาดเสิร์ฟที่คำนวณ</p>
+      <p id="servingModalSize" class="text-white font-black text-base leading-snug"></p>
+    </div>
+    <!-- calories + protein -->
+    <div class="grid grid-cols-2 gap-3 mb-5">
+      <div class="bg-orange-50 border border-orange-100 rounded-2xl p-4 text-center">
+        <p class="text-xs font-black text-orange-400 uppercase tracking-widest mb-1">Calories</p>
+        <p id="servingModalCal" class="text-3xl font-black text-orange-500 leading-none"></p>
+        <p class="text-xs text-orange-400 mt-1">kcal</p>
+      </div>
+      <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 text-center">
+        <p class="text-xs font-black text-blue-400 uppercase tracking-widest mb-1">Protein</p>
+        <p id="servingModalProtein" class="text-3xl font-black text-blue-500 leading-none"></p>
+        <p class="text-xs text-blue-400 mt-1">กรัม</p>
+      </div>
+    </div>
+    <p class="text-xs text-stone-400 text-center mb-4">ตัวเลขถูกใส่ในฟอร์มแล้ว — ปรับเองได้ก่อนบันทึก</p>
+    <button onclick="closeServingModal()" class="w-full bg-stone-950 text-white rounded-2xl py-3 font-black">ตกลง</button>
+  </div>
+</div>
+
 <div id="profileModal" class="hidden fixed inset-0 z-50 bg-black/40 px-4 items-center justify-center">
   <div class="bg-white rounded-[32px] p-5 w-full max-w-sm shadow-2xl max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between mb-2">
@@ -920,6 +949,17 @@ function onProfileWeightInput() {
   }
 }
 
+function showServingModal(cal, protein, serving) {
+  $('#servingModalCal').textContent = Math.round(cal || 0);
+  $('#servingModalProtein').textContent = Math.round(protein || 0);
+  $('#servingModalSize').textContent = serving || 'ไม่ระบุ';
+  const m = document.getElementById('servingModal');
+  m.classList.remove('hidden'); m.classList.add('flex');
+}
+function closeServingModal() {
+  const m = document.getElementById('servingModal');
+  m.classList.add('hidden'); m.classList.remove('flex');
+}
 function closeProfileModal() {
   const modal = document.getElementById('profileModal');
   if (modal.dataset.force === '1') return;
@@ -1422,7 +1462,7 @@ async function analyzeFood(ev) {
       if (!r.ok || !j.success) throw new Error(j.error || 'AI วิเคราะห์ไม่สำเร็จ');
       $('#foodCal').value = Math.round(j.calories || 0);
       $('#foodProtein').value = Math.round(j.protein || 0);
-      if (j.serving) alert(`ขนาดเสิร์ฟที่ใช้คำนวณ: ${j.serving}`);
+      showServingModal(j.calories, j.protein, j.serving);
     } catch(e) { alert(e.message); }
   });
 }
