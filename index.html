@@ -1422,6 +1422,7 @@ async function analyzeFood(ev) {
       if (!r.ok || !j.success) throw new Error(j.error || 'AI วิเคราะห์ไม่สำเร็จ');
       $('#foodCal').value = Math.round(j.calories || 0);
       $('#foodProtein').value = Math.round(j.protein || 0);
+      if (j.serving) alert(`ขนาดเสิร์ฟที่ใช้คำนวณ: ${j.serving}`);
     } catch(e) { alert(e.message); }
   });
 }

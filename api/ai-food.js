@@ -21,7 +21,6 @@ module.exports = async (req, res) => {
     const menu = String(body.menu || '').trim();
     if (!menu) return send(res, 400, { success: false, error: 'Missing menu' });
 
-    const prompt = `Estimate calories and protein for this Thai food. Return JSON only: {"calories":number,"protein":number}. Food: ${menu}`;
     const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -31,8 +30,17 @@ module.exports = async (req, res) => {
         'X-Title': 'Noura'
       },
       body: JSON.stringify({
-        model: env('OPENROUTER_MODEL', 'google/gemma-3-4b-it'),
-        messages: [{ role: 'user', content: prompt }]
+        model: env('OPENROUTER_MODEL', 'google/gemini-flash-1.5'),
+        messages: [
+          {
+            role: 'system',
+            content: `You are a precise Thai food nutrition database. Use standard Thai portion sizes (1 serving as typically sold/served in Thailand). Base your estimates on well-known nutrition databases (USDA, Thai FDA, Mahidol University food database). Be conservative and accurate — do NOT hallucinate. Return ONLY valid JSON with no extra text.`
+          },
+          {
+            role: 'user',
+            content: `What are the calories and protein for 1 standard serving of: ${menu}\n\nReturn JSON only: {"calories":number,"protein":number,"serving":"description of serving size assumed"}`
+          }
+        ]
       })
     });
     const j = await r.json();
@@ -47,6 +55,7 @@ module.exports = async (req, res) => {
       success: true,
       calories: Math.round(obj.calories || obj.total_calories || 0),
       protein: Math.round(obj.protein || obj.total_protein || 0),
+      serving: obj.serving || '',
       raw: text
     });
   } catch (err) {
