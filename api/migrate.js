@@ -1,9 +1,8 @@
-// api/migrate.js — one-time migration: GitHub files → Vercel KV
+// api/migrate.js — one-time migration: GitHub files → Upstash Redis
 // Protected: requires MIGRATE_SECRET header
-// Safe to run multiple times (overwrites KV with GitHub data each time)
-const { readGithubData } = require('./_github');
-const { kv } = require('@vercel/kv');
-const { env } = require('./_github');
+// Safe to run multiple times
+const { readGithubData, env } = require('./_github');
+const { redis } = require('./_db');
 
 const GH_API = 'https://api.github.com';
 
@@ -17,14 +16,9 @@ async function listGithubUsers() {
   const owner = env('GITHUB_OWNER') || 'maleeart';
   const repo = env('GITHUB_REPO') || 'Noura';
   const branch = env('GITHUB_BRANCH') || 'main';
-
   const url = `${GH_API}/repos/${owner}/${repo}/contents/data/users?ref=${branch}`;
   const r = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: 'application/vnd.github+json',
-      'User-Agent': 'Noura-App'
-    }
+    headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json', 'User-Agent': 'Noura-App' }
   });
   if (r.status === 404) return [];
   const data = await r.json();
@@ -33,12 +27,10 @@ async function listGithubUsers() {
 }
 
 module.exports = async (req, res) => {
-  // protect with secret
   const secret = env('MIGRATE_SECRET');
   if (!secret || req.headers['x-migrate-secret'] !== secret) {
     return send(res, 401, { success: false, error: 'Unauthorized' });
   }
-
   if (req.method !== 'POST') return send(res, 405, { success: false, error: 'POST only' });
 
   try {
@@ -47,10 +39,9 @@ module.exports = async (req, res) => {
 
     const results = [];
     for (const userId of userIds) {
-      const dataPath = `data/users/${userId}.json`;
       try {
-        const { json } = await readGithubData(dataPath);
-        await kv.set(`user:${userId}`, json);
+        const { json } = await readGithubData(`data/users/${userId}.json`);
+        await redis.set(`user:${userId}`, json);
         results.push({ userId, status: 'ok' });
       } catch (e) {
         results.push({ userId, status: 'error', error: e.message });

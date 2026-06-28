@@ -1,22 +1,25 @@
-// api/_db.js — Vercel KV storage, drop-in replacement for _github.js
-// Key pattern: user:<userId>  (userId extracted from dataPath)
-const { kv } = require('@vercel/kv');
+// api/_db.js — Upstash Redis storage, drop-in replacement for _github.js
+const { Redis } = require('@upstash/redis');
+
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN
+});
 
 function userKey(dataPath) {
-  // dataPath = "data/users/<userId>.json"
   const match = dataPath.match(/users\/([^/]+)\.json$/);
   if (!match) throw new Error(`Unknown dataPath: ${dataPath}`);
   return `user:${match[1]}`;
 }
 
 async function readData(dataPath) {
-  const json = await kv.get(userKey(dataPath));
+  const json = await redis.get(userKey(dataPath));
   return { json: json || {}, sha: null };
 }
 
-async function writeData(dataPath, nextData, _message) {
+async function writeData(dataPath, nextData) {
   const key = userKey(dataPath);
-  const existing = (await kv.get(key)) || {};
+  const existing = (await redis.get(key)) || {};
   const merged = {
     ...existing,
     ...nextData,
@@ -27,8 +30,8 @@ async function writeData(dataPath, nextData, _message) {
       updatedAt: new Date().toISOString()
     }
   };
-  await kv.set(key, merged);
+  await redis.set(key, merged);
   return { data: merged, sha: null };
 }
 
-module.exports = { readData, writeData };
+module.exports = { readData, writeData, redis };
