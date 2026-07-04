@@ -1647,9 +1647,10 @@ function renderWeekSummary() {
 
     <div class="grid grid-cols-3 gap-2 mb-4">
       <div class="bg-stone-950 text-white rounded-2xl p-3">
-        <div class="text-[10px] text-white/50 mb-1">เฉลี่ย/วัน</div>
+        <div class="text-[10px] text-white/50 mb-1">กิน เฉลี่ย/วัน</div>
         <div class="text-lg font-black leading-none">${avgEaten > 0 ? fmt(avgEaten) : '—'}</div>
-        <div class="text-[10px] mt-1 ${calorieOk ? 'text-green-400' : avgEaten === 0 ? 'text-white/40' : 'text-red-400'}">${calorieStatus}</div>
+        <div class="text-[10px] mt-1 text-white/40">เป้า ${fmt(avgGoal)} kcal</div>
+        <div class="text-[10px] ${calorieOk ? 'text-green-400' : avgEaten === 0 ? 'text-white/40' : 'text-red-400'}">${calorieStatus}</div>
       </div>
       <div class="bg-stone-100 rounded-2xl p-3">
         <div class="text-[10px] text-stone-500 mb-1">โปรตีน/วัน</div>
