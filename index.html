@@ -1237,7 +1237,7 @@ function renderDayList() {
   return `<ul class="text-sm">${foods || '<li class="text-stone-400 py-2">ยังไม่มีอาหาร</li>'}${works ? `<li class="pt-4 pb-1 font-black text-stone-900">Workout</li>${works}` : ''}</ul>`;
 }
 function foodEmoji(menu='') { const m=menu.toLowerCase(); if(m.includes('กาแฟ')||m.includes('อเมริกาโน'))return'☕'; if(m.includes('เวย์'))return'🥤'; if(m.includes('ข้าว'))return'🍚'; if(m.includes('ไก่'))return'🍗'; if(m.includes('กล้วย'))return'🍌'; return'🍽️'; }
-function workEmoji(type='') { const t=String(type).toLowerCase(); if(t.includes('run'))return'🏃'; if(t.includes('walk'))return'🚶'; if(t.includes('ride'))return'🚴'; if(t.includes('basket'))return'🏀'; if(t.includes('weight'))return'🏋️'; return'⚡'; }
+function workEmoji(type='') { const t=String(type).toLowerCase(); if(t.includes('run'))return'🏃'; if(t.includes('walk'))return'🚶'; if(t.includes('ride')||t.includes('cycling'))return'🚴'; if(t.includes('basket'))return'🏀'; if(t.includes('weight')||t.includes('strength'))return'🏋️'; if(t.includes('swim'))return'🏊'; if(t.includes('badminton'))return'🏸'; if(t.includes('football')||t.includes('soccer'))return'⚽'; if(t.includes('yoga'))return'🧘'; if(t.includes('hiit')||t.includes('circuit'))return'⚡'; if(t.includes('jump')||t.includes('rope'))return'🪢'; if(t.includes('stretch')||t.includes('flex'))return'🤸'; if(t.includes('muay')||t.includes('box')||t.includes('martial'))return'🥊'; if(t.includes('hike'))return'🥾'; if(t.includes('tennis'))return'🎾'; if(t.includes('dance'))return'💃'; return'💪'; }
 
 function renderMiniHistory() {
   const out = [];
@@ -1477,13 +1477,12 @@ async function addFood(ev) {
 function renderWorkout() {
   const d=dayTotals();
   const isOwner = !!(state.user?.email && CONFIG.OWNER_EMAIL && state.user.email.toLowerCase() === CONFIG.OWNER_EMAIL.toLowerCase());
-  const stravaBtn = isOwner ? `<button onclick="importStrava(event)" class="text-xs bg-orange-50 text-orange-600 border border-orange-100 px-3 py-2 rounded-full font-black">เชื่อมต่อ Strava</button>` : '';
   return `
-    ${card(`<div class="flex items-center justify-between mb-3"><h2 class="text-xl font-black">ออกกำลังกายวันนี้</h2>${stravaBtn}</div>
+    ${card(`<div class="flex items-center justify-between mb-3"><h2 class="text-xl font-black">ออกกำลังกายวันนี้</h2></div>
       <div class="bg-stone-950 text-white rounded-[26px] p-4 grid grid-cols-2 gap-4 mb-4"><div><div class="text-2xl">🔥</div><div class="text-xs text-white/60">เผาผลาญ</div><div class="text-3xl font-black">${fmt(d.burned)}</div><div class="text-xs">kcal</div></div><div><div class="text-2xl">⏱️</div><div class="text-xs text-white/60">เวลารวม</div><div class="text-3xl font-black">${fmt(sum(d.workouts,'durationMin'))}</div><div class="text-xs">นาที</div></div></div>
       ${input('วันที่', 'workDate', state.selectedDate, 'date', `onchange="state.selectedDate=this.value;render()"`)}
       <label class="block text-xs font-black text-stone-500 mb-1">ประเภท</label>
-      <select id="workType" class="w-full bg-stone-100 rounded-2xl px-4 py-3 mb-3 outline-none"><option>Run</option><option>Walk</option><option>Ride</option><option>Weight Training</option><option>Calisthenics</option><option>Basketball</option><option>Badminton</option><option>Zone 2</option><option>Workout</option></select>
+      <select id="workType" class="w-full bg-stone-100 rounded-2xl px-4 py-3 mb-3 outline-none"><option>Run</option><option>Walk</option><option>Ride</option><option>Weight Training</option><option>Calisthenics</option><option>HIIT</option><option>Circuit Training</option><option>Jump Rope</option><option>Swimming</option><option>Basketball</option><option>Football</option><option>Badminton</option><option>Tennis</option><option>Muay Thai</option><option>Boxing</option><option>Yoga</option><option>Dance</option><option>Hike</option><option>Zone 2</option><option>Stretch</option><option>Workout</option></select>
       ${input('ชื่อกิจกรรม', 'workName', '', 'text', 'placeholder="เช่น Zone 2 treadmill"')}
       <div class="grid grid-cols-3 gap-2"><div>${input('นาที', 'workMin', '', 'number')}</div><div>${input('ระยะ km', 'workKm', '', 'number', 'step="0.01"')}</div><div>${input('kcal', 'workCal', '', 'number')}</div></div>
       <div class="grid grid-cols-2 gap-2"><button onclick="estimateWorkoutCal()" class="bg-stone-100 rounded-2xl py-3 font-black">คำนวณ kcal</button><button onclick="addWorkout(event)" class="bg-stone-950 text-white rounded-2xl py-3 font-black">บันทึก</button></div>`)}
@@ -1492,8 +1491,32 @@ function renderWorkout() {
 }
 function estimateWorkoutCal() {
   const type = $('#workType').value; const min = Number($('#workMin').value || 0); const w = Number(state.data.profile.weight || 64.6);
-  const metMap = { Run:9.8, Walk:3.5, Ride:7.5, 'Weight Training':4.5, Calisthenics:5, Basketball:8, Badminton:5.5, 'Zone 2':6, Workout:5 };
-  $('#workCal').value = Math.round((metMap[type] || 5) * w * (min/60));
+  // MET values from Compendium of Physical Activities (Ainsworth et al. 2011)
+  const metMap = {
+    'Run': 9.8,              // ~5 min/km pace
+    'Walk': 3.5,             // moderate pace
+    'Ride': 7.5,             // moderate cycling
+    'Weight Training': 5.0,  // free weights, moderate effort
+    'Calisthenics': 5.8,     // push-up, pull-up, bodyweight
+    'HIIT': 10.3,            // high-intensity interval
+    'Circuit Training': 8.0, // weight circuit, vigorous
+    'Jump Rope': 11.8,       // moderate pace
+    'Swimming': 7.0,         // freestyle, moderate
+    'Basketball': 7.4,       // game play
+    'Football': 8.3,         // soccer, competitive
+    'Badminton': 5.5,        // general play
+    'Tennis': 7.3,           // singles
+    'Muay Thai': 9.5,        // sparring/training
+    'Boxing': 9.0,           // bag work/sparring
+    'Yoga': 3.0,             // hatha yoga
+    'Dance': 5.5,            // aerobic dance
+    'Hike': 6.0,             // hills, loaded
+    'Zone 2': 6.0,           // aerobic base, ~65-75% HR max
+    'Stretch': 2.5,          // general stretching
+    'Workout': 5.0,
+  };
+  const met = metMap[type] || 5.0;
+  $('#workCal').value = Math.round(met * w * (min / 60));
 }
 async function addWorkout(ev) {
   const item = { id: uid('workout'), source: 'manual', date: $('#workDate').value, time: new Date().toTimeString().slice(0,5), type: $('#workType').value, name: $('#workName').value.trim() || $('#workType').value, durationMin: Number($('#workMin').value || 0), distanceKm: Number($('#workKm').value || 0), calories: Number($('#workCal').value || 0) };
@@ -1505,20 +1528,6 @@ function renderWorkoutsForDate() {
   const items = byDate(state.data.workouts, state.selectedDate);
   if (!items.length) return `<p class="text-sm text-stone-400">ยังไม่มีข้อมูล</p>`;
   return items.map(x => `<div class="flex gap-3 py-3 border-b border-stone-100"><div class="icon-bubble bg-orange-50">${workEmoji(x.type)}</div><div class="flex-1"><b>${x.name || x.type}</b><div class="text-xs text-stone-500">${fmt(x.durationMin)} min • ${fmt1(x.distanceKm)} km • ${fmt(x.calories)} kcal ${x.source ? '• '+x.source : ''}</div></div><button onclick="deleteItem('workouts','${x.id}')" class="text-red-500 text-sm">ลบ</button></div>`).join('');
-}
-async function importStrava(ev) {
-  const btn = ev?.currentTarget;
-  await withBtnLoading(btn, 'กำลัง Import...', async () => {
-    try {
-      const r = await authFetch('/api/strava-import-all?limit=30');
-      const j = await r.json();
-      if (!j.success) throw new Error(j.error || 'Import failed');
-      state.message = `Import สำเร็จ: added ${j.added}, updated ${j.updated}`;
-      await loadData();
-    } catch(e) { state.message = e.message; }
-    render();
-    clearMessageAfter(2500);
-  });
 }
 
 function renderHistory() {
