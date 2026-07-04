@@ -1482,12 +1482,35 @@ function renderWorkout() {
       <div class="bg-stone-950 text-white rounded-[26px] p-4 grid grid-cols-2 gap-4 mb-4"><div><div class="text-2xl">🔥</div><div class="text-xs text-white/60">เผาผลาญ</div><div class="text-3xl font-black">${fmt(d.burned)}</div><div class="text-xs">kcal</div></div><div><div class="text-2xl">⏱️</div><div class="text-xs text-white/60">เวลารวม</div><div class="text-3xl font-black">${fmt(sum(d.workouts,'durationMin'))}</div><div class="text-xs">นาที</div></div></div>
       ${input('วันที่', 'workDate', state.selectedDate, 'date', `onchange="state.selectedDate=this.value;render()"`)}
       <label class="block text-xs font-black text-stone-500 mb-1">ประเภท</label>
-      <select id="workType" class="w-full bg-stone-100 rounded-2xl px-4 py-3 mb-3 outline-none"><option>Run</option><option>Walk</option><option>Ride</option><option>Weight Training</option><option>Calisthenics</option><option>HIIT</option><option>Circuit Training</option><option>Jump Rope</option><option>Swimming</option><option>Basketball</option><option>Football</option><option>Badminton</option><option>Tennis</option><option>Muay Thai</option><option>Boxing</option><option>Yoga</option><option>Dance</option><option>Hike</option><option>Zone 2</option><option>Stretch</option><option>Workout</option></select>
+      <div class="relative mb-3" id="workTypeWrap">
+        <input id="workTypeInput" autocomplete="off" value="Run" placeholder="ค้นหา เช่น run, yoga..." class="w-full bg-stone-100 rounded-2xl px-4 py-3 outline-none" oninput="filterWorkTypes()" onfocus="openWorkTypeList()" onblur="setTimeout(closeWorkTypeList,150)" />
+        <input type="hidden" id="workType" value="Run" />
+        <div id="workTypeList" class="absolute z-50 w-full bg-white border border-stone-200 rounded-2xl shadow-lg mt-1 overflow-y-auto hidden" style="max-height:220px"></div>
+      </div>
       ${input('ชื่อกิจกรรม', 'workName', '', 'text', 'placeholder="เช่น Zone 2 treadmill"')}
       <div class="grid grid-cols-3 gap-2"><div>${input('นาที', 'workMin', '', 'number')}</div><div>${input('ระยะ km', 'workKm', '', 'number', 'step="0.01"')}</div><div>${input('kcal', 'workCal', '', 'number')}</div></div>
       <div class="grid grid-cols-2 gap-2"><button onclick="estimateWorkoutCal()" class="bg-stone-100 rounded-2xl py-3 font-black">คำนวณ kcal</button><button onclick="addWorkout(event)" class="bg-stone-950 text-white rounded-2xl py-3 font-black">บันทึก</button></div>`)}
     ${card(`<h2 class="font-black mb-2 text-lg">Workout วันที่เลือก</h2>${renderWorkoutsForDate()}`)}
   `;
+}
+const WORKOUT_TYPES = ['Run','Walk','Ride','Weight Training','Calisthenics','HIIT','Circuit Training','Jump Rope','Swimming','Basketball','Football','Badminton','Tennis','Muay Thai','Boxing','Yoga','Dance','Hike','Zone 2','Stretch','Workout'];
+function openWorkTypeList() {
+  const q = ($('#workTypeInput').value || '').toLowerCase();
+  renderWorkTypeList(q);
+  $('#workTypeList').classList.remove('hidden');
+}
+function closeWorkTypeList() { $('#workTypeList').classList.add('hidden'); }
+function filterWorkTypes() { renderWorkTypeList(($('#workTypeInput').value||'').toLowerCase()); $('#workTypeList').classList.remove('hidden'); }
+function renderWorkTypeList(q) {
+  const items = q ? WORKOUT_TYPES.filter(t => t.toLowerCase().includes(q)) : WORKOUT_TYPES;
+  $('#workTypeList').innerHTML = items.map(t =>
+    `<div class="px-4 py-2 cursor-pointer hover:bg-stone-100 text-sm" onmousedown="selectWorkType('${t}')">${workEmoji(t)} ${t}</div>`
+  ).join('') || '<div class="px-4 py-2 text-sm text-stone-400">ไม่พบ</div>';
+}
+function selectWorkType(t) {
+  $('#workType').value = t;
+  $('#workTypeInput').value = t;
+  closeWorkTypeList();
 }
 function estimateWorkoutCal() {
   const type = $('#workType').value; const min = Number($('#workMin').value || 0); const w = Number(state.data.profile.weight || 64.6);
