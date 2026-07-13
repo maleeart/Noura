@@ -465,6 +465,56 @@
       margin-top: 6px;
     }
 
+
+  /* ===== PET / BROCCOLI CARD ===== */
+  .pet-card {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 60%, #bbf7d0 100%);
+    border: 1.5px solid #86efac;
+    border-radius: 28px;
+    padding: 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    overflow: hidden;
+    position: relative;
+  }
+  .pet-card.sad {
+    background: linear-gradient(135deg, #fefce8 0%, #fef9c3 60%, #fde68a 100%);
+    border-color: #fcd34d;
+  }
+  .pet-card.wilting {
+    background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 60%, #fecdd3 100%);
+    border-color: #fda4af;
+  }
+  .pet-svg-wrap { flex: 0 0 90px; display: flex; justify-content: center; }
+  .pet-info { flex: 1; min-width: 0; }
+  .pet-name { font-size: 13px; font-weight: 900; color: #166534; margin-bottom: 2px; }
+  .pet-card.sad .pet-name { color: #92400e; }
+  .pet-card.wilting .pet-name { color: #9f1239; }
+  .pet-msg { font-size: 12px; color: #15803d; line-height: 1.4; }
+  .pet-card.sad .pet-msg { color: #b45309; }
+  .pet-card.wilting .pet-msg { color: #be123c; }
+  .pet-streak { display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; background: rgba(255,255,255,.6); border-radius: 99px; padding: 3px 10px; font-size: 11px; font-weight: 800; color: #166534; }
+  .pet-card.sad .pet-streak { color: #92400e; }
+  .pet-card.wilting .pet-streak { color: #9f1239; }
+
+  @keyframes petBounce { 0%,100%{ transform: translateY(0) } 40%{ transform: translateY(-8px) } 60%{ transform: translateY(-5px) } }
+  @keyframes petSway   { 0%,100%{ transform: rotate(0deg) } 30%{ transform: rotate(4deg) } 70%{ transform: rotate(-4deg) } }
+  @keyframes petDroop  { 0%,100%{ transform: rotate(-8deg) translateY(2px) } 50%{ transform: rotate(-12deg) translateY(4px) } }
+  @keyframes petWilt   { 0%,100%{ transform: rotate(-18deg) translateY(4px) } 50%{ transform: rotate(-22deg) translateY(6px) } }
+  @keyframes petSparkle{ 0%{ opacity:0; transform:scale(.5) } 50%{ opacity:1; transform:scale(1.1) } 100%{ opacity:0; transform:scale(.5) } }
+
+  .broc-thriving { animation: petBounce 1.2s ease-in-out infinite; transform-origin: bottom center; }
+  .broc-happy    { animation: petBounce 2s ease-in-out infinite; transform-origin: bottom center; }
+  .broc-neutral  { animation: petSway   3s ease-in-out infinite; transform-origin: bottom center; }
+  .broc-sad      { animation: petDroop  2.5s ease-in-out infinite; transform-origin: bottom center; }
+  .broc-wilting  { animation: petWilt   3s ease-in-out infinite; transform-origin: bottom center; }
+
+  .pet-spark { animation: petSparkle 1.5s ease-in-out infinite; }
+  .pet-spark:nth-child(2) { animation-delay: .5s; }
+  .pet-spark:nth-child(3) { animation-delay: 1s; }
+
   </style>
 </head>
 <body class="text-stone-950 min-h-screen pb-28">
@@ -1154,6 +1204,8 @@ function renderToday() {
         </div>
       </div>
 
+      ${renderPet()}
+
       <div class="today-section-card meal">
         <div class="today-section-header accent-meal">
           <h3 class="today-section-title">🍽️ Meals<span class="text-xs text-stone-500 font-bold">${foodsForToday.length} รายการ</span></h3>
@@ -1205,6 +1257,139 @@ function renderToday() {
       ${renderMiniHistory()}
     </div>
   `;
+}
+
+// ===== PET / BROCCOLI =====
+function petStreak() {
+  // นับจำนวนวันติดต่อกัน (ย้อนหลัง) ที่มีการ log อาหาร หรือ workout
+  let streak = 0;
+  for (let i = 0; i < 30; i++) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const date = d.toISOString().slice(0, 10);
+    const t = dayTotals(date);
+    if (t.foods.length > 0 || t.workouts.length > 0) streak++;
+    else break;
+  }
+  return streak;
+}
+
+function renderPet() {
+  const streak = petStreak();
+  const todayT = dayTotals(state.selectedDate || todayStr());
+  const activeToday = todayT.foods.length > 0 || todayT.workouts.length > 0;
+
+  let level, cls, msg, sparkles = '';
+  if (streak >= 5) {
+    level = 'thriving'; cls = '';
+    msg = `${streak} วันติด! น้องหมาวิ่งวนด้วยความสุข 🐾`;
+    sparkles = `<g>
+      <text class="pet-spark" x="108" y="18" font-size="10" text-anchor="middle">✨</text>
+      <text class="pet-spark" x="120" y="10" font-size="8"  text-anchor="middle">⭐</text>
+      <text class="pet-spark" x="96"  y="12" font-size="7"  text-anchor="middle">✨</text>
+    </g>`;
+  } else if (streak >= 3) {
+    level = 'happy'; cls = '';
+    msg = `Streak ${streak} วัน! น้องหมาหางแกว่งไม่หยุด 🐕`;
+  } else if (streak >= 1) {
+    level = 'neutral'; cls = '';
+    msg = activeToday ? 'น้องหมาแฮปปี้ บันทึกต่อเนื่องไปเรื่อยๆนะ 🐾' : 'อย่าลืมบันทึกวันนี้ด้วยนะ! น้องหมารอ 🐕';
+  } else if (streak === 0 && activeToday) {
+    level = 'neutral'; cls = '';
+    msg = 'น้องหมาตื่นมารอแล้ว เริ่ม streak วันนี้เลย! 🌟';
+  } else {
+    const missedDays = (() => {
+      for (let i = 1; i <= 30; i++) {
+        const d = new Date(); d.setDate(d.getDate() - i);
+        const t = dayTotals(d.toISOString().slice(0, 10));
+        if (t.foods.length > 0 || t.workouts.length > 0) return i;
+      }
+      return 99;
+    })();
+    if (missedDays <= 1) { level = 'sad'; cls = 'sad'; msg = 'น้องหมาเศร้าแล้ว... บันทึกอาหารหรือออกกำลังกายด้วยนะ 🥺'; }
+    else                  { level = 'wilting'; cls = 'wilting'; msg = `${missedDays} วันแล้วที่น้องหมาไม่ได้เดินเล่น ช่วยด้วย! 😭`; }
+  }
+
+  const isHappy   = level === 'thriving' || level === 'happy';
+  const isSad     = level === 'sad' || level === 'wilting';
+  const streakLabel = streak > 0 ? `🔥 ${streak} วัน streak` : '🌱 เริ่ม streak วันนี้!';
+
+  // tail: wag fast when thriving/happy, droop when sad
+  const tailAnim = isHappy ? `style="animation:dogWag ${level==='thriving'?'0.5s':'0.8s'} ease-in-out infinite;transform-origin:18% 62%"` : '';
+  const tailPath = isSad
+    ? `<path d="M 28 84 Q 10 100 14 112" fill="none" stroke="#d97706" stroke-width="9" stroke-linecap="round"/>`
+    : `<path d="M 28 80 Q 8 60 12 44" fill="none" stroke="#d97706" stroke-width="9" stroke-linecap="round" ${tailAnim}/>`;
+
+  // eyes
+  const eyeL = isSad
+    ? `<ellipse cx="62" cy="66" rx="6" ry="4" fill="#1c1917" transform="rotate(10 62 66)"/>`
+    : level === 'thriving'
+      ? `<path d="M 57 64 Q 62 59 67 64" fill="none" stroke="#1c1917" stroke-width="3" stroke-linecap="round"/>`
+      : `<circle cx="62" cy="64" r="6" fill="#1c1917"/>`;
+  const eyeR = isSad
+    ? `<ellipse cx="88" cy="66" rx="6" ry="4" fill="#1c1917" transform="rotate(-10 88 66)"/>`
+    : level === 'thriving'
+      ? `<path d="M 83 64 Q 88 59 93 64" fill="none" stroke="#1c1917" stroke-width="3" stroke-linecap="round"/>`
+      : `<circle cx="88" cy="64" r="6" fill="#1c1917"/>`;
+  const eyeShine = !isSad ? `<circle cx="64" cy="62" r="2" fill="white"/><circle cx="90" cy="62" r="2" fill="white"/>` : '';
+  const eyebrows = isSad ? `<line x1="56" y1="56" x2="68" y2="60" stroke="#92400e" stroke-width="2.5" stroke-linecap="round"/><line x1="94" y1="60" x2="82" y2="56" stroke="#92400e" stroke-width="2.5" stroke-linecap="round"/>` : '';
+  const tears = isSad ? `<path d="M 60 74 Q 59 80 61 84" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"/><path d="M 90 74 Q 89 80 91 84" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"/>` : '';
+
+  // mouth / tongue
+  const mouth = isHappy
+    ? `<path d="M 66 78 Q 75 86 84 78" fill="#fde68a"/><path d="M 66 78 Q 75 86 84 78" fill="none" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/><ellipse cx="75" cy="84" rx="6" ry="5" fill="#f87171"/>`
+    : isSad
+      ? `<path d="M 67 82 Q 75 76 83 82" fill="none" stroke="#92400e" stroke-width="2.5" stroke-linecap="round"/>`
+      : `<path d="M 67 80 Q 75 85 83 80" fill="none" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>`;
+
+  const cheeks = isHappy ? `<ellipse cx="52" cy="74" rx="8" ry="5" fill="#fca5a5" opacity=".5"/><ellipse cx="98" cy="74" rx="8" ry="5" fill="#fca5a5" opacity=".5"/>` : '';
+
+  return `
+    <div class="pet-card ${cls}">
+      <div class="pet-svg-wrap">
+        <svg width="100" height="110" viewBox="0 0 130 128" xmlns="http://www.w3.org/2000/svg">
+          <style>@keyframes dogWag{0%,100%{transform:rotate(0)}25%{transform:rotate(22deg)}75%{transform:rotate(-14deg)}}</style>
+          ${sparkles}
+          <g class="broc-${level}">
+            <!-- body long corgi -->
+            <ellipse cx="68" cy="104" rx="44" ry="18" fill="#f59e0b"/>
+            <ellipse cx="44" cy="104" rx="20" ry="14" fill="#fde68a"/>
+            <!-- tiny legs -->
+            <rect x="34" y="112" width="12" height="14" rx="6" fill="#d97706"/>
+            <rect x="54" y="114" width="12" height="12" rx="6" fill="#d97706"/>
+            <rect x="80" y="114" width="12" height="12" rx="6" fill="#d97706"/>
+            <rect x="96" y="112" width="12" height="14" rx="6" fill="#d97706"/>
+            <!-- tail -->
+            ${tailPath}
+            <!-- head -->
+            <circle cx="95" cy="68" r="32" fill="#f59e0b"/>
+            <!-- pointed ears -->
+            <polygon points="74,46 66,18 84,40" fill="#f59e0b"/>
+            <polygon points="76,44 70,22 82,40" fill="#fde68a" opacity=".7"/>
+            <polygon points="116,46 124,18 106,40" fill="#f59e0b"/>
+            <polygon points="114,44 120,22 108,40" fill="#fde68a" opacity=".7"/>
+            <!-- white face -->
+            <ellipse cx="95" cy="76" rx="22" ry="18" fill="#fef9c3"/>
+            <!-- eyes -->
+            ${eyebrows}
+            ${eyeL}
+            ${eyeR}
+            ${eyeShine}
+            ${tears}
+            <!-- nose -->
+            <ellipse cx="75" cy="74" rx="5" ry="3.5" fill="#1c1917"/>
+            <ellipse cx="74" cy="73" rx="1.5" ry="1" fill="white" opacity=".4"/>
+            <!-- mouth / tongue -->
+            ${mouth}
+            ${cheeks}
+          </g>
+        </svg>
+      </div>
+      <div class="pet-info">
+        <div class="pet-name">น้องหมาของฉัน 🐕</div>
+        <div class="pet-msg">${msg}</div>
+        <div class="pet-streak">${streakLabel}</div>
+      </div>
+    </div>`;
 }
 
 function toggleTodayMeals() {
