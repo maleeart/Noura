@@ -531,16 +531,17 @@
         <!-- Avatar ผู้ใช้ที่ login อยู่ -->
         <div id="userAvatar" class="w-10 h-10 rounded-2xl overflow-hidden cursor-pointer flex items-center justify-center" onclick="toggleAvatarMenu()" title="โปรไฟล์"></div>
       </div>
-      <div class="mt-7 flex items-end gap-4">
-        <div class="flex-1">
-          <p class="text-green-300 font-extrabold text-sm">Insight สำหรับคุณ ✨</p>
-          <h2 id="heroInsightTitle" class="text-[24px] leading-tight font-black mt-1">กำลังโหลดข้อมูล...</h2>
-          <p id="heroInsightText" class="text-white/70 text-sm mt-2">Noura จะสรุปคำแนะนำวันนี้ให้ตรงกับข้อมูลอาหารและโปรตีนของคุณ</p>
+      <div class="mt-6 flex items-center gap-3">
+        <div id="heroPetSvg" style="flex:0 0 88px;display:flex;align-items:center;justify-content:center"></div>
+        <div class="flex-1 min-w-0">
+          <p id="heroPetLabel" class="font-extrabold text-xs mb-1" style="color:#86efac">น้องหมาของฉัน 🐕</p>
+          <p id="heroInsightTitle" class="text-[17px] leading-snug font-black">กำลังโหลด...</p>
+          <p id="heroInsightText" class="text-xs mt-1" style="color:rgba(255,255,255,.65)">Noura กำลังคำนวณ...</p>
         </div>
-        <div class="glass rounded-[28px] p-4 min-w-[122px] text-center">
-          <div class="text-2xl">🔥</div>
-          <div id="heroBurn" class="text-3xl font-black leading-none">0</div>
-          <div class="text-xs text-white/70 mt-1">kcal เผาผลาญ</div>
+        <div class="glass rounded-[24px] p-3 text-center" style="min-width:80px">
+          <div class="text-xl">🔥</div>
+          <div id="heroBurn" class="text-2xl font-black leading-none">0</div>
+          <div class="text-xs mt-1" style="color:rgba(255,255,255,.65)">kcal เผา</div>
         </div>
       </div>
     </header>
@@ -1204,7 +1205,7 @@ function renderToday() {
         </div>
       </div>
 
-      ${renderPet()}
+
 
       <div class="today-section-card meal">
         <div class="today-section-header accent-meal">
@@ -1259,7 +1260,7 @@ function renderToday() {
   `;
 }
 
-// ===== PET / BROCCOLI =====
+// ===== PET / CORGI =====
 function petStreak() {
   // นับจำนวนวันติดต่อกัน (ย้อนหลัง) ที่มีการ log อาหาร หรือ workout
   let streak = 0;
@@ -1273,156 +1274,108 @@ function petStreak() {
   return streak;
 }
 
-function renderPet() {
-  const streak    = petStreak();
-  const date      = state.selectedDate || todayStr();
-  const t         = dayTotals(date);
-  const tdee      = dynamicTDEE(date);
-  const protGoal  = Number(state.data.profile?.proteinGoal || 120);
-  const netRemain = tdee - t.eaten;          // >0 = under TDEE (good)
-  const protPct   = protGoal > 0 ? t.protein / protGoal : 0;
-  const hasLogged = t.foods.length > 0 || t.workouts.length > 0;
-  const overRatio = t.eaten > 0 ? t.eaten / tdee : 0; // how much over TDEE
+function petState() {
+  const streak   = petStreak();
+  const date     = state.selectedDate || todayStr();
+  const t        = dayTotals(date);
+  const tdee     = dynamicTDEE(date);
+  const protGoal = Number(state.data.profile?.proteinGoal || 120);
+  const protPct  = protGoal > 0 ? t.protein / protGoal : 0;
+  const hasLog   = t.foods.length > 0 || t.workouts.length > 0;
+  const over     = tdee > 0 && t.eaten > 0 ? t.eaten / tdee : 0;
+  const netOk    = tdee > 0 && t.eaten <= tdee;
 
-  // ── mood logic (today's performance) ──────────────────────────────────────
-  let level, cls, msg, sparkles = '';
+  let level, msg;
+  if      (!hasLog)                         { level='wilting'; msg='ยังไม่มีข้อมูลวันนี้เลย น้องหมารอบันทึกอยู่ 😭'; }
+  else if (netOk   && protPct >= 1.0)       { level='thriving'; msg=`สุดยอด! แคลใน TDEE + โปรตีน ${Math.round(protPct*100)}% 🏆`; }
+  else if (netOk   && protPct >= 0.7)       { level='happy';   msg=`แคลดี! เพิ่มโปรตีนอีกนิด (${Math.round(protPct*100)}%) 💪`; }
+  else if (netOk   && protPct < 0.7)        { level='neutral'; msg=`แคลโอเค แต่โปรตีนน้อยไปหน่อย (${Math.round(protPct*100)}%) 🍗`; }
+  else if (over <= 1.1 && protPct >= 1.0)   { level='happy';   msg=`โปรตีนครบ! แคลเกิน TDEE นิดหน่อย ระวังด้วยนะ 🙂`; }
+  else if (over <= 1.15)                     { level='neutral'; msg=`แคลเกิน TDEE นิดนึง ออกกำลังกายชดเชยได้ ⚡`; }
+  else if (over <= 1.3)                      { level='sad';     msg=`แคลเกิน TDEE ค่อนข้างเยอะ (${Math.round(over*100-100)}%) น้องหมาเป็นห่วง 🥺`; }
+  else                                       { level='wilting'; msg=`แคลเกินเยอะมาก (${Math.round(over*100-100)}%) วันพรุ่งนี้เริ่มใหม่ได้ 😭`; }
 
-  if (!hasLogged) {
-    // ไม่มีข้อมูลวันนี้เลย
-    level = 'wilting'; cls = 'wilting';
-    msg = 'ยังไม่มีข้อมูลวันนี้เลย... น้องหมารอบันทึกอยู่ 😭';
-  } else if (netRemain >= 0 && protPct >= 1.0) {
-    // สมบูรณ์แบบ: แคลต่ำกว่า TDEE + โปรตีนครบ 100%
-    level = 'thriving'; cls = '';
-    msg = `สุดยอด! แคลอยู่ใน TDEE และโปรตีนครบ ${Math.round(protPct*100)}% 🏆`;
-    sparkles = `<g>
-      <text class="pet-spark" x="80"  y="8"  font-size="11" text-anchor="middle">✨</text>
-      <text class="pet-spark" x="106" y="16" font-size="9"  text-anchor="middle">⭐</text>
-      <text class="pet-spark" x="54"  y="16" font-size="9"  text-anchor="middle">✨</text>
-    </g>`;
-  } else if (netRemain >= 0 && protPct >= 0.7) {
-    // แคลดี แต่โปรตีนยังไม่ครบ
-    level = 'happy'; cls = '';
-    msg = `แคลอยู่ในเกณฑ์ดี! เพิ่มโปรตีนอีกนิดจะครบ (${Math.round(protPct*100)}%) 💪`;
-  } else if (netRemain >= 0 && protPct < 0.7) {
-    // แคลดีแต่โปรตีนน้อย
-    level = 'neutral'; cls = '';
-    msg = `แคลโอเค แต่โปรตีนน้อยไปหน่อยนะ (${Math.round(protPct*100)}%) เพิ่มอีกหน่อย 🍗`;
-  } else if (overRatio <= 1.1 && protPct >= 1.0) {
-    // แคลเกินนิดหน่อยแต่โปรตีนครบ
-    level = 'happy'; cls = '';
-    msg = `โปรตีนครบแล้ว! แต่แคลเกิน TDEE นิดหน่อย ระวังด้วยนะ 🙂`;
-  } else if (overRatio <= 1.15) {
-    // แคลเกินแต่ไม่มาก
-    level = 'neutral'; cls = '';
-    msg = `แคลเกิน TDEE อยู่นิดนึง ออกกำลังกายเพิ่มได้เลย ⚡`;
-  } else if (overRatio <= 1.3) {
-    // แคลเกินพอสมควร
-    level = 'sad'; cls = 'sad';
-    msg = `แคลเกิน TDEE ค่อนข้างเยอะ น้องหมาเป็นห่วงนะ 🥺 (${Math.round(overRatio*100-100)}%)`;
-  } else {
-    // แคลเกินมาก
-    level = 'wilting'; cls = 'wilting';
-    msg = `แคลเกิน TDEE เยอะมาก! (${Math.round(overRatio*100-100)}%) วันพรุ่งนี้เริ่มใหม่ได้ 😭`;
-  }
+  return { level, msg, streak };
+}
 
-  const isHappy = level === 'thriving' || level === 'happy';
-  const isSad   = level === 'sad'      || level === 'wilting';
-  const streakLabel = streak > 0 ? `🔥 ${streak} วัน streak` : '🌱 เริ่ม streak วันนี้!';
+// Corgi SVG — all face elements centered at x=40, head center (40,48) r=34
+// viewBox 0 0 80 90 keeps it compact
+function corgiSvg(level) {
+  const happy    = level === 'thriving' || level === 'happy';
+  const sad      = level === 'sad'      || level === 'wilting';
+  const wagSpd   = level === 'thriving' ? '0.45s' : '0.75s';
 
-  // ── SVG — front-facing Corgi, centered at x=80 ────────────────────────────
-  const wagSpeed  = level === 'thriving' ? '0.45s' : '0.75s';
-  const tailStyle = isHappy
-    ? `style="animation:dogWag ${wagSpeed} ease-in-out infinite;transform-origin:64% 82%"`
-    : '';
-  const tail = isSad
-    ? `<path d="M 108 110 Q 130 122 126 134" fill="none" stroke="#d97706" stroke-width="10" stroke-linecap="round"/>`
-    : `<path d="M 108 110 Q 134 96 128 76" fill="none" stroke="#d97706" stroke-width="10" stroke-linecap="round" ${tailStyle}/>`;
+  // tail — right side of body
+  const tail = sad
+    ? `<path d="M56,80 Q70,88 68,96" fill="none" stroke="#d97706" stroke-width="5" stroke-linecap="round"/>`
+    : `<path d="M56,80 Q72,68 70,56" fill="none" stroke="#d97706" stroke-width="5" stroke-linecap="round" style="animation:cWag ${wagSpd} ease-in-out infinite;transform-origin:56px 80px"/>`;
 
-  // eyes — all centered around x=80
-  const eyeL = isSad
-    ? `<ellipse cx="62" cy="72" rx="7" ry="5" fill="#1c1917" transform="rotate(12 62 72)"/>`
+  // eyes: L=cx27,cy44  R=cx53,cy44  (symmetric around x=40)
+  const eyeL = sad
+    ? `<ellipse cx="27" cy="44" rx="5" ry="3.5" fill="#1c1917" transform="rotate(15 27 44)"/>`
     : level === 'thriving'
-      ? `<path d="M 55 70 Q 62 63 69 70" fill="none" stroke="#1c1917" stroke-width="3.5" stroke-linecap="round"/>`
-      : `<circle cx="62" cy="70" r="7" fill="#1c1917"/>`;
-  const eyeR = isSad
-    ? `<ellipse cx="98" cy="72" rx="7" ry="5" fill="#1c1917" transform="rotate(-12 98 72)"/>`
+      ? `<path d="M22,44 Q27,39 32,44" fill="none" stroke="#1c1917" stroke-width="2.5" stroke-linecap="round"/>`
+      : `<circle cx="27" cy="44" r="5" fill="#1c1917"/>`;
+  const eyeR = sad
+    ? `<ellipse cx="53" cy="44" rx="5" ry="3.5" fill="#1c1917" transform="rotate(-15 53 44)"/>`
     : level === 'thriving'
-      ? `<path d="M 91 70 Q 98 63 105 70" fill="none" stroke="#1c1917" stroke-width="3.5" stroke-linecap="round"/>`
-      : `<circle cx="98" cy="70" r="7" fill="#1c1917"/>`;
-  const eyeShine = !isSad
-    ? `<circle cx="65" cy="67" r="2.5" fill="white"/><circle cx="101" cy="67" r="2.5" fill="white"/>`
-    : '';
-  const eyebrows = isSad
-    ? `<line x1="54" y1="60" x2="70" y2="65" stroke="#92400e" stroke-width="3" stroke-linecap="round"/>
-       <line x1="106" y1="65" x2="90" y2="60" stroke="#92400e" stroke-width="3" stroke-linecap="round"/>`
-    : '';
-  const tears = isSad
-    ? `<path d="M 60 80 Q 58 88 60 94" fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round"/>
-       <path d="M 100 80 Q 98 88 100 94" fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round"/>`
-    : '';
-  const mouth = isHappy
-    ? `<path d="M 70 88 Q 80 97 90 88" fill="#fde68a"/>
-       <path d="M 70 88 Q 80 97 90 88" fill="none" stroke="#c2410c" stroke-width="2.5" stroke-linecap="round"/>
-       <ellipse cx="80" cy="95" rx="7" ry="6" fill="#f87171"/>`
-    : isSad
-      ? `<path d="M 71 94 Q 80 87 89 94" fill="none" stroke="#92400e" stroke-width="3" stroke-linecap="round"/>`
-      : `<path d="M 71 92 Q 80 98 89 92" fill="none" stroke="#c2410c" stroke-width="2.5" stroke-linecap="round"/>`;
-  const cheeks = isHappy
-    ? `<ellipse cx="46" cy="82" rx="10" ry="6" fill="#fca5a5" opacity=".5"/>
-       <ellipse cx="114" cy="82" rx="10" ry="6" fill="#fca5a5" opacity=".5"/>`
+      ? `<path d="M48,44 Q53,39 58,44" fill="none" stroke="#1c1917" stroke-width="2.5" stroke-linecap="round"/>`
+      : `<circle cx="53" cy="44" r="5" fill="#1c1917"/>`;
+
+  const shine  = !sad ? `<circle cx="29" cy="42" r="1.8" fill="white"/><circle cx="55" cy="42" r="1.8" fill="white"/>` : '';
+  const brows  = sad  ? `<line x1="22" y1="36" x2="32" y2="40" stroke="#92400e" stroke-width="2" stroke-linecap="round"/><line x1="58" y1="40" x2="48" y2="36" stroke="#92400e" stroke-width="2" stroke-linecap="round"/>` : '';
+  const tears  = sad  ? `<path d="M25,51 Q24,56 26,60" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"/><path d="M55,51 Q54,56 56,60" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"/>` : '';
+  const cheeks = happy? `<ellipse cx="16" cy="52" rx="7" ry="4" fill="#fca5a5" opacity=".5"/><ellipse cx="64" cy="52" rx="7" ry="4" fill="#fca5a5" opacity=".5"/>` : '';
+  const mouth  = happy
+    ? `<path d="M34,57 Q40,63 46,57" fill="#fde68a"/><path d="M34,57 Q40,63 46,57" fill="none" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/><ellipse cx="40" cy="61" rx="5" ry="4" fill="#f87171"/>`
+    : sad
+      ? `<path d="M34,61 Q40,56 46,61" fill="none" stroke="#92400e" stroke-width="2" stroke-linecap="round"/>`
+      : `<path d="M34,59 Q40,64 46,59" fill="none" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>`;
+  const sparks = level === 'thriving'
+    ? `<text class="pet-spark" x="68" y="10" font-size="10" text-anchor="middle">✨</text><text class="pet-spark" x="12" y="12" font-size="8" text-anchor="middle">⭐</text>`
     : '';
 
-  return `
-    <div class="pet-card ${cls}">
-      <div class="pet-svg-wrap">
-        <svg width="120" height="130" viewBox="0 0 160 148" xmlns="http://www.w3.org/2000/svg">
-          <style>@keyframes dogWag{0%,100%{transform:rotate(0)}25%{transform:rotate(24deg)}75%{transform:rotate(-16deg)}}</style>
-          ${sparkles}
-          <g class="broc-${level}">
-            <!-- body -->
-            <ellipse cx="80" cy="126" rx="50" ry="18" fill="#f59e0b"/>
-            <!-- butt fluff -->
-            <ellipse cx="118" cy="120" rx="18" ry="14" fill="#fde68a"/>
-            <!-- legs -->
-            <rect x="40"  y="132" width="14" height="14" rx="7" fill="#d97706"/>
-            <rect x="62"  y="134" width="14" height="12" rx="7" fill="#d97706"/>
-            <rect x="84"  y="134" width="14" height="12" rx="7" fill="#d97706"/>
-            <rect x="106" y="132" width="14" height="14" rx="7" fill="#d97706"/>
-            <!-- tail -->
-            ${tail}
-            <!-- neck -->
-            <ellipse cx="80" cy="112" rx="22" ry="10" fill="#f59e0b"/>
-            <!-- head centered -->
-            <circle cx="80" cy="76" r="40" fill="#f59e0b"/>
-            <!-- pointed ears -->
-            <polygon points="54,54 42,20 66,46" fill="#f59e0b"/>
-            <polygon points="56,52 46,26 64,46" fill="#fde68a" opacity=".75"/>
-            <polygon points="106,54 118,20 94,46" fill="#f59e0b"/>
-            <polygon points="104,52 114,26 96,46" fill="#fde68a" opacity=".75"/>
-            <!-- white face mask -->
-            <ellipse cx="80" cy="84" rx="28" ry="22" fill="#fef9c3"/>
-            <!-- eyes -->
-            ${eyebrows}
-            ${eyeL}
-            ${eyeR}
-            ${eyeShine}
-            ${tears}
-            <!-- nose -->
-            <ellipse cx="80" cy="82" rx="6" ry="4" fill="#1c1917"/>
-            <ellipse cx="78" cy="81" rx="2" ry="1.2" fill="white" opacity=".4"/>
-            <!-- mouth -->
-            ${mouth}
-            ${cheeks}
-          </g>
-        </svg>
-      </div>
-      <div class="pet-info">
-        <div class="pet-name">น้องหมาของฉัน 🐕</div>
-        <div class="pet-msg">${msg}</div>
-        <div class="pet-streak">${streakLabel}</div>
-      </div>
-    </div>`;
+  return `<svg width="88" height="96" viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg">
+    <style>
+      @keyframes cWag{0%,100%{transform:rotate(0)}30%{transform:rotate(28deg)}70%{transform:rotate(-18deg)}}
+      @keyframes cBounce{0%,100%{transform:translateY(0)}45%{transform:translateY(-5px)}}
+      @keyframes cSway{0%,100%{transform:rotate(0)}35%{transform:rotate(4deg)}70%{transform:rotate(-4deg)}}
+    </style>
+    ${sparks}
+    <g style="animation:${level==='thriving'||level==='happy'?'cBounce 1.4s':'cSway 2.5s'} ease-in-out infinite;transform-origin:40px 60px">
+      <!-- body -->
+      <ellipse cx="40" cy="78" rx="26" ry="12" fill="#f59e0b"/>
+      <!-- legs -->
+      <rect x="18" y="82" width="8" height="8" rx="4" fill="#d97706"/>
+      <rect x="30" y="83" width="8" height="7" rx="4" fill="#d97706"/>
+      <rect x="42" y="83" width="8" height="7" rx="4" fill="#d97706"/>
+      <rect x="54" y="82" width="8" height="8" rx="4" fill="#d97706"/>
+      <!-- tail -->
+      ${tail}
+      <!-- neck -->
+      <ellipse cx="40" cy="68" rx="14" ry="7" fill="#f59e0b"/>
+      <!-- head: center (40,48) r=30 -->
+      <circle cx="40" cy="48" r="30" fill="#f59e0b"/>
+      <!-- left pointed ear: tip(18,12) base(12,34)(28,30) -->
+      <polygon points="18,12 12,34 28,30" fill="#f59e0b"/>
+      <polygon points="18,14 14,32 26,30" fill="#fde68a" opacity=".8"/>
+      <!-- right pointed ear: mirror at x=40 → tip(62,12) base(68,34)(52,30) -->
+      <polygon points="62,12 68,34 52,30" fill="#f59e0b"/>
+      <polygon points="62,14 66,32 54,30" fill="#fde68a" opacity=".8"/>
+      <!-- face mask: center (40,52) -->
+      <ellipse cx="40" cy="52" rx="20" ry="16" fill="#fef9c3"/>
+      ${brows}
+      ${eyeL}
+      ${eyeR}
+      ${shine}
+      ${tears}
+      <!-- nose: cx=40, cy=50 -->
+      <ellipse cx="40" cy="50" rx="4" ry="2.8" fill="#1c1917"/>
+      <ellipse cx="39" cy="49" rx="1.2" ry=".8" fill="white" opacity=".4"/>
+      ${mouth}
+      ${cheeks}
+    </g>
+  </svg>`;
 }
 
 function toggleTodayMeals() {
@@ -2009,11 +1962,12 @@ function shiftDate(delta){ const d=new Date(state.selectedDate); d.setDate(d.get
 function render() {
   document.querySelectorAll('.tabBtn').forEach(b => { const active=b.dataset.tab===state.tab; b.className=`tabBtn rounded-[24px] py-3 text-xs font-black ${active ? 'bg-green-50 text-green-700 shadow-inner' : 'text-stone-500'}`; });
   const todayTotals = dayTotals(); const hb=$('#heroBurn'); if(hb) hb.textContent = fmt(todayTotals.burned);
-  const heroInsight = getInsight();
-  const heroTitle = $('#heroInsightTitle');
-  const heroText = $('#heroInsightText');
-  if (heroTitle) heroTitle.textContent = heroInsight.title;
-  if (heroText) heroText.textContent = heroInsight.text;
+  const ps = petState();
+  const hTitle = $('#heroInsightTitle'); if(hTitle) hTitle.textContent = ps.msg;
+  const hText  = $('#heroInsightText');  if(hText)  hText.textContent  = ps.streak > 0 ? `🔥 ${ps.streak} วัน streak` : '🌱 เริ่ม streak วันนี้!';
+  const hSvg   = $('#heroPetSvg');       if(hSvg)   hSvg.innerHTML    = corgiSvg(ps.level);
+  const hLabel = $('#heroPetLabel');
+  if (hLabel) { hLabel.style.color = ps.level==='wilting'?'#fda4af':ps.level==='sad'?'#fcd34d':'#86efac'; }
   let html = '';
   if (state.message) html += `<div class="bg-yellow-50 text-yellow-800 rounded-2xl p-3 text-xs mb-3 border border-yellow-100">${state.message}</div>`;
   if (state.tab === 'today') html += renderToday();
