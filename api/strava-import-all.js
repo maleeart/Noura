@@ -22,19 +22,31 @@ function estimateCalories(a) {
   return Math.max(0, Math.round(met * weight * hours));
 }
 
+const TOKEN_PATH = 'data/strava-token.json';
+
 async function getStravaAccessToken() {
-  const required = ['STRAVA_CLIENT_ID', 'STRAVA_CLIENT_SECRET', 'STRAVA_REFRESH_TOKEN'];
+  const required = ['STRAVA_CLIENT_ID', 'STRAVA_CLIENT_SECRET'];
   const missing = required.filter((key) => !env(key));
   if (missing.length) throw new Error(`Missing ${missing.join(', ')} in Vercel Environment Variables`);
+
+  // ponytail: read stored token first, fall back to env var for first-time setup
+  const { json: stored } = await readGithubData(TOKEN_PATH);
+  const refreshToken = stored.refresh_token || env('STRAVA_REFRESH_TOKEN');
+  if (!refreshToken) throw new Error('Missing STRAVA_REFRESH_TOKEN — set it in Vercel env vars for first-time setup');
+
   const body = new URLSearchParams({
     client_id: env('STRAVA_CLIENT_ID'),
     client_secret: env('STRAVA_CLIENT_SECRET'),
-    refresh_token: env('STRAVA_REFRESH_TOKEN'),
+    refresh_token: refreshToken,
     grant_type: 'refresh_token'
   });
   const response = await fetch('https://www.strava.com/oauth/token', { method: 'POST', body });
   const tokenData = await response.json();
   if (!response.ok) throw new Error(`Strava token failed: ${JSON.stringify(tokenData)}`);
+
+  // บันทึก refresh_token ใหม่ทุกครั้ง (Strava rotate ทุก exchange)
+  await writeGithubData(TOKEN_PATH, { refresh_token: tokenData.refresh_token }, 'Update Strava refresh token');
+
   return tokenData.access_token;
 }
 
