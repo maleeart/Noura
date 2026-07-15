@@ -580,6 +580,7 @@
       <p class="text-xs text-stone-500 mb-3 leading-snug">พิมพ์อะไรก็ได้ — ปัญหา ข้อเสนอแนะ หรือกำลังใจ ผู้พัฒนาจะได้อ่านทุกข้อความ 💌</p>
       <textarea id="feedbackText" rows="5" placeholder="เขียนที่นี่..." class="w-full bg-stone-100 rounded-2xl px-4 py-3 mb-2 outline-none resize-none"></textarea>
       <p id="feedbackError" class="hidden text-xs text-red-500 mb-2 font-bold"></p>
+      <p id="feedbackSuccess" class="hidden text-sm text-emerald-600 font-black mb-2">ส่งเรียบร้อย ขอบคุณมาก! 🙏 ส่งเพิ่มได้อีกนะ</p>
       <button id="feedbackSendBtn" onclick="sendFeedback()" class="w-full bg-stone-950 text-white rounded-2xl py-3 font-black">ส่ง</button>
     </div>
 
@@ -590,7 +591,7 @@
 
 
 
-<div id="servingModal" class="hidden fixed inset-0 z-50 bg-black/50 px-4 items-center justify-center" onclick="if(event.target===this)closeServingModal()">
+<div id="servingModal" class="hidden fixed inset-0 z-[60] bg-black/50 px-4 items-center justify-center" onclick="if(event.target===this)closeServingModal()">
   <div class="bg-white rounded-[32px] p-6 w-full max-w-sm shadow-2xl fade-in">
     <div class="flex items-center justify-between mb-4">
       <h2 class="text-lg font-black">ผลวิเคราะห์ AI</h2>
@@ -619,7 +620,7 @@
   </div>
 </div>
 
-<div id="profileModal" class="hidden fixed inset-0 z-50 bg-black/40 px-4 items-center justify-center">
+<div id="profileModal" class="hidden fixed inset-0 z-[60] bg-black/40 px-4 items-center justify-center">
   <div class="bg-white rounded-[32px] p-5 w-full max-w-sm shadow-2xl max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between mb-2">
       <h2 class="text-xl font-black">ข้อมูลส่วนตัว</h2>
@@ -887,6 +888,7 @@ function openFeedback() {
     list.classList.add('hidden');
     document.getElementById('feedbackText').value = '';
     document.getElementById('feedbackError').classList.add('hidden');
+    document.getElementById('feedbackSuccess').classList.add('hidden');
   }
 }
 function closeFeedback() {
@@ -898,9 +900,11 @@ async function sendFeedback() {
   const ta = document.getElementById('feedbackText');
   const errEl = document.getElementById('feedbackError');
   const btn = document.getElementById('feedbackSendBtn');
+  const successEl = document.getElementById('feedbackSuccess');
   const message = ta.value.trim();
   if (!message) { errEl.textContent = 'พิมพ์ข้อความก่อนนะ'; errEl.classList.remove('hidden'); return; }
   errEl.classList.add('hidden');
+  successEl.classList.add('hidden');
   btn.disabled = true; btn.textContent = 'กำลังส่ง...';
   try {
     const r = await authFetch(apiUrl('/api/feedback'), {
@@ -909,10 +913,11 @@ async function sendFeedback() {
     });
     const j = await r.json();
     if (!r.ok || !j.success) throw new Error(j.error || 'ส่งไม่สำเร็จ');
-    document.getElementById('feedbackWrite').innerHTML =
-      `<p class="text-center py-8 text-emerald-600 font-black text-lg">ส่งเรียบร้อย ขอบคุณมาก! 🙏</p>`;
+    ta.value = '';
+    successEl.classList.remove('hidden');
   } catch (e) {
     errEl.textContent = e.message; errEl.classList.remove('hidden');
+  } finally {
     btn.disabled = false; btn.textContent = 'ส่ง';
   }
 }
