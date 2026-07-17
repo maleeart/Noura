@@ -1407,81 +1407,203 @@ function petState() {
 }
 
 // Corgi SVG — all face elements centered at x=40, head center (40,48) r=34
-// viewBox 0 0 80 90 keeps it compact
+// Redesigned super cute Shiba/Corgi puppy mascot SVG generator with emotional states and fluid animations
 function corgiSvg(level) {
-  const happy    = level === 'thriving' || level === 'happy';
-  const sad      = level === 'sad'      || level === 'wilting';
-  const wagSpd   = level === 'thriving' ? '0.45s' : '0.75s';
+  const bodyColor = '#E58F54';
+  const chestColor = '#FFFDF9';
 
-  // tail — right side of body
-  const tail = sad
-    ? `<path d="M56,80 Q70,88 68,96" fill="none" stroke="#d97706" stroke-width="5" stroke-linecap="round"/>`
-    : `<path d="M56,80 Q72,68 70,56" fill="none" stroke="#d97706" stroke-width="5" stroke-linecap="round" style="animation:cWag ${wagSpd} ease-in-out infinite;transform-origin:56px 80px"/>`;
+  // 1. Tail (behind everything)
+  let tail = '';
+  if (level === 'sad' || level === 'wilting') {
+    tail = `<path d="M 68,76 C 72,82 74,88 72,93" fill="none" stroke="${bodyColor}" stroke-width="5" stroke-linecap="round"/>`;
+  } else {
+    const wagSpeed = level === 'thriving' ? '0.4s' : '0.8s';
+    tail = `
+      <g style="animation: tailWag ${wagSpeed} ease-in-out infinite; transform-origin: 66px 78px">
+        <path d="M 66,78 C 73,78 83,73 86,66 C 88,61 83,58 78,63 C 73,68 66,78 66,78" fill="${bodyColor}"/>
+        <path d="M 86,66 C 88,61 83,58 81,61 C 80,63 78,66 78,66 Z" fill="${chestColor}"/>
+      </g>
+    `;
+  }
 
-  // eyes: L=cx27,cy44  R=cx53,cy44  (symmetric around x=40)
-  const eyeL = sad
-    ? `<ellipse cx="27" cy="44" rx="5" ry="3.5" fill="#1c1917" transform="rotate(15 27 44)"/>`
-    : level === 'thriving'
-      ? `<path d="M22,44 Q27,39 32,44" fill="none" stroke="#1c1917" stroke-width="2.5" stroke-linecap="round"/>`
-      : `<circle cx="27" cy="44" r="5" fill="#1c1917"/>`;
-  const eyeR = sad
-    ? `<ellipse cx="53" cy="44" rx="5" ry="3.5" fill="#1c1917" transform="rotate(-15 53 44)"/>`
-    : level === 'thriving'
-      ? `<path d="M48,44 Q53,39 58,44" fill="none" stroke="#1c1917" stroke-width="2.5" stroke-linecap="round"/>`
-      : `<circle cx="53" cy="44" r="5" fill="#1c1917"/>`;
+  // 2. Body and Paws
+  let bodyAndPaws = '';
+  if (level === 'wilting') {
+    bodyAndPaws = `
+      <ellipse cx="50" cy="82" rx="22" ry="12" fill="${bodyColor}"/>
+      <ellipse cx="50" cy="82" rx="12" ry="9" fill="${chestColor}"/>
+      <ellipse cx="36" cy="88" rx="6" ry="3" fill="${chestColor}" stroke="${bodyColor}" stroke-width="1.5"/>
+      <ellipse cx="64" cy="88" rx="6" ry="3" fill="${chestColor}" stroke="${bodyColor}" stroke-width="1.5"/>
+    `;
+  } else {
+    const pawWave = level === 'thriving'
+      ? `<g style="animation: pawWave 0.6s ease-in-out infinite; transform-origin: 32px 76px">
+           <path d="M 32,80 C 28,75 24,65 32,60 C 35,58 39,63 36,68 L 34,80 Z" fill="${bodyColor}"/>
+           <circle cx="32" cy="60" r="4.5" fill="${chestColor}"/>
+         </g>`
+      : `<ellipse cx="40" cy="86" rx="5" ry="4" fill="${chestColor}" stroke="${bodyColor}" stroke-width="1.5"/>`;
 
-  const shine  = !sad ? `<circle cx="29" cy="42" r="1.8" fill="white"/><circle cx="55" cy="42" r="1.8" fill="white"/>` : '';
-  const brows  = sad  ? `<line x1="22" y1="36" x2="32" y2="40" stroke="#92400e" stroke-width="2" stroke-linecap="round"/><line x1="58" y1="40" x2="48" y2="36" stroke="#92400e" stroke-width="2" stroke-linecap="round"/>` : '';
-  const tears  = sad  ? `<path d="M25,51 Q24,56 26,60" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"/><path d="M55,51 Q54,56 56,60" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"/>` : '';
-  const cheeks = happy? `<ellipse cx="16" cy="52" rx="7" ry="4" fill="#fca5a5" opacity=".5"/><ellipse cx="64" cy="52" rx="7" ry="4" fill="#fca5a5" opacity=".5"/>` : '';
-  const mouth  = happy
-    ? `<path d="M34,57 Q40,63 46,57" fill="#fde68a"/><path d="M34,57 Q40,63 46,57" fill="none" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/><ellipse cx="40" cy="61" rx="5" ry="4" fill="#f87171"/>`
-    : sad
-      ? `<path d="M34,61 Q40,56 46,61" fill="none" stroke="#92400e" stroke-width="2" stroke-linecap="round"/>`
-      : `<path d="M34,59 Q40,64 46,59" fill="none" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>`;
-  const sparks = level === 'thriving'
-    ? `<text class="pet-spark" x="68" y="10" font-size="10" text-anchor="middle">✨</text><text class="pet-spark" x="12" y="12" font-size="8" text-anchor="middle">⭐</text>`
+    const rightPaw = `<ellipse cx="60" cy="86" rx="5" ry="4" fill="${chestColor}" stroke="${bodyColor}" stroke-width="1.5"/>`;
+
+    bodyAndPaws = `
+      <ellipse cx="50" cy="78" rx="20" ry="15" fill="${bodyColor}"/>
+      <ellipse cx="50" cy="76" rx="10" ry="12" fill="${chestColor}"/>
+      ${pawWave}
+      ${rightPaw}
+    `;
+  }
+
+  // 3. Ears
+  let earL, earR;
+  if (level === 'sad') {
+    earL = `<path d="M26 28 C26 28, 10 32, 14 38 C18 42, 34 26, 34 26 Z" fill="${bodyColor}"/><path d="M27 27 C27 27, 13 31, 16 36 C19 39, 32 26, 32 26 Z" fill="#FFB2B2"/>`;
+    earR = `<path d="M74 28 C74 28, 90 32, 86 38 C82 42, 66 26, 66 26 Z" fill="${bodyColor}"/><path d="M73 27 C73 27, 87 31, 84 36 C81 39, 68 26, 68 26 Z" fill="#FFB2B2"/>`;
+  } else if (level === 'wilting') {
+    earL = `<path d="M26 28 C20 32, 10 38, 12 46 C14 52, 30 32, 30 32 Z" fill="${bodyColor}"/><path d="M25 28 C20 32, 13 37, 15 44 C16 48, 28 32, 28 32 Z" fill="#FFB2B2"/>`;
+    earR = `<path d="M74 28 C80 32, 90 38, 88 46 C86 52, 70 32, 70 32 Z" fill="${bodyColor}"/><path d="M75 28 C80 32, 87 37, 85 44 C84 48, 72 32, 72 32 Z" fill="#FFB2B2"/>`;
+  } else {
+    const animL = (level === 'thriving' || level === 'happy') ? 'style="animation: earWiggleL 2s ease-in-out infinite; transform-origin: 30px 26px"' : '';
+    const animR = (level === 'thriving' || level === 'happy') ? 'style="animation: earWiggleR 2s ease-in-out infinite; transform-origin: 70px 26px"' : '';
+    earL = `<g ${animL}><path d="M26 28 C26 28, 12 12, 16 8 C20 4, 38 24, 38 24 Z" fill="${bodyColor}"/><path d="M28 26 C28 26, 17 14, 19 11 C21 8, 35 23, 35 23 Z" fill="#FFB2B2"/></g>`;
+    earR = `<g ${animR}><path d="M74 28 C74 28, 88 12, 84 8 C80 4, 62 24, 62 24 Z" fill="${bodyColor}"/><path d="M72 26 C72 26, 83 14, 81 11 C79 8, 65 23, 65 23 Z" fill="#FFB2B2"/></g>`;
+  }
+
+  // 4. Eyes
+  let eyes = '';
+  if (level === 'thriving') {
+    eyes = `
+      <path d="M34,40 L35.5,43.5 L39,44 L36.5,46.5 L37,50 L34,48 L31,50 L31.5,46.5 L29,44 L32.5,43.5 Z" fill="#F1C40F"/>
+      <path d="M66,40 L67.5,43.5 L71,44 L68.5,46.5 L69,50 L66,48 L63,50 L63.5,46.5 L61,44 L64.5,43.5 Z" fill="#F1C40F"/>
+    `;
+  } else if (level === 'happy') {
+    eyes = `
+      <path d="M 28,46 C 30,42 36,42 38,46" fill="none" stroke="#2C1A11" stroke-width="3" stroke-linecap="round"/>
+      <path d="M 62,46 C 64,42 70,42 72,46" fill="none" stroke="#2C1A11" stroke-width="3" stroke-linecap="round"/>
+    `;
+  } else if (level === 'sad') {
+    eyes = `
+      <path d="M 29,46 C 31,49 37,49 39,46" fill="none" stroke="#2C1A11" stroke-width="3" stroke-linecap="round"/>
+      <path d="M 61,46 C 63,49 69,49 71,46" fill="none" stroke="#2C1A11" stroke-width="3" stroke-linecap="round"/>
+      <g style="animation: tearDrip 1.5s infinite; transform-origin: 27px 48px">
+        <path d="M 27,48 Q 25,56 28,58 C 31,60 32,56 30,52 Z" fill="#3498DB" opacity="0.8"/>
+      </g>
+    `;
+  } else if (level === 'wilting') {
+    eyes = `
+      <path d="M 31,42 L 37,48 M 37,42 L 31,48" stroke="#2C1A11" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M 63,42 L 69,48 M 69,42 L 63,48" stroke="#2C1A11" stroke-width="2.5" stroke-linecap="round"/>
+    `;
+  } else {
+    eyes = `
+      <g style="animation: eyeBlink 4s infinite; transform-origin: 50px 45px">
+        <circle cx="34" cy="45" r="5" fill="#2C1A11"/>
+        <circle cx="35.5" cy="43.5" r="1.8" fill="white"/>
+        <circle cx="32.5" cy="46.5" r="0.9" fill="white"/>
+        <circle cx="66" cy="45" r="5" fill="#2C1A11"/>
+        <circle cx="67.5" cy="43.5" r="1.8" fill="white"/>
+        <circle cx="64.5" cy="46.5" r="0.9" fill="white"/>
+      </g>
+    `;
+  }
+
+  // 5. Mouth
+  let mouth = '';
+  if (level === 'thriving' || level === 'happy') {
+    mouth = `
+      <g>
+        <path d="M 44,53 C 44,53 44,61 50,61 C 56,61 56,53 56,53 Z" fill="#EF4444"/>
+        <path d="M 46,57 C 46,57 48,61 50,61 C 52,61 54,57 54,57 Z" fill="#FFB2B2"/>
+        <path d="M 44,53 Q 47,55 50,53 Q 53,55 56,53" fill="none" stroke="#2C1A11" stroke-width="2" stroke-linecap="round"/>
+      </g>
+    `;
+  } else if (level === 'sad') {
+    mouth = `<path d="M 46,56 Q 50,52 54,56" fill="none" stroke="#2C1A11" stroke-width="2" stroke-linecap="round"/>`;
+  } else if (level === 'wilting') {
+    mouth = `
+      <path d="M 46,54 Q 50,57 54,54" fill="none" stroke="#2C1A11" stroke-width="2" stroke-linecap="round"/>
+      <path d="M 48,55 C 48,55 48,61 50,61 C 52,61 52,55 52,55 Z" fill="#FFB2B2" style="animation: tonguePant 0.6s ease-in-out infinite; transform-origin: 50px 55px"/>
+    `;
+  } else {
+    mouth = `<path d="M 45,54 Q 47,56 50,54 Q 53,56 55,54" fill="none" stroke="#2C1A11" stroke-width="2" stroke-linecap="round"/>`;
+  }
+
+  // 6. Blush
+  const blush = (level === 'thriving' || level === 'happy' || level === 'neutral')
+    ? `<ellipse cx="25" cy="53" rx="5" ry="3" fill="#FF8E95" opacity="0.55"/>
+       <ellipse cx="75" cy="53" rx="5" ry="3" fill="#FF8E95" opacity="0.55"/>`
     : '';
 
-  return `<svg width="88" height="96" viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg">
+  // 7. Collar
+  const collar = `
+    <path d="M 34,65 C 40,69 60,69 66,65" fill="none" stroke="#EF4444" stroke-width="4" stroke-linecap="round"/>
+    <path d="M 50,71 L 48.5,69 C 46,67 46,65.5 48,64 C 49,63 50,64 50,64 C 50,64 51,63 52,64 C 54,65.5 54,67 51.5,69 Z" fill="#FFD700"/>
+  `;
+
+  // 8. Sparkles (thriving only)
+  let sparkles = '';
+  if (level === 'thriving') {
+    sparkles = `
+      <g style="animation: floatSparkle 1.8s infinite; transform-origin: 20px 20px">
+        <path d="M20,12 L21,15 L24,16 L21,17 L20,20 L19,17 L16,17 L19,16 L20,12 Z" fill="#F1C40F"/>
+      </g>
+      <g style="animation: floatSparkle 2.2s infinite 0.5s; transform-origin: 80px 25px">
+        <path d="M80,18 L81,20 L83,21 L81,22 L80,24 L79,22 L77,21 L79,20 L80,18 Z" fill="#F1C40F"/>
+      </g>
+    `;
+  }
+
+  // 9. Head Bounce / Breathing
+  const headAnim = (level === 'thriving' || level === 'happy')
+    ? 'style="animation: headBounce 1.5s ease-in-out infinite; transform-origin: 50px 75px"'
+    : (level === 'wilting' ? 'style="animation: headBreathing 3s ease-in-out infinite; transform-origin: 50px 75px"' : '');
+
+  // 10. Glow effect for thriving
+  const svgGlow = level === 'thriving' ? 'style="animation: auraGlow 2s ease-in-out infinite"' : '';
+
+  return `<svg width="88" height="96" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" ${svgGlow}>
     <style>
-      @keyframes cWag{0%,100%{transform:rotate(0)}30%{transform:rotate(28deg)}70%{transform:rotate(-18deg)}}
-      @keyframes cBounce{0%,100%{transform:translateY(0)}45%{transform:translateY(-5px)}}
-      @keyframes cSway{0%,100%{transform:rotate(0)}35%{transform:rotate(4deg)}70%{transform:rotate(-4deg)}}
+      @keyframes tailWag { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(20deg); } }
+      @keyframes earWiggleL { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-8deg); } }
+      @keyframes earWiggleR { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(8deg); } }
+      @keyframes pawWave { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(25deg) translateY(-2px); } }
+      @keyframes headBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+      @keyframes headBreathing { 0%, 100% { transform: scale(1) translateY(0); } 50% { transform: scale(0.98) translateY(1px); } }
+      @keyframes eyeBlink { 0%, 90%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
+      @keyframes tearDrip { 0% { transform: scale(0.6) translateY(0); opacity: 0; } 30% { opacity: 0.8; } 80% { transform: scale(1) translateY(8px); opacity: 0; } 100% { transform: scale(0.6) translateY(0); opacity: 0; } }
+      @keyframes tonguePant { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.3) scaleX(1.05); } }
+      @keyframes auraGlow { 0%, 100% { filter: drop-shadow(0 0 2px rgba(241,196,15,0.3)); } 50% { filter: drop-shadow(0 0 8px rgba(241,196,15,0.7)); } }
+      @keyframes floatSparkle { 0% { transform: translateY(3px) scale(0.6); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-8px) scale(1); opacity: 0; } }
     </style>
-    ${sparks}
-    <g style="animation:${level==='thriving'||level==='happy'?'cBounce 1.4s':'cSway 2.5s'} ease-in-out infinite;transform-origin:40px 60px">
-      <!-- tail (behind everything) -->
+    ${sparkles}
+    <g>
+      <!-- Tail (behind body) -->
       ${tail}
-      <!-- body -->
-      <ellipse cx="40" cy="78" rx="26" ry="12" fill="#f59e0b"/>
-      <!-- legs -->
-      <rect x="18" y="82" width="8" height="8" rx="4" fill="#d97706"/>
-      <rect x="30" y="83" width="8" height="7" rx="4" fill="#d97706"/>
-      <rect x="42" y="83" width="8" height="7" rx="4" fill="#d97706"/>
-      <rect x="54" y="82" width="8" height="8" rx="4" fill="#d97706"/>
-      <!-- neck -->
-      <ellipse cx="40" cy="68" rx="14" ry="7" fill="#f59e0b"/>
-      <!-- head: center (40,48) r=30 -->
-      <circle cx="40" cy="48" r="30" fill="#f59e0b"/>
-      <!-- left pointed ear: tip(18,12) base(12,34)(28,30) -->
-      <polygon points="18,12 12,34 28,30" fill="#f59e0b"/>
-      <polygon points="18,14 14,32 26,30" fill="#fde68a" opacity=".8"/>
-      <!-- right pointed ear: mirror at x=40 → tip(62,12) base(68,34)(52,30) -->
-      <polygon points="62,12 68,34 52,30" fill="#f59e0b"/>
-      <polygon points="62,14 66,32 54,30" fill="#fde68a" opacity=".8"/>
-      <!-- face mask: center (40,52) -->
-      <ellipse cx="40" cy="52" rx="20" ry="16" fill="#fef9c3"/>
-      ${brows}
-      ${eyeL}
-      ${eyeR}
-      ${shine}
-      ${tears}
-      <!-- nose: cx=40, cy=50 -->
-      <ellipse cx="40" cy="50" rx="4" ry="2.8" fill="#1c1917"/>
-      <ellipse cx="39" cy="49" rx="1.2" ry=".8" fill="white" opacity=".4"/>
-      ${mouth}
-      ${cheeks}
+      <!-- Body & Paws -->
+      ${bodyAndPaws}
+      <!-- Head Group -->
+      <g ${headAnim}>
+        <!-- Ears -->
+        ${earL}
+        ${earR}
+        <!-- Head base -->
+        <path d="M 32,24 C 18,24 16,56 24,62 C 32,68 68,68 76,62 C 84,56 82,24 68,24 Z" fill="${bodyColor}"/>
+        <!-- White mask -->
+        <path d="M 50,28 C 45,38 28,42 28,52 C 28,62 36,65 50,65 C 64,65 72,62 72,52 C 72,42 55,38 50,28 Z" fill="${chestColor}"/>
+        <!-- Shiba spots (eyebrows) -->
+        <ellipse cx="34" cy="35" rx="3.5" ry="2.5" fill="${chestColor}"/>
+        <ellipse cx="66" cy="35" rx="3.5" ry="2.5" fill="${chestColor}"/>
+        <!-- Eyes -->
+        ${eyes}
+        <!-- Blush -->
+        ${blush}
+        <!-- Nose -->
+        <rect x="47" y="49" width="6" height="4" rx="2" fill="#2C1A11"/>
+        <circle cx="48.5" cy="50.2" r="0.8" fill="white" opacity="0.6"/>
+        <!-- Mouth -->
+        ${mouth}
+        <!-- Collar & Tag -->
+        ${collar}
+      </g>
     </g>
   </svg>`;
 }
