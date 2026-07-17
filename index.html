@@ -533,7 +533,7 @@
         <div id="userAvatar" class="w-10 h-10 rounded-2xl overflow-hidden cursor-pointer flex items-center justify-center" onclick="toggleAvatarMenu()" title="โปรไฟล์"></div>
       </div>
       <div class="mt-6 flex items-center gap-3">
-        <div id="heroPetSvg" style="flex:0 0 88px;display:flex;align-items:center;justify-content:center;perspective:400px;transform-style:preserve-3d"></div>
+        <div id="heroPetSvg" style="flex:0 0 88px;display:flex;align-items:center;justify-content:center"></div>
         <div class="flex-1 min-w-0">
           <p id="heroPetLabel" class="font-extrabold text-xs mb-1" style="color:#86efac">น้องหมาของฉัน 🐕</p>
           <p id="heroInsightTitle" class="text-[17px] leading-snug font-black">กำลังโหลด...</p>
@@ -1407,42 +1407,48 @@ function petState() {
 }
 
 // Corgi SVG — all face elements centered at x=40, head center (40,48) r=34
-// Redesigned super cute Shiba/Corgi puppy mascot SVG generator with emotional states, pseudo-3D parallax, pupil tracking, and fluid animations
+// Redesigned super cute Shiba/Corgi puppy mascot SVG generator with emotional state poses and standalone CSS animations
 function corgiSvg(level) {
   const bodyColor = '#E58F54';
   const chestColor = '#FFFDF9';
 
-  // Floor shadow (visual depth)
-  const floorShadow = `<ellipse cx="50" cy="94" rx="18" ry="4" fill="#000000" opacity="0.25" style="animation: shadowScale 1.5s ease-in-out infinite; transform-origin: 50px 94px"/>`;
+  // Floor shadow (visual depth, scaled during bounce/sigh)
+  let shadow = '';
+  if (level === 'wilting') {
+    shadow = `<ellipse cx="50" cy="94" rx="18" ry="4" fill="#000000" opacity="0.25" style="animation: shadowSleep 3s ease-in-out infinite; transform-origin: 50px 94px"/>`;
+  } else {
+    const shadowAnim = (level === 'thriving' || level === 'happy') ? 'shadowScale 1.5s ease-in-out infinite' : 'shadowScale 2.5s ease-in-out infinite';
+    shadow = `<ellipse cx="50" cy="94" rx="18" ry="4" fill="#000000" opacity="0.25" style="animation: ${shadowAnim}; transform-origin: 50px 94px"/>`;
+  }
 
-  // 1. Tail (behind everything)
+  // 1. Tail Pose & Animation
   let tail = '';
   if (level === 'sad' || level === 'wilting') {
-    tail = `<g class="tail-layer"><path d="M 68,76 C 72,82 74,88 72,93" fill="none" stroke="${bodyColor}" stroke-width="5" stroke-linecap="round"/></g>`;
+    tail = `<path d="M 66,78 C 70,82 72,86 70,91" fill="none" stroke="${bodyColor}" stroke-width="5" stroke-linecap="round"/>`;
   } else {
     const wagSpeed = level === 'thriving' ? '0.4s' : '0.8s';
     tail = `
-      <g class="tail-layer" style="animation: tailWag ${wagSpeed} ease-in-out infinite; transform-origin: 66px 78px">
+      <g style="animation: tailWag ${wagSpeed} ease-in-out infinite; transform-origin: 66px 78px">
         <path d="M 66,78 C 73,78 83,73 86,66 C 88,61 83,58 78,63 C 73,68 66,78 66,78" fill="${bodyColor}"/>
         <path d="M 86,66 C 88,61 83,58 81,61 C 80,63 78,66 78,66 Z" fill="${chestColor}"/>
       </g>
     `;
   }
 
-  // 2. Body and Paws
+  // 2. Body & Paws Pose
   let bodyAndPaws = '';
   if (level === 'wilting') {
     bodyAndPaws = `
-      <g class="body-layer">
-        <ellipse cx="50" cy="82" rx="22" ry="12" fill="${bodyColor}"/>
-        <ellipse cx="50" cy="82" rx="12" ry="9" fill="${chestColor}"/>
-        <ellipse cx="36" cy="88" rx="6" ry="3" fill="${chestColor}" stroke="${bodyColor}" stroke-width="1.5"/>
-        <ellipse cx="64" cy="88" rx="6" ry="3" fill="${chestColor}" stroke="${bodyColor}" stroke-width="1.5"/>
+      <g>
+        <ellipse cx="50" cy="83" rx="23" ry="11" fill="${bodyColor}"/>
+        <ellipse cx="50" cy="83" rx="13" ry="8" fill="${chestColor}"/>
+        <ellipse cx="34" cy="88" rx="6" ry="3.5" fill="${chestColor}" stroke="${bodyColor}" stroke-width="1.5"/>
+        <ellipse cx="66" cy="88" rx="6" ry="3.5" fill="${chestColor}" stroke="${bodyColor}" stroke-width="1.5"/>
       </g>
     `;
   } else {
-    const pawWave = level === 'thriving'
-      ? `<g style="animation: pawWave 0.6s ease-in-out infinite; transform-origin: 32px 76px">
+    const pawWave = (level === 'thriving' || level === 'happy')
+      ? `<g style="animation: pawWave 0.8s ease-in-out infinite; transform-origin: 32px 76px">
            <path d="M 32,80 C 28,75 24,65 32,60 C 35,58 39,63 36,68 L 34,80 Z" fill="${bodyColor}"/>
            <circle cx="32" cy="60" r="4.5" fill="${chestColor}"/>
          </g>`
@@ -1451,7 +1457,7 @@ function corgiSvg(level) {
     const rightPaw = `<ellipse cx="60" cy="86" rx="5" ry="4" fill="${chestColor}" stroke="${bodyColor}" stroke-width="1.5"/>`;
 
     bodyAndPaws = `
-      <g class="body-layer">
+      <g>
         <ellipse cx="50" cy="78" rx="20" ry="15" fill="${bodyColor}"/>
         <ellipse cx="50" cy="76" rx="10" ry="12" fill="${chestColor}"/>
         ${pawWave}
@@ -1479,96 +1485,105 @@ function corgiSvg(level) {
   let eyes = '';
   if (level === 'thriving') {
     eyes = `
-      <g class="eye-layer">
+      <g>
         <path d="M34,40 L35.5,43.5 L39,44 L36.5,46.5 L37,50 L34,48 L31,50 L31.5,46.5 L29,44 L32.5,43.5 Z" fill="#F1C40F"/>
         <path d="M66,40 L67.5,43.5 L71,44 L68.5,46.5 L69,50 L66,48 L63,50 L63.5,46.5 L61,44 L64.5,43.5 Z" fill="#F1C40F"/>
       </g>
     `;
   } else if (level === 'happy') {
     eyes = `
-      <g class="eye-layer">
+      <g>
         <path d="M 28,46 C 30,42 36,42 38,46" fill="none" stroke="#2C1A11" stroke-width="3" stroke-linecap="round"/>
         <path d="M 62,46 C 64,42 70,42 72,46" fill="none" stroke="#2C1A11" stroke-width="3" stroke-linecap="round"/>
       </g>
     `;
   } else if (level === 'sad') {
     eyes = `
-      <g class="eye-layer">
+      <g>
         <path d="M 29,46 C 31,49 37,49 39,46" fill="none" stroke="#2C1A11" stroke-width="3" stroke-linecap="round"/>
         <path d="M 61,46 C 63,49 69,49 71,46" fill="none" stroke="#2C1A11" stroke-width="3" stroke-linecap="round"/>
-        <g style="animation: tearDrip 1.5s infinite; transform-origin: 27px 48px">
+        <g style="animation: tearDrip 1.8s infinite; transform-origin: 27px 48px">
           <path d="M 27,48 Q 25,56 28,58 C 31,60 32,56 30,52 Z" fill="#3498DB" opacity="0.8"/>
         </g>
       </g>
     `;
   } else if (level === 'wilting') {
     eyes = `
-      <g class="eye-layer">
-        <path d="M 31,42 L 37,48 M 37,42 L 31,48" stroke="#2C1A11" stroke-width="2.5" stroke-linecap="round"/>
-        <path d="M 63,42 L 69,48 M 69,42 L 63,48" stroke="#2C1A11" stroke-width="2.5" stroke-linecap="round"/>
+      <g>
+        <path d="M 29,48 Q 34,51 39,48" fill="none" stroke="#2C1A11" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M 61,48 Q 66,51 71,48" fill="none" stroke="#2C1A11" stroke-width="2.5" stroke-linecap="round"/>
       </g>
     `;
   } else {
     eyes = `
-      <g class="eye-layer" style="animation: eyeBlink 4s infinite; transform-origin: 50px 45px">
+      <g style="animation: eyeBlink 4s infinite; transform-origin: 50px 45px">
         <circle cx="34" cy="45" r="5" fill="#2C1A11"/>
-        <g class="pupil-shine">
-          <circle cx="35.5" cy="43.5" r="1.8" fill="white"/>
-          <circle cx="32.5" cy="46.5" r="0.9" fill="white"/>
-        </g>
+        <circle cx="35.5" cy="43.5" r="1.8" fill="white"/>
+        <circle cx="32.5" cy="46.5" r="0.9" fill="white"/>
         <circle cx="66" cy="45" r="5" fill="#2C1A11"/>
-        <g class="pupil-shine">
-          <circle cx="67.5" cy="43.5" r="1.8" fill="white"/>
-          <circle cx="64.5" cy="46.5" r="0.9" fill="white"/>
-        </g>
+        <circle cx="67.5" cy="43.5" r="1.8" fill="white"/>
+        <circle cx="64.5" cy="46.5" r="0.9" fill="white"/>
       </g>
     `;
   }
 
-  // 5. Mouth
+  // 5. Nose (twitches in neutral/sniffing mode)
+  let nose = '';
+  if (level === 'neutral') {
+    nose = `
+      <g style="animation: noseTwitch 0.4s ease-in-out infinite; transform-origin: 50px 49px">
+        <rect x="47" y="49" width="6" height="4" rx="2" fill="#2C1A11"/>
+        <circle cx="48.5" cy="50.2" r="0.8" fill="white" opacity="0.6"/>
+      </g>
+    `;
+  } else {
+    nose = `
+      <g>
+        <rect x="47" y="49" width="6" height="4" rx="2" fill="#2C1A11"/>
+        <circle cx="48.5" cy="50.2" r="0.8" fill="white" opacity="0.6"/>
+      </g>
+    `;
+  }
+
+  // 6. Mouth
   let mouth = '';
   if (level === 'thriving' || level === 'happy') {
     mouth = `
-      <g class="muzzle-layer">
+      <g>
         <path d="M 44,53 C 44,53 44,61 50,61 C 56,61 56,53 56,53 Z" fill="#EF4444"/>
         <path d="M 46,57 C 46,57 48,61 50,61 C 52,61 54,57 54,57 Z" fill="#FFB2B2"/>
         <path d="M 44,53 Q 47,55 50,53 Q 53,55 56,53" fill="none" stroke="#2C1A11" stroke-width="2" stroke-linecap="round"/>
       </g>
     `;
   } else if (level === 'sad') {
-    mouth = `<g class="muzzle-layer"><path d="M 46,56 Q 50,52 54,56" fill="none" stroke="#2C1A11" stroke-width="2" stroke-linecap="round"/></g>`;
+    mouth = `<path d="M 46,56 Q 50,52 54,56" fill="none" stroke="#2C1A11" stroke-width="2" stroke-linecap="round"/>`;
   } else if (level === 'wilting') {
-    mouth = `
-      <g class="muzzle-layer">
-        <path d="M 46,54 Q 50,57 54,54" fill="none" stroke="#2C1A11" stroke-width="2" stroke-linecap="round"/>
-        <path d="M 48,55 C 48,55 48,61 50,61 C 52,61 52,55 52,55 Z" fill="#FFB2B2" style="animation: tonguePant 0.6s ease-in-out infinite; transform-origin: 50px 55px"/>
-      </g>
-    `;
+    mouth = `<path d="M 46,58 Q 50,60 54,58" fill="none" stroke="#2C1A11" stroke-width="1.8" stroke-linecap="round"/>`;
   } else {
-    mouth = `<g class="muzzle-layer"><path d="M 45,54 Q 47,56 50,54 Q 53,56 55,54" fill="none" stroke="#2C1A11" stroke-width="2" stroke-linecap="round"/></g>`;
+    mouth = `<path d="M 45,54 Q 47.5,56.5 50,54 Q 52.5,56.5 55,54" fill="none" stroke="#2C1A11" stroke-width="2" stroke-linecap="round"/>`;
   }
 
-  // 6. Blush
+  // 7. Blush
   const blush = (level === 'thriving' || level === 'happy' || level === 'neutral')
-    ? `<g class="muzzle-layer">
+    ? `<g>
          <ellipse cx="25" cy="53" rx="5" ry="3" fill="#FF8E95" opacity="0.55"/>
          <ellipse cx="75" cy="53" rx="5" ry="3" fill="#FF8E95" opacity="0.55"/>
        </g>`
     : '';
 
-  // 7. Collar
+  // 8. Collar & Gold Tag
   const collar = `
-    <g class="collar-layer">
+    <g>
       <path d="M 34,65 C 40,69 60,69 66,65" fill="none" stroke="#EF4444" stroke-width="4" stroke-linecap="round"/>
       <path d="M 50,71 L 48.5,69 C 46,67 46,65.5 48,64 C 49,63 50,64 50,64 C 50,64 51,63 52,64 C 54,65.5 54,67 51.5,69 Z" fill="#FFD700"/>
     </g>
   `;
 
-  // 8. Sparkles (thriving only)
-  let sparkles = '';
+  // 9. Floating Particles (Sparkles for thriving / Zzz for wilting / Sniff Air for neutral)
+  let particles = '';
   if (level === 'thriving') {
-    sparkles = `
-      <g class="sparkle-layer">
+    particles = `
+      <g>
         <g style="animation: floatSparkle 1.8s infinite; transform-origin: 20px 20px">
           <path d="M20,12 L21,15 L24,16 L21,17 L20,20 L19,17 L16,17 L19,16 L20,12 Z" fill="#F1C40F"/>
         </g>
@@ -1577,14 +1592,42 @@ function corgiSvg(level) {
         </g>
       </g>
     `;
+  } else if (level === 'wilting') {
+    particles = `
+      <g>
+        <text x="74" y="32" class="zzz-text zzz-1">z</text>
+        <text x="80" y="24" class="zzz-text zzz-2">Z</text>
+        <text x="86" y="16" class="zzz-text zzz-3">Z</text>
+      </g>
+    `;
+  } else if (level === 'neutral') {
+    particles = `
+      <g>
+        <path d="M 44,51 Q 41,48 44,45" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" class="ripple-l"/>
+        <path d="M 56,51 Q 59,48 56,45" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" class="ripple-r"/>
+      </g>
+    `;
   }
 
-  // 9. Head Bounce / Breathing
-  const headAnim = (level === 'thriving' || level === 'happy')
-    ? 'style="animation: headBounce 1.5s ease-in-out infinite; transform-origin: 50px 75px"'
-    : (level === 'wilting' ? 'style="animation: headBreathing 3s ease-in-out infinite; transform-origin: 50px 75px"' : '');
+  // 10. Head Animation
+  let headAnim = '';
+  if (level === 'wilting') {
+    headAnim = 'style="transform: translateY(5px); animation: sleepBreath 3s ease-in-out infinite; transform-origin: 50px 83px"';
+  } else if (level === 'thriving' || level === 'happy') {
+    headAnim = 'style="animation: happyBounce 1.5s ease-in-out infinite; transform-origin: 50px 75px"';
+  } else if (level === 'sad') {
+    headAnim = 'style="animation: sadSigh 3s ease-in-out infinite; transform-origin: 50px 75px"';
+  } else if (level === 'neutral') {
+    headAnim = 'style="animation: sniffHead 2s ease-in-out infinite; transform-origin: 50px 75px"';
+  }
 
-  // 10. Glow effect for thriving
+  // 11. Whole Dog Animation (Playful roll for thriving)
+  let mascotAnim = '';
+  if (level === 'thriving') {
+    mascotAnim = 'style="animation: playfulRoll 2.6s ease-in-out infinite; transform-origin: 50px 75px"';
+  }
+
+  // Glow effect for thriving
   const svgGlow = level === 'thriving' ? 'style="animation: auraGlow 2s ease-in-out infinite"' : '';
 
   return `<svg width="88" height="96" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" ${svgGlow}>
@@ -1593,61 +1636,74 @@ function corgiSvg(level) {
       @keyframes earWiggleL { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-8deg); } }
       @keyframes earWiggleR { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(8deg); } }
       @keyframes pawWave { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(25deg) translateY(-2px); } }
-      @keyframes headBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-      @keyframes headBreathing { 0%, 100% { transform: scale(1) translateY(0); } 50% { transform: scale(0.98) translateY(1px); } }
+      @keyframes happyBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+      @keyframes sleepBreath { 0%, 100% { transform: scaleY(1) translateY(5px); } 50% { transform: scaleY(0.96) translateY(7px); } }
+      @keyframes sadSigh { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(2.5px); } }
+      @keyframes sniffHead { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(0.6px, -1px); } }
+      @keyframes noseTwitch { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.2px); } }
       @keyframes eyeBlink { 0%, 90%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
       @keyframes tearDrip { 0% { transform: scale(0.6) translateY(0); opacity: 0; } 30% { opacity: 0.8; } 80% { transform: scale(1) translateY(8px); opacity: 0; } 100% { transform: scale(0.6) translateY(0); opacity: 0; } }
-      @keyframes tonguePant { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.3) scaleX(1.05); } }
       @keyframes auraGlow { 0%, 100% { filter: drop-shadow(0 0 2px rgba(241,196,15,0.3)); } 50% { filter: drop-shadow(0 0 8px rgba(241,196,15,0.7)); } }
       @keyframes floatSparkle { 0% { transform: translateY(3px) scale(0.6); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-8px) scale(1); opacity: 0; } }
       @keyframes shadowScale { 0%, 100% { transform: scale(1); opacity: 0.25; } 50% { transform: scale(0.85); opacity: 0.15; } }
-      
-      /* 3D Parallax styling based on cursor movement */
-      svg {
-        transform: rotateX(calc(var(--my, 0) * -12deg)) rotateY(calc(var(--mx, 0) * 12deg));
-        transform-style: preserve-3d;
-        transition: transform 0.15s ease-out;
+      @keyframes shadowSleep { 0%, 100% { transform: scale(1.02); opacity: 0.22; } 50% { transform: scale(0.97); opacity: 0.28; } }
+      @keyframes playfulRoll {
+        0% { transform: rotate(0deg) translateY(0); }
+        15% { transform: rotate(12deg) translateY(-2px); }
+        45% { transform: rotate(-360deg) translateY(-8px); }
+        65% { transform: rotate(-372deg) translateY(-1px); }
+        100% { transform: rotate(-360deg) translateY(0); }
       }
-      .tail-layer { transform: translate(calc(var(--mx, 0) * -1px), calc(var(--my, 0) * -0.5px)); transition: transform 0.15s ease-out; }
-      .body-layer { transform: translate(calc(var(--mx, 0) * -0.5px), calc(var(--my, 0) * -0.2px)); transition: transform 0.15s ease-out; }
-      .head-layer { transform: translate(calc(var(--mx, 0) * 1.5px), calc(var(--my, 0) * 1px)); transition: transform 0.15s ease-out; }
-      .ear-layer-l { transform: translate(calc(var(--mx, 0) * 0.5px), calc(var(--my, 0) * 0.3px)); transition: transform 0.15s ease-out; }
-      .ear-layer-r { transform: translate(calc(var(--mx, 0) * 0.5px), calc(var(--my, 0) * 0.3px)); transition: transform 0.15s ease-out; }
-      .muzzle-layer { transform: translate(calc(var(--mx, 0) * 4.5px), calc(var(--my, 0) * 3px)); transition: transform 0.15s ease-out; }
-      .eye-layer { transform: translate(calc(var(--mx, 0) * 4px), calc(var(--my, 0) * 2.5px)); transition: transform 0.15s ease-out; }
-      .pupil-shine { transform: translate(calc(var(--mx, 0) * 1.8px), calc(var(--my, 0) * 1.2px)); transition: transform 0.1s ease-out; }
-      .nose-layer { transform: translate(calc(var(--mx, 0) * 5.5px), calc(var(--my, 0) * 3.5px)); transition: transform 0.15s ease-out; }
-      .collar-layer { transform: translate(calc(var(--mx, 0) * 2.5px), calc(var(--my, 0) * 1.8px)); transition: transform 0.15s ease-out; }
-      .sparkle-layer { transform: translate(calc(var(--mx, 0) * 8px), calc(var(--my, 0) * 6px)); transition: transform 0.15s ease-out; }
+      
+      .zzz-text { font-family: sans-serif; font-weight: bold; fill: #94a3b8; font-size: 8px; opacity: 0; }
+      .zzz-1 { animation: floatZzz 3s infinite 0s; }
+      .zzz-2 { animation: floatZzz 3s infinite 0.9s; font-size: 11px; }
+      .zzz-3 { animation: floatZzz 3s infinite 1.8s; font-size: 14px; }
+      @keyframes floatZzz {
+        0% { transform: translate(0, 5px) scale(0.5); opacity: 0; }
+        30% { opacity: 0.8; }
+        80% { transform: translate(6px, -16px) scale(1); opacity: 0; }
+        100% { transform: translate(6px, -16px) scale(1); opacity: 0; }
+      }
+      
+      .ripple-l { animation: rippleLeft 1.2s infinite; transform-origin: 44px 51px; }
+      .ripple-r { animation: rippleRight 1.2s infinite; transform-origin: 56px 51px; }
+      @keyframes rippleLeft {
+        0% { transform: scale(0.5) translate(0, 0); opacity: 0; }
+        50% { opacity: 0.7; }
+        100% { transform: scale(1.4) translate(-5px, -1px); opacity: 0; }
+      }
+      @keyframes rippleRight {
+        0% { transform: scale(0.5) translate(0, 0); opacity: 0; }
+        50% { opacity: 0.7; }
+        100% { transform: scale(1.4) translate(5px, -1px); opacity: 0; }
+      }
     </style>
-    ${floorShadow}
-    ${sparkles}
-    <g>
+    ${shadow}
+    ${particles}
+    <g ${mascotAnim}>
       <!-- Tail (behind body) -->
       ${tail}
       <!-- Body & Paws -->
       ${bodyAndPaws}
       <!-- Head Group -->
-      <g ${headAnim} class="head-layer">
+      <g ${headAnim}>
         <!-- Ears -->
-        <g class="ear-layer-l">${earL}</g>
-        <g class="ear-layer-r">${earR}</g>
+        ${earL}
+        ${earR}
         <!-- Head base -->
         <path d="M 32,24 C 18,24 16,56 24,62 C 32,68 68,68 76,62 C 84,56 82,24 68,24 Z" fill="${bodyColor}"/>
         <!-- White mask -->
-        <path d="M 50,28 C 45,38 28,42 28,52 C 28,62 36,65 50,65 C 64,65 72,62 72,52 C 72,42 55,38 50,28 Z" fill="${chestColor}" class="muzzle-layer"/>
+        <path d="M 50,28 C 45,38 28,42 28,52 C 28,62 36,65 50,65 C 64,65 72,62 72,52 C 72,42 55,38 50,28 Z" fill="${chestColor}"/>
         <!-- Shiba spots (eyebrows) -->
-        <ellipse cx="34" cy="35" rx="3.5" ry="2.5" fill="${chestColor}" class="muzzle-layer"/>
-        <ellipse cx="66" cy="35" rx="3.5" ry="2.5" fill="${chestColor}" class="muzzle-layer"/>
+        <ellipse cx="34" cy="35" rx="3.5" ry="2.5" fill="${chestColor}"/>
+        <ellipse cx="66" cy="35" rx="3.5" ry="2.5" fill="${chestColor}"/>
         <!-- Eyes -->
         ${eyes}
         <!-- Blush -->
         ${blush}
         <!-- Nose -->
-        <g class="nose-layer">
-          <rect x="47" y="49" width="6" height="4" rx="2" fill="#2C1A11"/>
-          <circle cx="48.5" cy="50.2" r="0.8" fill="white" opacity="0.6"/>
-        </g>
+        ${nose}
         <!-- Mouth -->
         ${mouth}
         <!-- Collar & Tag -->
@@ -2291,45 +2347,6 @@ $('#syncBtn').onclick = async (ev) => {
 })();
 
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
-
-// ── Interactive 3D Mascot Parallax Tracking ─────────────────────────────────
-document.addEventListener('mousemove', (e) => {
-  const container = document.getElementById('heroPetSvg');
-  if (!container) return;
-  const rect = container.getBoundingClientRect();
-  const x = e.clientX - (rect.left + rect.width / 2);
-  const y = e.clientY - (rect.top + rect.height / 2);
-  
-  const maxDist = 300;
-  const mx = Math.max(-1, Math.min(1, x / maxDist));
-  const my = Math.max(-1, Math.min(1, y / maxDist));
-  
-  container.style.setProperty('--mx', mx.toFixed(3));
-  container.style.setProperty('--my', my.toFixed(3));
-});
-
-document.addEventListener('mouseleave', () => {
-  const container = document.getElementById('heroPetSvg');
-  if (container) {
-    container.style.setProperty('--mx', '0');
-    container.style.setProperty('--my', '0');
-  }
-});
-
-document.addEventListener('touchmove', (e) => {
-  const container = document.getElementById('heroPetSvg');
-  if (!container || e.touches.length === 0) return;
-  const rect = container.getBoundingClientRect();
-  const touch = e.touches[0];
-  const x = touch.clientX - (rect.left + rect.width / 2);
-  const y = touch.clientY - (rect.top + rect.height / 2);
-  const maxDist = 200;
-  const mx = Math.max(-1, Math.min(1, x / maxDist));
-  const my = Math.max(-1, Math.min(1, y / maxDist));
-  
-  container.style.setProperty('--mx', mx.toFixed(3));
-  container.style.setProperty('--my', my.toFixed(3));
-});
 </script>
 </body>
 </html>
