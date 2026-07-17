@@ -1715,27 +1715,6 @@ function corgiSvg(level) {
   </svg>`;
 }
 
-        <!-- Whiskers spots -->
-        <circle cx="42" cy="53" r="0.6" fill="#A8A29E"/>
-        <circle cx="44" cy="55" r="0.6" fill="#A8A29E"/>
-        <circle cx="58" cy="53" r="0.6" fill="#A8A29E"/>
-        <circle cx="56" cy="55" r="0.6" fill="#A8A29E"/>
-        <!-- Eyes -->
-        ${eyes}
-        <!-- Blush -->
-        ${blush}
-        <!-- Nose -->
-        ${nose}
-        <!-- Mouth -->
-        ${mouth}
-        <!-- Collar & Tag -->
-        ${collar}
-      </g>
-    </g>
-  </svg>`;
-}
-
-
 function toggleTodayMeals() {
   state.ui = { mealsOpen: true, workoutsOpen: true, mealsLimit: 3, workoutsLimit: 3, ...(state.ui || {}) };
   state.ui.mealsOpen = !state.ui.mealsOpen;
