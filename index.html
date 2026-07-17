@@ -1415,215 +1415,178 @@ function corgiSvg(level) {
   // Floor shadow (visual depth, scaled during bounce/sigh)
   let shadow = '';
   if (level === 'wilting') {
-    shadow = `<ellipse cx="50" cy="94" rx="18" ry="4" fill="#000000" opacity="0.25" style="animation: shadowSleep 3s ease-in-out infinite; transform-origin: 50px 94px"/>`;
+    shadow = '<ellipse cx="50" cy="94" rx="18" ry="4" fill="#000000" opacity="0.25" style="animation: shadowSleep 3s ease-in-out infinite; transform-origin: 50px 94px"/>';
   } else {
     const shadowAnim = (level === 'thriving' || level === 'happy') ? 'shadowScale 1.5s ease-in-out infinite' : 'shadowScale 2.5s ease-in-out infinite';
-    shadow = `<ellipse cx="50" cy="94" rx="18" ry="4" fill="#000000" opacity="0.25" style="animation: ${shadowAnim}; transform-origin: 50px 94px"/>`;
+    shadow = '<ellipse cx="50" cy="94" rx="18" ry="4" fill="#000000" opacity="0.25" style="animation: ' + shadowAnim + '; transform-origin: 50px 94px"/>';
   }
 
   // 1. Fluffy Curled Tail Pose & Animation (curled Maltese tail)
   let tail = '';
   if (level === 'sad' || level === 'wilting') {
-    tail = `<path d="M 68,82 C 75,85 78,88 80,92" fill="none" stroke="${bodyColor}" stroke-width="5" stroke-linecap="round"/>`;
+    tail = '<path d="M 68,82 C 75,85 78,88 80,92" fill="none" stroke="' + bodyColor + '" stroke-width="5" stroke-linecap="round"/>';
   } else {
     const wagSpeed = level === 'thriving' ? '0.4s' : '0.8s';
-    tail = `
-      <g style="animation: tailWag ${wagSpeed} ease-in-out infinite; transform-origin: 66px 78px">
-        <path d="M 66,78 C 74,78 84,72 86,64 C 88,58 82,55 76,60 C 70,65 66,78 66,78" fill="${bodyColor}"/>
-        <path d="M 86,64 C 88,58 82,55 80,57 C 78,59 76,60 76,60 Z" fill="${shadowColor}"/>
-      </g>
-    `;
+    tail = '<g style="animation: tailWag ' + wagSpeed + ' ease-in-out infinite; transform-origin: 66px 78px">' +
+      '<path d="M 66,78 C 74,78 84,72 86,64 C 88,58 82,55 76,60 C 70,65 66,78 66,78" fill="' + bodyColor + '"/>' +
+      '<path d="M 86,64 C 88,58 82,55 80,57 C 78,59 76,60 76,60 Z" fill="' + shadowColor + '"/>' +
+      '</g>';
   }
 
   // 2. Fluffy Maltese Body & Paws Pose
   let bodyAndPaws = '';
   if (level === 'wilting') {
-    // Lying down flat body and paws (like a soft white cloud)
-    bodyAndPaws = `
-      <g>
-        <ellipse cx="50" cy="83" rx="23" ry="11" fill="${bodyColor}"/>
-        <ellipse cx="50" cy="83" rx="13" ry="8" fill="${shadowColor}" opacity="0.4"/>
-        <ellipse cx="34" cy="88" rx="6" ry="3.5" fill="${bodyColor}" stroke="${shadowColor}" stroke-width="1.5"/>
-        <ellipse cx="66" cy="88" rx="6" ry="3.5" fill="${bodyColor}" stroke="${shadowColor}" stroke-width="1.5"/>
-      </g>
-    `;
+    bodyAndPaws = '<g>' +
+      '<ellipse cx="50" cy="83" rx="23" ry="11" fill="' + bodyColor + '"/>' +
+      '<ellipse cx="50" cy="83" rx="13" ry="8" fill="' + shadowColor + '" opacity="0.4"/>' +
+      '<ellipse cx="34" cy="88" rx="6" ry="3.5" fill="' + bodyColor + '" stroke="' + shadowColor + '" stroke-width="1.5"/>' +
+      '<ellipse cx="66" cy="88" rx="6" ry="3.5" fill="' + bodyColor + '" stroke="' + shadowColor + '" stroke-width="1.5"/>' +
+      '</g>';
   } else {
     // Sitting posture
     const pawWave = (level === 'thriving' || level === 'happy')
-      ? `<g style="animation: pawWave 0.8s ease-in-out infinite; transform-origin: 32px 76px">
-           <path d="M 32,80 C 28,75 22,65 30,60 C 33,58 37,63 34,68 L 32,80 Z" fill="${bodyColor}"/>
-           <circle cx="30" cy="60" r="4.5" fill="${bodyColor}" stroke="${shadowColor}" stroke-width="1"/>
-         </g>`
-      : `<ellipse cx="40" cy="86" rx="5" ry="4" fill="${bodyColor}" stroke="${shadowColor}" stroke-width="1.5"/>`;
+      ? '<g style="animation: pawWave 0.8s ease-in-out infinite; transform-origin: 32px 76px">' +
+           '<path d="M 32,80 C 28,75 22,65 30,60 C 33,58 37,63 34,68 L 32,80 Z" fill="' + bodyColor + '"/>' +
+           '<circle cx="30" cy="60" r="4.5" fill="' + bodyColor + '" stroke="' + shadowColor + '" stroke-width="1"/>' +
+         '</g>'
+      : '<ellipse cx="40" cy="86" rx="5" ry="4" fill="' + bodyColor + '" stroke="' + shadowColor + '" stroke-width="1.5"/>';
 
-    const rightPaw = `<ellipse cx="60" cy="86" rx="5" ry="4" fill="${bodyColor}" stroke="${shadowColor}" stroke-width="1.5"/>`;
+    const rightPaw = '<ellipse cx="60" cy="86" rx="5" ry="4" fill="' + bodyColor + '" stroke="' + shadowColor + '" stroke-width="1.5"/>';
 
-    bodyAndPaws = `
-      <g>
-        <ellipse cx="50" cy="78" rx="19" ry="14" fill="${bodyColor}"/>
-        <path d="M 34,70 C 40,78 60,78 66,70" fill="none" stroke="${shadowColor}" stroke-width="4" stroke-linecap="round"/>
-        ${pawWave}
-        ${rightPaw}
-      </g>
-    `;
+    bodyAndPaws = '<g>' +
+      '<ellipse cx="50" cy="78" rx="19" ry="14" fill="' + bodyColor + '"/>' +
+      '<path d="M 34,70 C 40,78 60,78 66,70" fill="none" stroke="' + shadowColor + '" stroke-width="4" stroke-linecap="round"/>' +
+      pawWave +
+      rightPaw +
+      '</g>';
   }
 
-  // 3. Floppy Fluffy Ears
+  // 3. Floppy Fluffy Ears (longer flowing fur, characteristic of Maltese)
   let earL, earR;
   if (level === 'sad') {
-    earL = `<path d="M 23,28 C 12,32 8,48 12,62 C 14,66 22,66 22,48 C 22,38 23,28 23,28 Z" fill="${bodyColor}"/><path d="M 21,30 C 14,34 11,46 14,56 C 15,59 20,59 20,46 C 20,38 21,30 21,30 Z" fill="${shadowColor}" opacity="0.6"/>`;
-    earR = `<path d="M 77,28 C 88,32 92,48 88,62 C 86,66 78,66 78,48 C 78,38 77,28 77,28 Z" fill="${bodyColor}"/><path d="M 79,30 C 86,34 89,46 86,56 C 85,59 80,59 80,46 C 80,38 79,30 79,30 Z" fill="${shadowColor}" opacity="0.6"/>`;
+    earL = '<path d="M 22,25 C 12,30 8,48 12,62 C 14,66 22,66 22,48 C 22,38 22,25 22,25 Z" fill="' + bodyColor + '"/><path d="M 20,28 C 12,32 9,46 12,56 C 13,59 19,59 19,46 C 19,38 20,28 20,28 Z" fill="' + shadowColor + '" opacity="0.6"/>';
+    earR = '<path d="M 78,25 C 88,32 92,48 88,62 C 86,66 78,66 78,48 C 78,38 78,25 78,25 Z" fill="' + bodyColor + '"/><path d="M 80,28 C 88,32 91,46 88,56 C 87,59 81,59 81,46 C 81,38 80,28 80,28 Z" fill="' + shadowColor + '" opacity="0.6"/>';
   } else if (level === 'wilting') {
-    earL = `<path d="M 23,28 C 10,32 6,46 10,58 C 12,62 20,60 20,46 C 20,36 23,28 23,28 Z" fill="${bodyColor}"/>`;
-    earR = `<path d="M 77,28 C 90,32 94,46 90,58 C 88,62 80,60 80,46 C 80,36 77,28 77,28 Z" fill="${bodyColor}"/>`;
+    earL = '<path d="M 22,25 C 10,30 6,46 10,58 C 12,62 20,60 20,46 C 20,36 22,25 22,25 Z" fill="' + bodyColor + '"/>';
+    earR = '<path d="M 78,25 C 90,30 94,46 90,58 C 88,62 80,60 80,46 C 80,36 78,25 78,25 Z" fill="' + bodyColor + '"/>';
   } else {
-    const animL = (level === 'thriving' || level === 'happy') ? 'style="animation: earWiggleL 2s ease-in-out infinite; transform-origin: 23px 28px"' : '';
-    const animR = (level === 'thriving' || level === 'happy') ? 'style="animation: earWiggleR 2s ease-in-out infinite; transform-origin: 77px 28px"' : '';
-    earL = `
-      <g ${animL}>
-        <path d="M 24,28 C 16,28 12,42 16,55 C 18,60 26,60 26,45 C 26,35 24,28 24,28 Z" fill="${bodyColor}"/>
-        <path d="M 22,30 C 16,30 13,40 16,49 C 17,52 22,52 22,41 C 22,34 22,30 22,30 Z" fill="${shadowColor}" opacity="0.6"/>
-      </g>
-    `;
-    earR = `
-      <g ${animR}>
-        <path d="M 76,28 C 84,28 88,42 84,55 C 82,60 74,60 74,45 C 74,35 76,28 76,28 Z" fill="${bodyColor}"/>
-        <path d="M 78,30 C 84,30 87,40 84,49 C 83,52 78,52 78,41 C 78,34 78,30 78,30 Z" fill="${shadowColor}" opacity="0.6"/>
-      </g>
-    `;
+    const animL = (level === 'thriving' || level === 'happy') ? 'style="animation: earWiggleL 2s ease-in-out infinite; transform-origin: 22px 25px"' : '';
+    const animR = (level === 'thriving' || level === 'happy') ? 'style="animation: earWiggleR 2s ease-in-out infinite; transform-origin: 78px 25px"' : '';
+    earL = '<g ' + animL + '>' +
+      '<path d="M 22,25 C 16,28 12,42 14,56 C 16,63 24,63 24,46 C 24,35 22,25 22,25 Z" fill="' + bodyColor + '"/>' +
+      '<path d="M 20,28 C 16,30 13,40 15,50 C 16,53 22,53 22,42 C 22,34 20,28 20,28 Z" fill="' + shadowColor + '" opacity="0.6"/>' +
+      '</g>';
+    earR = '<g ' + animR + '>' +
+      '<path d="M 78,25 C 84,28 88,42 86,56 C 84,63 76,63 76,46 C 76,35 78,25 78,25 Z" fill="' + bodyColor + '"/>' +
+      '<path d="M 80,28 C 84,30 87,40 85,50 C 84,53 78,53 78,42 C 78,34 80,28 80,28 Z" fill="' + shadowColor + '" opacity="0.6"/>' +
+      '</g>';
   }
 
   // 4. Dark Maltese Button Eyes
   let eyes = '';
   if (level === 'thriving') {
-    eyes = `
-      <g>
-        <path d="M34,40 L35.5,43.5 L39,44 L36.5,46.5 L37,50 L34,48 L31,50 L31.5,46.5 L29,44 L32.5,43.5 Z" fill="#F1C40F"/>
-        <path d="M66,40 L67.5,43.5 L71,44 L68.5,46.5 L69,50 L66,48 L63,50 L63.5,46.5 L61,44 L64.5,43.5 Z" fill="#F1C40F"/>
-      </g>
-    `;
+    eyes = '<g>' +
+      '<path d="M34,40 L35.5,43.5 L39,44 L36.5,46.5 L37,50 L34,48 L31,50 L31.5,46.5 L29,44 L32.5,43.5 Z" fill="#F1C40F"/>' +
+      '<path d="M66,40 L67.5,43.5 L71,44 L68.5,46.5 L69,50 L66,48 L63,50 L63.5,46.5 L61,44 L64.5,43.5 Z" fill="#F1C40F"/>' +
+      '</g>';
   } else if (level === 'happy') {
-    eyes = `
-      <g>
-        <path d="M 28,46 C 30,42 36,42 38,46" fill="none" stroke="#20140D" stroke-width="3" stroke-linecap="round"/>
-        <path d="M 62,46 C 64,42 70,42 72,46" fill="none" stroke="#20140D" stroke-width="3" stroke-linecap="round"/>
-      </g>
-    `;
+    eyes = '<g>' +
+      '<path d="M 28,44 C 30,40 36,40 38,44" fill="none" stroke="#20140D" stroke-width="3" stroke-linecap="round"/>' +
+      '<path d="M 62,44 C 64,40 70,40 72,44" fill="none" stroke="#20140D" stroke-width="3" stroke-linecap="round"/>' +
+      '</g>';
   } else if (level === 'sad') {
-    eyes = `
-      <g>
-        <path d="M 29,46 C 31,49 37,49 39,46" fill="none" stroke="#20140D" stroke-width="3" stroke-linecap="round"/>
-        <path d="M 61,46 C 63,49 69,49 71,46" fill="none" stroke="#20140D" stroke-width="3" stroke-linecap="round"/>
-        <g style="animation: tearDrip 1.8s infinite; transform-origin: 27px 48px">
-          <path d="M 27,48 Q 25,56 28,58 C 31,60 32,56 30,52 Z" fill="#3498DB" opacity="0.8"/>
-        </g>
-      </g>
-    `;
+    eyes = '<g>' +
+      '<path d="M 29,44 C 31,47 37,47 39,44" fill="none" stroke="#20140D" stroke-width="3" stroke-linecap="round"/>' +
+      '<path d="M 61,44 C 63,47 69,47 71,44" fill="none" stroke="#20140D" stroke-width="3" stroke-linecap="round"/>' +
+      '<g style="animation: tearDrip 1.8s infinite; transform-origin: 27px 46px">' +
+        '<path d="M 27,46 Q 25,54 28,56 C 31,58 32,54 30,50 Z" fill="#3498DB" opacity="0.8"/>' +
+      '</g>' +
+      '</g>';
   } else if (level === 'wilting') {
-    eyes = `
-      <g>
-        <path d="M 29,48 Q 34,51 39,48" fill="none" stroke="#20140D" stroke-width="2.5" stroke-linecap="round"/>
-        <path d="M 61,48 Q 66,51 71,48" fill="none" stroke="#20140D" stroke-width="2.5" stroke-linecap="round"/>
-      </g>
-    `;
+    eyes = '<g>' +
+      '<path d="M 29,46 Q 34,49 39,46" fill="none" stroke="#20140D" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<path d="M 61,46 Q 66,49 71,46" fill="none" stroke="#20140D" stroke-width="2.5" stroke-linecap="round"/>' +
+      '</g>';
   } else {
     // Beautiful blinking shiny black eyes
-    eyes = `
-      <g style="animation: eyeBlink 4s infinite; transform-origin: 50px 45px">
-        <circle cx="34" cy="45" r="5" fill="#20140D"/>
-        <circle cx="35.5" cy="43.5" r="1.8" fill="white"/>
-        <circle cx="32.5" cy="46.5" r="0.9" fill="white"/>
-        <circle cx="66" cy="45" r="5" fill="#20140D"/>
-        <circle cx="67.5" cy="43.5" r="1.8" fill="white"/>
-        <circle cx="64.5" cy="46.5" r="0.9" fill="white"/>
-      </g>
-    `;
+    eyes = '<g style="animation: eyeBlink 4s infinite; transform-origin: 50px 43px">' +
+      '<circle cx="34" cy="43" r="5" fill="#20140D"/>' +
+      '<circle cx="35.5" cy="41.5" r="1.8" fill="white"/>' +
+      '<circle cx="32.5" cy="44.5" r="0.9" fill="white"/>' +
+      '<circle cx="66" cy="43" r="5" fill="#20140D"/>' +
+      '<circle cx="67.5" cy="41.5" r="1.8" fill="white"/>' +
+      '<circle cx="64.5" cy="44.5" r="0.9" fill="white"/>' +
+      '</g>';
   }
 
   // 5. Button Nose (twitches in neutral/sniffing mode)
   let nose = '';
   if (level === 'neutral') {
-    nose = `
-      <g style="animation: noseTwitch 0.4s ease-in-out infinite; transform-origin: 50px 49px">
-        <rect x="47" y="48" width="6" height="4" rx="2" fill="#1C1917"/>
-        <circle cx="48.5" cy="49.2" r="0.8" fill="white" opacity="0.6"/>
-      </g>
-    `;
+    nose = '<g style="animation: noseTwitch 0.4s ease-in-out infinite; transform-origin: 50px 50px">' +
+      '<rect x="47" y="49" width="6" height="4" rx="2" fill="#1C1917"/>' +
+      '<circle cx="48.5" cy="50.2" r="0.8" fill="white" opacity="0.6"/>' +
+      '</g>';
   } else {
-    nose = `
-      <g>
-        <rect x="47" y="48" width="6" height="4" rx="2" fill="#1C1917"/>
-        <circle cx="48.5" cy="49.2" r="0.8" fill="white" opacity="0.6"/>
-      </g>
-    `;
+    nose = '<g>' +
+      '<rect x="47" y="49" width="6" height="4" rx="2" fill="#1C1917"/>' +
+      '<circle cx="48.5" cy="50.2" r="0.8" fill="white" opacity="0.6"/>' +
+      '</g>';
   }
 
-  // 6. Mouth (with cute pink tongue for happy states)
+  // 6. Mouth (with cute pink tongue for happy states, peeking under fluffy beard muzzle)
   let mouth = '';
   if (level === 'thriving' || level === 'happy') {
-    mouth = `
-      <g>
-        <path d="M 44,53 C 44,53 44,61 50,61 C 56,61 56,53 56,53 Z" fill="#EF4444"/>
-        <path d="M 46,57 C 46,57 48,61 50,61 C 52,61 54,57 54,57 Z" fill="#FFB2B2"/>
-        <path d="M 44,53 Q 47,55 50,53 Q 53,55 56,53" fill="none" stroke="#20140D" stroke-width="2" stroke-linecap="round"/>
-      </g>
-    `;
+    mouth = '<g>' +
+      '<path d="M 46,55 C 46,55 46,61 50,61 Z" fill="#EF4444"/>' +
+      '<path d="M 48,58 C 48,58 49,61 50,61 Z" fill="#FFB2B2"/>' +
+      '<path d="M 44,55 Q 47,57 50,55 Q 53,57 56,55" fill="none" stroke="#20140D" stroke-width="2" stroke-linecap="round"/>' +
+      '</g>';
   } else if (level === 'sad') {
-    mouth = `<path d="M 46,56 Q 50,52 54,56" fill="none" stroke="#20140D" stroke-width="2" stroke-linecap="round"/>`;
+    mouth = '<path d="M 46,57 Q 50,54 54,57" fill="none" stroke="#20140D" stroke-width="2" stroke-linecap="round"/>';
   } else if (level === 'wilting') {
-    mouth = `<path d="M 46,58 Q 50,60 54,58" fill="none" stroke="#20140D" stroke-width="1.8" stroke-linecap="round"/>`;
+    mouth = '<path d="M 46,57 Q 50,59 54,57" fill="none" stroke="#20140D" stroke-width="1.8" stroke-linecap="round"/>';
   } else {
-    // Maltese tiny W mouth
-    mouth = `<path d="M 45,54 Q 47.5,56.5 50,54 Q 52.5,56.5 55,54" fill="none" stroke="#20140D" stroke-width="2" stroke-linecap="round"/>`;
+    mouth = '<path d="M 45,55 Q 47.5,57.5 50,55 Q 52.5,57.5 55,55" fill="none" stroke="#20140D" stroke-width="2" stroke-linecap="round"/>';
   }
 
   // 7. Blush
   const blush = (level === 'thriving' || level === 'happy' || level === 'neutral')
-    ? `<g>
-         <ellipse cx="25" cy="53" rx="5" ry="3" fill="#FF8E95" opacity="0.55"/>
-         <ellipse cx="75" cy="53" rx="5" ry="3" fill="#FF8E95" opacity="0.55"/>
-       </g>`
+    ? '<g>' +
+         '<ellipse cx="25" cy="53" rx="5" ry="3" fill="#FF8E95" opacity="0.55"/>' +
+         '<ellipse cx="75" cy="53" rx="5" ry="3" fill="#FF8E95" opacity="0.55"/>' +
+       '</g>'
     : '';
 
   // 8. Collar & Gold Bell (Maltese looks super cute with a bell)
-  const collar = `
-    <g>
-      <path d="M 34,66 C 40,70 60,70 66,66" fill="none" stroke="#EF4444" stroke-width="4" stroke-linecap="round"/>
-      <!-- Gold Bell -->
-      <circle cx="50" cy="71" r="4.5" fill="#FFD700"/>
-      <circle cx="50" cy="71.5" r="1.5" fill="#B7950B"/>
-      <line x1="50" y1="73" x2="50" y2="75.5" stroke="#B7950B" stroke-width="1"/>
-    </g>
-  `;
+  const collar = '<g>' +
+      '<path d="M 34,66 C 40,70 60,70 66,66" fill="none" stroke="#EF4444" stroke-width="4" stroke-linecap="round"/>' +
+      '<circle cx="50" cy="71" r="4.5" fill="#FFD700"/>' +
+      '<circle cx="50" cy="71.5" r="1.5" fill="#B7950B"/>' +
+      '<line x1="50" y1="73" x2="50" y2="75.5" stroke="#B7950B" stroke-width="1"/>' +
+    '</g>';
 
   // 9. Floating Particles (Sparkles for thriving / Zzz for wilting / Sniff Air for neutral)
   let particles = '';
   if (level === 'thriving') {
-    particles = `
-      <g>
-        <g style="animation: floatSparkle 1.8s infinite; transform-origin: 20px 20px">
-          <path d="M20,12 L21,15 L24,16 L21,17 L20,20 L19,17 L16,17 L19,16 L20,12 Z" fill="#F1C40F"/>
-        </g>
-        <g style="animation: floatSparkle 2.2s infinite 0.5s; transform-origin: 80px 25px">
-          <path d="M80,18 L81,20 L83,21 L81,22 L80,24 L79,22 L77,21 L79,20 L80,18 Z" fill="#F1C40F"/>
-        </g>
-      </g>
-    `;
+    particles = '<g>' +
+        '<g style="animation: floatSparkle 1.8s infinite; transform-origin: 20px 20px">' +
+          '<path d="M20,12 L21,15 L24,16 L21,17 L20,20 L19,17 L16,17 L19,16 L20,12 Z" fill="#F1C40F"/>' +
+        '</g>' +
+        '<g style="animation: floatSparkle 2.2s infinite 0.5s; transform-origin: 80px 25px">' +
+          '<path d="M80,18 L81,20 L83,21 L81,22 L80,24 L79,22 L77,21 L79,20 L80,18 Z" fill="#F1C40F"/>' +
+        '</g>' +
+      '</g>';
   } else if (level === 'wilting') {
-    particles = `
-      <g>
-        <text x="74" y="32" class="zzz-text zzz-1">z</text>
-        <text x="80" y="24" class="zzz-text zzz-2">Z</text>
-        <text x="86" y="16" class="zzz-text zzz-3">Z</text>
-      </g>
-    `;
+    particles = '<g>' +
+        '<text x="74" y="32" class="zzz-text zzz-1">z</text>' +
+        '<text x="80" y="24" class="zzz-text zzz-2">Z</text>' +
+        '<text x="86" y="16" class="zzz-text zzz-3">Z</text>' +
+      '</g>';
   } else if (level === 'neutral') {
-    particles = `
-      <g>
-        <path d="M 44,51 Q 41,48 44,45" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" class="ripple-l"/>
-        <path d="M 56,51 Q 59,48 56,45" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" class="ripple-r"/>
-      </g>
-    `;
+    particles = '<g>' +
+        '<path d="M 44,51 Q 41,48 44,45" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" class="ripple-l"/>' +
+        '<path d="M 56,51 Q 59,48 56,45" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" class="ripple-r"/>' +
+      '</g>';
   }
 
   // 10. Head Animation
@@ -1646,6 +1609,26 @@ function corgiSvg(level) {
 
   // Glow effect for thriving
   const svgGlow = level === 'thriving' ? 'style="animation: auraGlow 2s ease-in-out infinite"' : '';
+
+  // Red Hair Bow on top (The core Maltese visual identifier)
+  const hairBow = '<g class="hair-bow">' +
+      '<!-- Left loop -->' +
+      '<path d="M 50,20 C 43,14 41,26 50,20 Z" fill="#EF4444"/>' +
+      '<!-- Right loop -->' +
+      '<path d="M 50,20 C 57,14 59,26 50,20 Z" fill="#EF4444"/>' +
+      '<!-- Knot -->' +
+      '<circle cx="50" cy="20" r="2.5" fill="#EF4444"/>' +
+      '<!-- Ribbon tails -->' +
+      '<path d="M 49,21 L 45,26" stroke="#EF4444" stroke-width="2" stroke-linecap="round"/>' +
+      '<path d="M 51,21 L 55,26" stroke="#EF4444" stroke-width="2" stroke-linecap="round"/>' +
+    '</g>';
+
+  // Silky hair parting lines on head
+  const hairParting = '<g opacity="0.45">' +
+      '<path d="M 50,22 Q 50,29 50,29" fill="none" stroke="' + shadowColor + '" stroke-width="1.5" stroke-linecap="round"/>' +
+      '<path d="M 45,23 Q 48,27 48,27" fill="none" stroke="' + shadowColor + '" stroke-width="1.2" stroke-linecap="round"/>' +
+      '<path d="M 55,23 Q 52,27 52,27" fill="none" stroke="' + shadowColor + '" stroke-width="1.2" stroke-linecap="round"/>' +
+    '</g>';
 
   return `<svg width="88" height="96" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" ${svgGlow}>
     <style>
@@ -1709,9 +1692,29 @@ function corgiSvg(level) {
         ${earL}
         ${earR}
         <!-- Head base (fluffy cloud Maltese contours) -->
-        <path d="M 30,22 C 24,20 18,26 18,34 C 14,40 14,50 18,56 C 20,62 26,65 32,66 C 40,69 60,69 68,66 C 74,65 80,62 82,56 C 86,50 86,40 82,34 C 82,26 76,20 70,22 C 60,18 40,18 30,22 Z" fill="${bodyColor}"/>
-        <!-- White mask / muzzle -->
-        <ellipse cx="50" cy="53" rx="14" ry="9" fill="${bodyColor}" stroke="${shadowColor}" stroke-width="1.5"/>
+        <path d="M 32,20 C 26,18 20,24 20,32 C 16,38 14,48 18,56 C 22,64 30,68 40,69 C 50,70 60,68 68,56 C 72,48 70,38 66,32 C 66,24 60,18 54,20 C 46,18 38,18 32,20 Z" fill="${bodyColor}"/>
+        ${hairParting}
+        <!-- Fluffy double muzzle beard -->
+        <ellipse cx="43.5" cy="54" rx="8" ry="7" fill="${bodyColor}"/>
+        <ellipse cx="56.5" cy="54" rx="8" ry="7" fill="${bodyColor}"/>
+        <path d="M 43.5,54 C 43.5,57 47.5,60 50,57 C 52.5,60 56.5,57 56.5,54" fill="none" stroke="${shadowColor}" stroke-width="1.5"/>
+        <!-- Eyes -->
+        ${eyes}
+        <!-- Blush -->
+        ${blush}
+        <!-- Nose -->
+        ${nose}
+        <!-- Mouth -->
+        ${mouth}
+        <!-- Collar & Tag -->
+        ${collar}
+        <!-- Hair Bow on top -->
+        ${hairBow}
+      </g>
+    </g>
+  </svg>`;
+}
+
         <!-- Whiskers spots -->
         <circle cx="42" cy="53" r="0.6" fill="#A8A29E"/>
         <circle cx="44" cy="55" r="0.6" fill="#A8A29E"/>
