@@ -1,4 +1,4 @@
-const CACHE = 'noura-v3';
+const CACHE = 'noura-v4';
 const ASSETS = ['./', './index.html', './output.css', './config.js', './manifest.json', './Noura.png'];
 
 self.addEventListener('install', e => {

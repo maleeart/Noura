@@ -1407,6 +1407,7 @@ function petState() {
 }
 
 // Maltese SVG — all face elements centered at x=50
+// Maltese SVG — all face elements centered at x=50
 // Redesigned super cute Maltese puppy mascot SVG generator with emotional state poses and standalone CSS animations
 function corgiSvg(level) {
   const bodyColor = '#FFFFFF';
@@ -1601,6 +1602,18 @@ function corgiSvg(level) {
     headAnim = 'style="animation: sniffHead 2s ease-in-out infinite; transform-origin: 50px 75px"';
   }
 
+  // 10.5. Body & Paws Animation (so the puppy doesn't just sit statically!)
+  let bodyAnim = '';
+  if (level === 'wilting') {
+    bodyAnim = 'style="animation: sleepBreath 3s ease-in-out infinite; transform-origin: 50px 83px"';
+  } else if (level === 'thriving' || level === 'happy') {
+    bodyAnim = 'style="animation: bodyBounce 1.5s ease-in-out infinite; transform-origin: 50px 86px"';
+  } else if (level === 'sad') {
+    bodyAnim = 'style="animation: bodyTremble 0.15s infinite; transform-origin: 50px 86px"';
+  } else if (level === 'neutral') {
+    bodyAnim = 'style="animation: bodySniff 2s ease-in-out infinite; transform-origin: 50px 86px"';
+  }
+
   // 11. Whole Mascot Animation (Playful roll for thriving)
   let mascotAnim = '';
   if (level === 'thriving') {
@@ -1636,10 +1649,13 @@ function corgiSvg(level) {
       @keyframes earWiggleL { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-5deg); } }
       @keyframes earWiggleR { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(5deg); } }
       @keyframes pawWave { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(25deg) translateY(-2px); } }
-      @keyframes happyBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-      @keyframes sleepBreath { 0%, 100% { transform: scaleY(1) translateY(5px); } 50% { transform: scaleY(0.96) translateY(7px); } }
-      @keyframes sadSigh { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(2.5px); } }
-      @keyframes sniffHead { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(0.6px, -1px); } }
+      @keyframes happyBounce { 0%, 100% { transform: translateY(0) scaleY(1); } 50% { transform: translateY(-7px) scaleY(1.05); } }
+      @keyframes bodyBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+      @keyframes sleepBreath { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03, 0.97) translateY(0.5px); } }
+      @keyframes sadSigh { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(4px) rotate(2deg); } }
+      @keyframes bodyTremble { 0%, 100% { transform: translate(0, 0); } 20%, 60% { transform: translate(-0.4px, 0.2px); } 40%, 80% { transform: translate(0.4px, -0.2px); } }
+      @keyframes sniffHead { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 25% { transform: translate(-1.5px, 1px) rotate(-2deg); } 50% { transform: translate(0, -2px) rotate(0deg); } 75% { transform: translate(1.5px, 1px) rotate(2deg); } }
+      @keyframes bodySniff { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02, 0.98) translateY(0.3px); } }
       @keyframes noseTwitch { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.2px); } }
       @keyframes eyeBlink { 0%, 90%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
       @keyframes tearDrip { 0% { transform: scale(0.6) translateY(0); opacity: 0; } 30% { opacity: 0.8; } 80% { transform: scale(1) translateY(8px); opacity: 0; } 100% { transform: scale(0.6) translateY(0); opacity: 0; } }
@@ -1648,11 +1664,11 @@ function corgiSvg(level) {
       @keyframes shadowScale { 0%, 100% { transform: scale(1); opacity: 0.25; } 50% { transform: scale(0.85); opacity: 0.15; } }
       @keyframes shadowSleep { 0%, 100% { transform: scale(1.02); opacity: 0.22; } 50% { transform: scale(0.97); opacity: 0.28; } }
       @keyframes playfulRoll {
-        0% { transform: rotate(0deg) translateY(0); }
-        15% { transform: rotate(12deg) translateY(-2px); }
-        45% { transform: rotate(-360deg) translateY(-8px); }
-        65% { transform: rotate(-372deg) translateY(-1px); }
-        100% { transform: rotate(-360deg) translateY(0); }
+        0% { transform: scale(1) rotate(0deg) translateY(0); }
+        15% { transform: scale(1.1, 0.9) rotate(8deg) translateY(1px); }
+        40% { transform: scale(0.9, 1.1) rotate(-180deg) translateY(-14px); }
+        60% { transform: scale(1) rotate(-360deg) translateY(0); }
+        100% { transform: scale(1) rotate(-360deg) translateY(0); }
       }
       
       .zzz-text { font-family: sans-serif; font-weight: bold; fill: #94a3b8; font-size: 8px; opacity: 0; }
@@ -1685,14 +1701,16 @@ function corgiSvg(level) {
       <!-- Tail (behind body) -->
       ${tail}
       <!-- Body & Paws -->
-      ${bodyAndPaws}
+      <g ${bodyAnim}>
+        ${bodyAndPaws}
+      </g>
       <!-- Head Group -->
       <g ${headAnim}>
         <!-- Ears -->
         ${earL}
         ${earR}
         <!-- Head base (fluffy cloud Maltese contours) -->
-        <path d="M 32,20 C 26,18 20,24 20,32 C 16,38 14,48 18,56 C 22,64 30,68 40,69 C 50,70 60,68 68,56 C 72,48 70,38 66,32 C 66,24 60,18 54,20 C 46,18 38,18 32,20 Z" fill="${bodyColor}"/>
+        <path d="M 32,22 C 20,22 16,34 16,52 C 16,62 26,67 36,68 C 45,69 55,69 64,68 C 74,67 84,62 84,52 C 84,34 80,22 68,22 C 60,18 40,18 32,22 Z" fill="${bodyColor}"/>
         ${hairParting}
         <!-- Fluffy double muzzle beard -->
         <ellipse cx="43.5" cy="54" rx="8" ry="7" fill="${bodyColor}"/>
