@@ -38,7 +38,7 @@ module.exports = async (req, res) => {
           },
           {
             role: 'user',
-            content: `What are the calories and protein for 1 standard serving of: ${menu}\n\nReturn JSON only: {"calories":number,"protein":number,"serving":"description of serving size assumed"}`
+            content: `เมนู: "${menu}"\n\nก่อนตอบ ให้เลือกหน่วยบริโภคทั่วไปที่คนไทยใช้เรียกเมนูนี้ (เช่น ชิ้น, จาน, ถ้วย, ทัพพี, ฟอง, แก้ว) ให้เหมาะกับชนิดอาหารนั้นๆ แล้วตอบคำถามนี้: "${menu} 1 (หน่วย) มีพลังงานกี่แคลอรี่ และมีโปรตีนกี่กรัม"\n\nReturn JSON only: {"calories":number,"protein":number,"serving":"1 หน่วยที่เลือก เช่น 1 ชิ้น"}`
           }
         ]
       })

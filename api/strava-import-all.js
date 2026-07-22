@@ -13,12 +13,12 @@ function toDateOnly(iso) {
   return new Date(iso).toISOString().slice(0, 10);
 }
 
-function estimateCalories(a) {
+function estimateCalories(a, userWeightKg) {
   if (typeof a.calories === 'number' && a.calories > 0) return Math.round(a.calories);
   const mets = { Run: 9.8, Ride: 7.5, Walk: 3.5, Hike: 6, Workout: 5, WeightTraining: 4.5, VirtualRun: 9.8, VirtualRide: 7.5 };
   const met = mets[a.type] || mets[a.sport_type] || 5;
   const hours = (a.moving_time || a.elapsed_time || 0) / 3600;
-  const weight = Number(env('USER_WEIGHT_KG', '64.6'));
+  const weight = Number(userWeightKg) || Number(env('USER_WEIGHT_KG', '64.6'));
   return Math.max(0, Math.round(met * weight * hours));
 }
 
@@ -58,7 +58,7 @@ async function fetchActivities(accessToken, limit, page = 1) {
   return data;
 }
 
-function normalizeActivity(a) {
+function normalizeActivity(a, userWeightKg) {
   const start = a.start_date_local || a.start_date || new Date().toISOString();
   return {
     id: `strava-${a.id}`,
@@ -70,7 +70,7 @@ function normalizeActivity(a) {
     name: a.name || a.sport_type || a.type || 'Workout',
     durationMin: Math.round((a.moving_time || a.elapsed_time || 0) / 60),
     distanceKm: a.distance ? +(a.distance / 1000).toFixed(2) : 0,
-    calories: estimateCalories(a),
+    calories: estimateCalories(a, userWeightKg),
     raw: {
       moving_time: a.moving_time,
       elapsed_time: a.elapsed_time,
@@ -110,7 +110,7 @@ module.exports = async (req, res) => {
     const { json: current } = await readGithubData(dataPath);
 
     current.workouts = Array.isArray(current.workouts) ? current.workouts : [];
-    const imported = activities.map(normalizeActivity);
+    const imported = activities.map((a) => normalizeActivity(a, current.profile?.weight));
     const byId = new Map(current.workouts.map((w) => [w.id || `${w.source}-${w.sourceId}`, w]));
 
     let added = 0, updated = 0;
