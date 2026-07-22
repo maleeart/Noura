@@ -597,6 +597,7 @@
       <h2 class="text-lg font-black">ผลวิเคราะห์ AI</h2>
       <button onclick="closeServingModal()" class="w-10 h-10 rounded-2xl bg-stone-100 font-black text-xl leading-none">×</button>
     </div>
+    <p id="servingModalMenu" class="text-center font-black text-lg mb-3"></p>
     <!-- serving size hero -->
     <div class="bg-stone-950 rounded-2xl px-4 py-4 mb-4 text-center">
       <p class="text-xs font-black text-stone-400 uppercase tracking-widest mb-1">ขนาดเสิร์ฟที่คำนวณ</p>
@@ -1108,7 +1109,8 @@ function onProfileWeightInput() {
   }
 }
 
-function showServingModal(cal, protein, serving) {
+function showServingModal(menu, cal, protein, serving) {
+  $('#servingModalMenu').textContent = menu || '';
   $('#servingModalCal').textContent = Math.round(cal || 0);
   $('#servingModalProtein').textContent = Math.round(protein || 0);
   $('#servingModalSize').textContent = serving || 'ไม่ระบุ';
@@ -1966,7 +1968,7 @@ async function analyzeFood(ev) {
       if (!r.ok || !j.success) throw new Error(j.error || 'AI วิเคราะห์ไม่สำเร็จ');
       $('#foodCal').value = Math.round(j.calories || 0);
       $('#foodProtein').value = Math.round(j.protein || 0);
-      showServingModal(j.calories, j.protein, j.serving);
+      showServingModal(menu, j.calories, j.protein, j.serving);
     } catch(e) { alert(e.message); }
   });
 }
