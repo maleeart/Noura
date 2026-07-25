@@ -1948,7 +1948,14 @@ function renderFood() {
       ${input('วันที่', 'foodDate', state.selectedDate, 'date', `onchange="state.selectedDate=this.value;render()"`)}
       ${input('เมนู', 'foodMenu', '', 'text', 'placeholder="เช่น ข้าวมันไก่ + โกโก้ไม่หวาน"')}
       <div class="grid grid-cols-2 gap-3"><div>${input('Calories', 'foodCal', '', 'number', 'placeholder="kcal"')}</div><div>${input('Protein', 'foodProtein', '', 'number', 'placeholder="g"')}</div></div>
-      <div class="grid grid-cols-2 gap-2"><button onclick="analyzeFood(event)" class="bg-stone-100 rounded-2xl py-3 font-black">AI วิเคราะห์</button><button onclick="addFood(event)" class="bg-stone-950 text-white rounded-2xl py-3 font-black">บันทึก</button></div>
+      <div class="grid grid-cols-3 gap-2">
+        <button onclick="analyzeFood(event)" class="bg-stone-100 rounded-2xl py-3 font-black text-xs">AI วิเคราะห์</button>
+        <label class="bg-stone-100 rounded-2xl py-3 font-black text-xs flex items-center justify-center cursor-pointer gap-1">
+          📸 วิเคราะห์รูป
+          <input type="file" accept="image/*" class="hidden" onchange="analyzeFoodImage(event)" />
+        </label>
+        <button onclick="addFood(event)" class="bg-stone-950 text-white rounded-2xl py-3 font-black text-xs">บันทึก</button>
+      </div>
       <p class="text-xs text-stone-500 mt-3">ถ้าต้องการใช้ AI ให้ตั้ง OPENROUTER_API_KEY ใน Vercel หรือกรอก kcal/protein เองได้เลย</p>`)}
     ${card(`<div class="flex items-center justify-between mb-2"><h2 class="font-black text-lg">รายการอาหารวันนี้</h2><button onclick="state.selectedDate=todayStr();render()" class="text-xs bg-stone-100 px-3 py-2 rounded-full">วันนี้</button></div>${renderFoodsForDate()}`)}
   `;
@@ -1957,6 +1964,60 @@ function renderFoodsForDate() {
   const items = byDate(state.data.foods, state.selectedDate);
   if (!items.length) return `<p class="text-sm text-stone-400">ยังไม่มีข้อมูล</p>`;
   return items.map(x => `<div class="flex gap-3 py-3 border-b border-stone-100"><div class="icon-bubble bg-stone-100">${foodEmoji(x.menu)}</div><div class="flex-1"><b>${x.menu}</b><div class="text-xs text-stone-500">${fmt(x.calories)} kcal • ${fmt1(x.protein)}g protein</div></div><button onclick="deleteItem('foods','${x.id}')" class="text-red-500 text-sm">ลบ</button></div>`).join('');
+}
+function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+  });
+}
+async function analyzeFoodImage(ev) {
+  const file = ev.target.files[0];
+  if (!file) return;
+  const btn = ev.target.closest('label');
+  await withBtnLoading(btn, 'กำลังอ่านรูป...', async () => {
+    try {
+      const base64 = await toBase64(file);
+      const r = await authFetch(apiUrl('/api/ai-food'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: base64 })
+      });
+      const j = await r.json();
+      if (!r.ok || !j.success) throw new Error(j.error || 'AI วิเคราะห์ไม่สำเร็จ');
+      $('#foodMenu').value = j.menu || '';
+      $('#foodCal').value = Math.round(j.calories || 0);
+      $('#foodProtein').value = Math.round(j.protein || 0);
+      showServingModal(j.menu || '', j.calories, j.protein, j.serving || '');
+    } catch(e) { alert(e.message); }
+    finally { ev.target.value = ''; }
+  });
+}
+async function analyzeWorkoutScreenshot(ev) {
+  const file = ev.target.files[0];
+  if (!file) return;
+  const btn = ev.target.closest('label');
+  await withBtnLoading(btn, 'กำลังอ่านรูปแคป...', async () => {
+    try {
+      const base64 = await toBase64(file);
+      const r = await authFetch(apiUrl('/api/ai-workout'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: base64 })
+      });
+      const j = await r.json();
+      if (!r.ok || !j.success) throw new Error(j.error || 'AI อ่านรูปไม่สำเร็จ');
+      if (j.type) selectWorkType(j.type);
+      $('#workName').value = j.name || '';
+      $('#workMin').value = Math.round(j.durationMin || 0);
+      $('#workKm').value = j.distanceKm || 0;
+      $('#workCal').value = Math.round(j.calories || 0);
+      alert(`อ่านสำเร็จ: ${j.name || j.type} (${Math.round(j.durationMin || 0)} นาที, ${j.distanceKm || 0} km, ${Math.round(j.calories || 0)} kcal)`);
+    } catch(e) { alert(e.message); }
+    finally { ev.target.value = ''; }
+  });
 }
 async function analyzeFood(ev) {
   const menu = $('#foodMenu').value.trim(); if (!menu) return alert('ใส่ชื่อเมนูก่อน');
@@ -1996,7 +2057,14 @@ function renderWorkout() {
       </div>
       ${input('ชื่อกิจกรรม', 'workName', '', 'text', 'placeholder="เช่น Zone 2 treadmill"')}
       <div class="grid grid-cols-3 gap-2"><div>${input('นาที', 'workMin', '', 'number')}</div><div>${input('ระยะ km', 'workKm', '', 'number', 'step="0.01"')}</div><div>${input('kcal', 'workCal', '', 'number')}</div></div>
-      <div class="grid grid-cols-2 gap-2"><button onclick="estimateWorkoutCal()" class="bg-stone-100 rounded-2xl py-3 font-black">คำนวณ kcal</button><button onclick="addWorkout(event)" class="bg-stone-950 text-white rounded-2xl py-3 font-black">บันทึก</button></div>`)}
+      <div class="grid grid-cols-3 gap-2">
+        <button type="button" onclick="estimateWorkoutCal()" class="bg-stone-100 rounded-2xl py-3 font-black text-xs">คำนวณ kcal</button>
+        <label class="bg-stone-100 rounded-2xl py-3 font-black text-xs flex items-center justify-center cursor-pointer gap-1">
+          📸 อ่านรูปแคป
+          <input type="file" accept="image/*" class="hidden" onchange="analyzeWorkoutScreenshot(event)" />
+        </label>
+        <button type="button" onclick="addWorkout(event)" class="bg-stone-950 text-white rounded-2xl py-3 font-black text-xs">บันทึก</button>
+      </div>`)}
     ${card(`<h2 class="font-black mb-2 text-lg">Workout วันที่เลือก</h2>${renderWorkoutsForDate()}`)}
   `;
 }

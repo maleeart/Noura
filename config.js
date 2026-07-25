@@ -11,6 +11,6 @@ const CONFIG = {
   GOOGLE_CLIENT_ID: '1089396342452-29vamc6a67vsb76l6ufld0e10gfj3p7d.apps.googleusercontent.com',
 
   // ── Owner Email ─────────────────────────────────────────────────
-  // email ของเจ้าของแอพที่จะเห็นปุ่ม Strava (ตรงกับ OWNER_EMAIL ใน Vercel env)
+  // email ของเจ้าของแอพ (ตรงกับ OWNER_EMAIL ใน Vercel env)
   OWNER_EMAIL: 'tuangphetch@gmail.com'
 };
