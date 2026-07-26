@@ -1410,6 +1410,121 @@ function petState() {
 
 // Cute floppy-eared beige puppy (matching dog 1/2 style) with emotional state poses and standalone CSS animations
 function corgiSvg(level) {
+  if (CONFIG.USE_PNG_DOG) {
+    let bodyImg = 'dog-body.png';
+    let headImg = 'dog-head-normal.png';
+    let earLImg = 'dog-ear-l.png';
+    let earRImg = 'dog-ear-r.png';
+    let tailImg = 'dog-tail.png';
+    let showPlant = false;
+    let showCloud = false;
+    let showBubble = false;
+
+    if (level === 'wilting') {
+      bodyImg = 'dog-flat-body.png';
+      headImg = 'dog-flat-head.png';
+      earLImg = 'dog-flat-ear-l.png';
+      earRImg = 'dog-flat-ear-r.png';
+      tailImg = 'dog-flat-tail.png';
+      showPlant = true;
+      showBubble = true;
+    } else if (level === 'sad') {
+      bodyImg = 'dog-sad-body.png';
+      headImg = 'dog-sad-head.png';
+      earLImg = 'dog-sad-ear-l.png';
+      earRImg = 'dog-sad-ear-r.png';
+      tailImg = 'dog-sad-tail.png';
+      showCloud = true;
+      showBubble = true;
+    } else if (level === 'happy') {
+      headImg = 'dog-head-happy.png';
+    } else if (level === 'thriving') {
+      headImg = 'dog-head-thriving.png';
+    }
+
+    const earAnimL = (level === 'thriving' || level === 'happy') ? 'style="animation: earWiggleL 2s ease-in-out infinite; transform-origin: 27px 35px"' : '';
+    const earAnimR = (level === 'thriving' || level === 'happy') ? 'style="animation: earWiggleR 2s ease-in-out infinite; transform-origin: 73px 35px"' : '';
+
+    let headAnim = '';
+    if (level === 'wilting') {
+      headAnim = 'style="transform: translateY(5px); animation: sleepBreath 3s ease-in-out infinite; transform-origin: 44px 72px"';
+    } else if (level === 'thriving' || level === 'happy') {
+      headAnim = 'style="animation: happyBounce 1.5s ease-in-out infinite; transform-origin: 50px 46px"';
+    } else if (level === 'sad') {
+      headAnim = 'style="animation: sadSigh 3s ease-in-out infinite; transform-origin: 50px 46px"';
+    } else if (level === 'neutral') {
+      headAnim = 'style="animation: sniffHead 2s ease-in-out infinite; transform-origin: 50px 46px"';
+    }
+
+    let bodyAnim = '';
+    if (level === 'wilting') {
+      bodyAnim = 'style="animation: sleepBreath 3s ease-in-out infinite; transform-origin: 54px 76px"';
+    } else if (level === 'thriving' || level === 'happy') {
+      bodyAnim = 'style="animation: bodyBounce 1.5s ease-in-out infinite; transform-origin: 50px 74px"';
+    } else if (level === 'sad') {
+      bodyAnim = 'style="animation: bodyTremble 0.15s infinite; transform-origin: 50px 74px"';
+    } else if (level === 'neutral') {
+      bodyAnim = 'style="animation: bodySniff 2s ease-in-out infinite; transform-origin: 50px 74px"';
+    }
+
+    let mascotAnim = '';
+    if (level === 'thriving') {
+      mascotAnim = 'style="animation: playfulRoll 2.6s ease-in-out infinite; transform-origin: 50px 46px"';
+    }
+
+    const style = `
+      <style>
+        .pet-container { position: relative; width: 88px; height: 96px; overflow: visible; }
+        .pet-part { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; }
+        @keyframes tailWag { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(15deg); } }
+        @keyframes earWiggleL { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-6deg); } }
+        @keyframes earWiggleR { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(6deg); } }
+        @keyframes happyBounce { 0%, 100% { transform: translateY(0) scaleY(1); } 50% { transform: translateY(-4px) scaleY(1.02); } }
+        @keyframes bodyBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.5px); } }
+        @keyframes sleepBreath { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02, 0.98) translateY(0.3px); } }
+        @keyframes sadSigh { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(2.5px) rotate(1deg); } }
+        @keyframes bodyTremble { 0%, 100% { transform: translate(0, 0); } 20%, 60% { transform: translate(-0.3px, 0.1px); } 40%, 80% { transform: translate(0.3px, -0.1px); } }
+        @keyframes sniffHead { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 25% { transform: translate(-1px, 0.5px) rotate(-1.5deg); } 50% { transform: translate(0, -1px) rotate(0deg); } 75% { transform: translate(1px, 0.5px) rotate(1.5deg); } }
+        @keyframes bodySniff { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.01, 0.99) translateY(0.2px); } }
+        @keyframes bubbleFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+        @keyframes cloudFloat { 0%, 100% { transform: translateY(0) translateX(0); } 50% { transform: translateY(-1.5px) translateX(1px); } }
+        @keyframes rainDrop { 0% { transform: translateY(-2px); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(12px); opacity: 0; } }
+        @keyframes playfulRoll {
+          0% { transform: scale(1) rotate(0deg) translateY(0); }
+          15% { transform: scale(1.05, 0.95) rotate(5deg) translateY(0.5px); }
+          40% { transform: scale(0.95, 1.05) rotate(-180deg) translateY(-8px); }
+          60% { transform: scale(1) rotate(-360deg) translateY(0); }
+          100% { transform: scale(1) rotate(-360deg) translateY(0); }
+        }
+      </style>
+    `;
+
+    const shadowSvg = level === 'wilting'
+      ? `<svg width="88" height="96" viewBox="0 0 100 100" class="absolute top-0 left-0"><ellipse cx="44" cy="92" rx="32" ry="4" fill="#000000" opacity="0.18" style="animation: shadowSleep 3s ease-in-out infinite; transform-origin: 44px 92px"/></svg>`
+      : `<svg width="88" height="96" viewBox="0 0 100 100" class="absolute top-0 left-0"><ellipse cx="50" cy="92" rx="20" ry="4" fill="#000000" opacity="0.2" style="animation: ${level === 'thriving' || level === 'happy' ? 'shadowScale 1.5s' : 'shadowScale 2.5s'} ease-in-out infinite; transform-origin: 50px 92px"/></svg>`;
+
+    return `
+      <div class="pet-container">
+        ${style}
+        ${shadowSvg}
+        <div ${mascotAnim} class="w-full h-full relative">
+          <img src="./${tailImg}" class="pet-part" style="animation: tailWag ${level === 'thriving' ? '0.4s' : '0.8s'} ease-in-out infinite; transform-origin: 66px 74px" onerror="this.style.opacity=0" />
+          <div ${bodyAnim} class="w-full h-full absolute top-0 left-0">
+            <img src="./${bodyImg}" class="pet-part" onerror="this.style.opacity=0" />
+          </div>
+          <div ${headAnim} class="w-full h-full absolute top-0 left-0">
+            <img src="./${headImg}" class="pet-part" onerror="this.style.opacity=0" />
+            <img src="./${earLImg}" class="pet-part" ${earAnimL} onerror="this.style.opacity=0" />
+            <img src="./${earRImg}" class="pet-part" ${earAnimR} onerror="this.style.opacity=0" />
+          </div>
+        </div>
+        ${showPlant ? `<img src="./prop-plant.png" class="pet-part" onerror="this.style.opacity=0" />` : ''}
+        ${showCloud ? `<div style="animation: cloudFloat 4s ease-in-out infinite" class="w-full h-full absolute top-0 left-0"><img src="./prop-cloud.png" class="pet-part" onerror="this.style.opacity=0" /></div>` : ''}
+        ${showBubble ? `<div style="animation: bubbleFloat 3s ease-in-out infinite" class="w-full h-full absolute top-0 left-0"><img src="./prop-bubble.png" class="pet-part" onerror="this.style.opacity=0" /></div>` : ''}
+      </div>
+    `;
+  }
+
   const bodyColor = '#FCEEDB';
   const earColor = '#926D55';
   const shadowColor = '#E6D3B8';

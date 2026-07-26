@@ -12,5 +12,9 @@ const CONFIG = {
 
   // ── Owner Email ─────────────────────────────────────────────────
   // email ของเจ้าของแอพ (ตรงกับ OWNER_EMAIL ใน Vercel env)
-  OWNER_EMAIL: 'tuangphetch@gmail.com'
+  OWNER_EMAIL: 'tuangphetch@gmail.com',
+
+  // ── PNG Dog Assets Mode ─────────────────────────────────────────
+  // เปิดใช้รูปหมาแบบตัดชิ้นส่วน PNG แทน SVG
+  USE_PNG_DOG: false
 };
