@@ -58,21 +58,48 @@ module.exports = async (req, res) => {
       ];
     }
 
-    const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${key}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': env('APP_URL', 'https://noura.vercel.app'),
-        'X-Title': 'Noura'
-      },
-      body: JSON.stringify({
-        model: env('OPENROUTER_MODEL', 'google/gemini-flash-1.5'),
-        messages
-      })
-    });
-    const j = await r.json();
-    if (!r.ok) throw new Error(j.error?.message || JSON.stringify(j));
+    const models = [
+      env('OPENROUTER_MODEL', 'google/gemini-2.5-flash'),
+      'google/gemini-2.5-flash',
+      'google/gemini-flash-latest',
+      'google/gemini-2.5-pro'
+    ];
+
+    let lastError = null;
+    let j = null;
+    let succeeded = false;
+
+    for (const model of [...new Set(models)]) {
+      try {
+        const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${key}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': env('APP_URL', 'https://noura.vercel.app'),
+            'X-Title': 'Noura'
+          },
+          body: JSON.stringify({
+            model,
+            messages
+          })
+        });
+        const responseData = await r.json();
+        if (!r.ok) {
+          throw new Error(responseData.error?.message || JSON.stringify(responseData));
+        }
+        j = responseData;
+        succeeded = true;
+        break;
+      } catch (err) {
+        lastError = err;
+        console.warn(`Model ${model} failed:`, err.message);
+      }
+    }
+
+    if (!succeeded) {
+      throw new Error(lastError ? lastError.message : 'All models failed to return a response from OpenRouter');
+    }
 
     const text = j.choices?.[0]?.message?.content || '';
     const found = text.match(/\{[\s\S]*\}/);
