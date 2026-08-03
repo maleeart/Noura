@@ -12,19 +12,30 @@ module.exports = async (req, res) => {
 
     requireSession(req);
 
-    const key = env('OPENROUTER_API_KEY');
-    if (!key) return send(res, 400, { success: false, error: 'Missing OPENROUTER_API_KEY in Vercel Environment Variables' });
+    const geminiKey = env('GEMINI_API_KEY') || env('GOOGLE_API_KEY');
+    const openrouterKey = env('OPENROUTER_API_KEY');
+    if (!geminiKey && !openrouterKey) {
+      return send(res, 400, { success: false, error: 'Missing GEMINI_API_KEY or OPENROUTER_API_KEY in Vercel Environment Variables' });
+    }
 
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
     const image = body.image;
     if (!image) return send(res, 400, { success: false, error: 'Missing image' });
 
-    const models = [
+    let baseUrl = 'https://openrouter.ai/api/v1/chat/completions';
+    let authHeader = `Bearer ${openrouterKey}`;
+    let models = [
       env('OPENROUTER_MODEL', 'google/gemini-2.5-flash'),
       'google/gemini-2.5-flash',
       'google/gemini-flash-latest',
-      'google/gemini-2.5-pro'
+      'openrouter/free'
     ];
+
+    if (geminiKey) {
+      baseUrl = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
+      authHeader = `Bearer ${geminiKey}`;
+      models = ['gemini-2.5-flash', 'gemini-2.5-pro'];
+    }
 
     const messages = [
       {
@@ -54,10 +65,10 @@ module.exports = async (req, res) => {
 
     for (const model of [...new Set(models)]) {
       try {
-        const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        const r = await fetch(baseUrl, {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${key}`,
+            Authorization: authHeader,
             'Content-Type': 'application/json',
             'HTTP-Referer': env('APP_URL', 'https://noura.vercel.app'),
             'X-Title': 'Noura'
@@ -76,12 +87,12 @@ module.exports = async (req, res) => {
         break;
       } catch (err) {
         lastError = err;
-        console.warn(`Model ${model} failed:`, err.message);
+        console.warn(`Model ${model} failed on ${baseUrl}:`, err.message);
       }
     }
 
     if (!succeeded) {
-      throw new Error(lastError ? lastError.message : 'All models failed to return a response from OpenRouter');
+      throw new Error(lastError ? lastError.message : 'All models failed to return a response');
     }
 
     const text = j.choices?.[0]?.message?.content || '';
